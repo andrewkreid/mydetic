@@ -4,7 +4,6 @@ Definition of the DataStore interface to the stored memories.
 S3DataStore implementation that stores memories in an S3 bucket.
 """
 
-import boto
 import datetime
 
 
