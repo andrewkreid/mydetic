@@ -26,7 +26,7 @@ class DataStore:
         :type end_date: datetime.date
         :return: a list of datetime.date in ascending date order where memories exist.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_memory(self, user_id, memory_date):
         """
@@ -37,7 +37,7 @@ class DataStore:
         :return: The memory
         :raises MyDeticNoMemoryFound if there isn't a memory on this day
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def has_memory(self, user_id, memory_date):
         """
@@ -48,7 +48,7 @@ class DataStore:
         :type memory_date: datetime.date
         :return: True if a memory exists, false otherwise.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def add_memory(self, user_id, memory_date, memory):
         """
@@ -60,10 +60,10 @@ class DataStore:
         :raises MyDeticMemoryAlreadyExists
         :return:
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def update_memory(self, user_id, memory_date, memory):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def delete_memory(self, user_id, memory_date, memory):
-        raise NotImplemented()
+        raise NotImplementedError()
