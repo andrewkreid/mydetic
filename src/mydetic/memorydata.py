@@ -4,6 +4,7 @@ class MemoryData represents all the data associated with a memory.
 import json
 from exceptions import MyDeticInvalidMemoryString
 
+
 class MemoryData:
 
     def __init__(self, memory_text):

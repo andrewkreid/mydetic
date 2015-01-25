@@ -37,7 +37,7 @@ class MyDeticNoMemoryFound(MyDeticMemoryException):
     there wasn't one.
     """
     def __init__(self, user_id, date, msg=""):
-        MyDeticMemoryException.__init__(self, user_id, date)
+        MyDeticMemoryException.__init__(self, user_id, date, msg)
 
     def __str__(self):
         return "No memory available for %s on %s" % (self._user_id, self._date.isoformat())
@@ -48,7 +48,7 @@ class MyDeticMemoryAlreadyExists(MyDeticMemoryException):
     Exception raised when we expected no memory to exist but one did.
     """
     def __init__(self, user_id, date, msg=""):
-        MyDeticMemoryException.__init__(self, user_id, date)
+        MyDeticMemoryException.__init__(self, user_id, date, msg)
 
     def __str__(self):
         return "A memory already exists for %s on %s" % (self._user_id, self._date.isoformat())

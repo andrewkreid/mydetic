@@ -25,14 +25,14 @@ class S3DataStore(DataStore):
             self.validate_s3_params(s3_config)
         self._s3_config = s3_config
 
-        # TODO: parameterize region.
-        # TODO: Changed from ap-southeast-2' because moto fails - figure this out.
-        #self._connection = boto.s3.connect_to_region('ap-southeast-2')
-        self._connection = boto.connect_s3()
+        if len(self._s3_config['region']) > 0:
+            self._connection = boto.s3.connect_to_region(self._s3_config['region'])
+        else:
+            self._connection = boto.connect_s3()
 
     def create_bucket_if_required(self):
-        #return self._connection.create_bucket(self._s3_config['bucket'], location=Location.APSoutheast2)
-        return self._connection.create_bucket(self._s3_config['bucket'])
+        return self._connection.create_bucket(self._s3_config['bucket'], location=self._s3_config['region'])
+        # return self._connection.create_bucket(self._s3_config['bucket'])
 
     @staticmethod
     def validate_s3_params(s3_config):
@@ -43,7 +43,7 @@ class S3DataStore(DataStore):
         :raises: ValueError
         """
         missing_params = []
-        for required_param in ['region', 'aws_access_key_id', 'aws_secret_access_key', 'bucket']:
+        for required_param in ['region', 'aws_access_key_id', 'aws_secret_access_key', 'bucket', 'region']:
             if required_param not in s3_config:
                 missing_params.append(required_param)
         if len(missing_params) > 0:
