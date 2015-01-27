@@ -56,7 +56,6 @@ def test_generate_key_name():
 @mock_s3
 def test_add_memory():
     s3store = S3DataStore(DEF_CONFIG)
-    assert s3store.create_bucket_if_required() is not None
     s3store.add_memory('foo', date(2013, 11, 12), MemoryData(memory_text='foo'))
 
     try:
@@ -69,7 +68,6 @@ def test_add_memory():
 @mock_s3
 def test_get_memory():
     s3store = S3DataStore(DEF_CONFIG)
-    assert s3store.create_bucket_if_required() is not None
 
     s3store.add_memory('bar', date(2014, 11, 12), MemoryData(memory_text='bar memory'))
     memory = s3store.get_memory('bar', date(2014, 11, 12))

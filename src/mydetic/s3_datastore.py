@@ -7,6 +7,7 @@ from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
 from exceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
+from memorydata import MemoryData
 
 
 class S3DataStore(DataStore):
@@ -30,9 +31,12 @@ class S3DataStore(DataStore):
         else:
             self._connection = boto.connect_s3()
 
+        self._bucket = None
+
     def create_bucket_if_required(self):
-        return self._connection.create_bucket(self._s3_config['bucket'], location=self._s3_config['region'])
-        # return self._connection.create_bucket(self._s3_config['bucket'])
+        if self._bucket is None:
+            self._bucket = self._connection.create_bucket(self._s3_config['bucket'], location=self._s3_config['region'])
+        return self._bucket
 
     @staticmethod
     def validate_s3_params(s3_config):
@@ -63,7 +67,19 @@ class S3DataStore(DataStore):
         return "%s/%s.json" % (user_id_str, memory_date.strftime("%Y%m%d"))
 
     def get_memory(self, user_id, memory_date):
-        return DataStore.get_memory(self, user_id, memory_date)
+        """
+        :param user_id: str the User ID
+        :type user_id: str or unicode
+        :param memory_date:
+        :type memory_date: datetime.date
+        :return: The memory
+        :raises MyDeticNoMemoryFound if there isn't a memory on this day
+        """
+        self.create_bucket_if_required()
+        k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
+        if k is None:
+            raise MyDeticNoMemoryFound(user_id, memory_date)
+        return MemoryData.from_json_str(k.get_contents_as_string())
 
     def has_memory(self, user_id, memory_date):
         """
@@ -74,11 +90,12 @@ class S3DataStore(DataStore):
         :type memory_date: datetime.date
         :return: True if a memory exists, false otherwise.
         """
-        bucket = self._connection.get_bucket(self._s3_config['bucket'])
-        k = bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
+        self.create_bucket_if_required()
+        k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
         return k is not None
 
     def update_memory(self, user_id, memory_date, memory):
+        self.create_bucket_if_required()
         return DataStore.update_memory(self, user_id, memory_date, memory)
 
     def add_memory(self, user_id, memory_date, memory):
@@ -91,10 +108,11 @@ class S3DataStore(DataStore):
         :raises MyDeticMemoryAlreadyExists
         :return:
         """
+        self.create_bucket_if_required()
         if self.has_memory(user_id, memory_date):
             raise MyDeticMemoryAlreadyExists(user_id, memory_date)
 
-        bucket = self._connection.get_bucket(self._s3_config['bucket'])
+        bucket = self._bucket
         k = Key(bucket)
         k.key = self.generate_memory_key_name(user_id, memory_date)
         k.set_contents_from_string(memory.as_json_str())
