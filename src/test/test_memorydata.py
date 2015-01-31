@@ -1,5 +1,5 @@
 from mydetic.memorydata import MemoryData
-from mydetic.exceptions import MyDeticInvalidMemoryString
+from mydetic.mydeticexceptions import MyDeticInvalidMemoryString
 import json
 import pytest
 

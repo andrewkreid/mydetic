@@ -6,7 +6,7 @@ import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from exceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
 from memorydata import MemoryData
 
 
@@ -95,8 +95,19 @@ class S3DataStore(DataStore):
         return k is not None
 
     def update_memory(self, user_id, memory_date, memory):
+        """
+
+        :param user_id:
+        :param memory_date:
+        :param memory:
+        :return: No return value
+        :raises: MyDeticMemoryNotFoundError is memory doesn't already exist
+        """
         self.create_bucket_if_required()
-        return DataStore.update_memory(self, user_id, memory_date, memory)
+        k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
+        if k is None:
+            raise MyDeticNoMemoryFound(user_id, memory_date)
+        k.set_contents_from_string(memory.as_json_str())
 
     def add_memory(self, user_id, memory_date, memory):
         """
@@ -115,6 +126,7 @@ class S3DataStore(DataStore):
         bucket = self._bucket
         k = Key(bucket)
         k.key = self.generate_memory_key_name(user_id, memory_date)
+        print memory.as_json_str()
         k.set_contents_from_string(memory.as_json_str())
 
     def list_memories(self, user_id, start_date=None, end_date=None):
