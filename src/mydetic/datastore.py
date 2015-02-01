@@ -65,5 +65,5 @@ class DataStore:
     def update_memory(self, user_id, memory_date, memory):
         raise NotImplementedError()
 
-    def delete_memory(self, user_id, memory_date, memory):
+    def delete_memory(self, user_id, memory_date):
         raise NotImplementedError()

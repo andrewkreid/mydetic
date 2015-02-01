@@ -94,6 +94,7 @@ def test_update_memory():
     updated_memory = s3store.get_memory(uid, mem_date)
     assert memory.memory_text == updated_memory.memory_text
 
+
 @mock_s3
 def test_list_memories():
     s3store = S3DataStore(DEF_CONFIG)
@@ -110,13 +111,34 @@ def test_list_memories():
     memories = s3store.list_memories(uid)
     assert len(memories) == 3
 
-    # TODO: test contents
+    # test contents are in date order
+    assert memories[0].day == 12
+    assert memories[1].day == 13
+    assert memories[2].day == 14
 
     memories = s3store.list_memories(uid, start_date=date(2014, 11, 13))
     assert len(memories) == 2
 
     memories = s3store.list_memories(uid, start_date=date(2014, 11, 13), end_date=date(2014, 11, 13))
     assert len(memories) == 1
+
+
+@mock_s3
+def test_delete_memory():
+    s3store = S3DataStore(DEF_CONFIG)
+    uid = 'del'
+    mem_date = date(2014, 11, 13)
+
+    with pytest.raises(MyDeticNoMemoryFound):
+        s3store.delete_memory(uid, mem_date)
+
+    s3store.add_memory(uid, mem_date, MemoryData(text='foo'))
+    assert s3store.has_memory(uid, mem_date)
+
+    del_mem = s3store.delete_memory(uid, mem_date)
+    assert not s3store.has_memory(uid, mem_date)
+    assert del_mem.memory_text == 'foo'
+
 
 
 

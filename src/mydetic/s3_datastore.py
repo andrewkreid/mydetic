@@ -7,7 +7,7 @@ import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
 from memorydata import MemoryData
 import re
 
@@ -67,7 +67,6 @@ class S3DataStore(DataStore):
         if type(user_id) is unicode:
             user_id_str = user_id.encode('utf-8')
         return "%s/%s.json" % (user_id_str, memory_date.strftime("%Y%m%d"))
-
 
     @staticmethod
     def date_from_keyname(key_name):
@@ -170,5 +169,14 @@ class S3DataStore(DataStore):
 
         return sorted(retval)
 
-    def delete_memory(self, user_id, memory_date, memory):
-        return DataStore.delete_memory(self, user_id, memory_date, memory)
+    def delete_memory(self, user_id, memory_date):
+        """
+
+        :param user_id:
+        :param memory_date:
+        :return: the deleted memory
+        :raises: MyDeticNoMemoryFound
+        """
+        mem_to_delete = self.get_memory(user_id, memory_date)
+        self._bucket.delete_key(self.generate_memory_key_name(user_id, memory_date))
+        return mem_to_delete
