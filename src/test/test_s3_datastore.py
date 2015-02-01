@@ -94,8 +94,29 @@ def test_update_memory():
     updated_memory = s3store.get_memory(uid, mem_date)
     assert memory.memory_text == updated_memory.memory_text
 
+@mock_s3
+def test_list_memories():
+    s3store = S3DataStore(DEF_CONFIG)
+    uid = 'foo'
 
+    memories = s3store.list_memories(uid)
+    assert len(memories) == 0
 
+    s3store.add_memory(uid, date(2014, 11, 14), MemoryData(text='yet another memory'))
+    s3store.add_memory(uid, date(2014, 11, 12), MemoryData(text='memory'))
+    s3store.add_memory(uid, date(2014, 11, 13), MemoryData(text='another memory'))
+    s3store.add_memory('different uid', date(2014, 11, 13), MemoryData(text='another memory'))
+
+    memories = s3store.list_memories(uid)
+    assert len(memories) == 3
+
+    # TODO: test contents
+
+    memories = s3store.list_memories(uid, start_date=date(2014, 11, 13))
+    assert len(memories) == 2
+
+    memories = s3store.list_memories(uid, start_date=date(2014, 11, 13), end_date=date(2014, 11, 13))
+    assert len(memories) == 1
 
 
 

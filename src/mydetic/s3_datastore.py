@@ -2,12 +2,14 @@
 DataStore implementation that stores data in an S3 Bucket.
 """
 
+import datetime
 import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
 from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
 from memorydata import MemoryData
+import re
 
 
 class S3DataStore(DataStore):
@@ -65,6 +67,21 @@ class S3DataStore(DataStore):
         if type(user_id) is unicode:
             user_id_str = user_id.encode('utf-8')
         return "%s/%s.json" % (user_id_str, memory_date.strftime("%Y%m%d"))
+
+
+    @staticmethod
+    def date_from_keyname(key_name):
+        """
+        Parse out the date from the memory key name
+        :param key_name: string of key name
+        :return: datetime.date
+        :raises: ValueError if key name is wrong format
+        """
+        m = re.match('^.+/(\d+)\.json', key_name)
+        if m:
+            return datetime.datetime.strptime(m.group(1), "%Y%m%d").date()
+        else:
+            raise ValueError("Invalid format for key name [%s]" % key_name)
 
     def get_memory(self, user_id, memory_date):
         """
@@ -126,11 +143,32 @@ class S3DataStore(DataStore):
         bucket = self._bucket
         k = Key(bucket)
         k.key = self.generate_memory_key_name(user_id, memory_date)
-        print memory.as_json_str()
         k.set_contents_from_string(memory.as_json_str())
 
     def list_memories(self, user_id, start_date=None, end_date=None):
-        return DataStore.list_memories(self, user_id, start_date, end_date)
+        """
+        get memories for a user_id, optionally restricted by date range
+        :param user_id:
+        :param start_date:
+        :param end_date:
+        :return: an ordered list of dates that contain memories
+        """
+        self.create_bucket_if_required()
+        retval = []
+        keys = self._bucket.list(user_id)
+        for k in keys:
+            mem_date = self.date_from_keyname(k.name)
+            # TODO: replace these range checks with something more efficient. At one memory
+            # TODO: per day we're not going to have more than a couple thousand entries for a while.
+            if start_date is not None:
+                if mem_date < start_date:
+                    continue
+            if end_date is not None:
+                if mem_date > end_date:
+                    continue
+            retval.append(mem_date)
+
+        return sorted(retval)
 
     def delete_memory(self, user_id, memory_date, memory):
         return DataStore.delete_memory(self, user_id, memory_date, memory)
