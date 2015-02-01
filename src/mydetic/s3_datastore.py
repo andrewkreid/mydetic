@@ -2,12 +2,14 @@
 DataStore implementation that stores data in an S3 Bucket.
 """
 
+import datetime
 import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from exceptions import MyDeticMemoryAlreadyExists, MyDeticMemoryException, MyDeticNoMemoryFound
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
 from memorydata import MemoryData
+import re
 
 
 class S3DataStore(DataStore):
@@ -66,6 +68,20 @@ class S3DataStore(DataStore):
             user_id_str = user_id.encode('utf-8')
         return "%s/%s.json" % (user_id_str, memory_date.strftime("%Y%m%d"))
 
+    @staticmethod
+    def date_from_keyname(key_name):
+        """
+        Parse out the date from the memory key name
+        :param key_name: string of key name
+        :return: datetime.date
+        :raises: ValueError if key name is wrong format
+        """
+        m = re.match('^.+/(\d+)\.json', key_name)
+        if m:
+            return datetime.datetime.strptime(m.group(1), "%Y%m%d").date()
+        else:
+            raise ValueError("Invalid format for key name [%s]" % key_name)
+
     def get_memory(self, user_id, memory_date):
         """
         :param user_id: str the User ID
@@ -95,8 +111,19 @@ class S3DataStore(DataStore):
         return k is not None
 
     def update_memory(self, user_id, memory_date, memory):
+        """
+
+        :param user_id:
+        :param memory_date:
+        :param memory:
+        :return: No return value
+        :raises: MyDeticMemoryNotFoundError is memory doesn't already exist
+        """
         self.create_bucket_if_required()
-        return DataStore.update_memory(self, user_id, memory_date, memory)
+        k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
+        if k is None:
+            raise MyDeticNoMemoryFound(user_id, memory_date)
+        k.set_contents_from_string(memory.as_json_str())
 
     def add_memory(self, user_id, memory_date, memory):
         """
@@ -118,7 +145,38 @@ class S3DataStore(DataStore):
         k.set_contents_from_string(memory.as_json_str())
 
     def list_memories(self, user_id, start_date=None, end_date=None):
-        return DataStore.list_memories(self, user_id, start_date, end_date)
+        """
+        get memories for a user_id, optionally restricted by date range
+        :param user_id:
+        :param start_date:
+        :param end_date:
+        :return: an ordered list of dates that contain memories
+        """
+        self.create_bucket_if_required()
+        retval = []
+        keys = self._bucket.list(user_id)
+        for k in keys:
+            mem_date = self.date_from_keyname(k.name)
+            # TODO: replace these range checks with something more efficient. At one memory
+            # TODO: per day we're not going to have more than a couple thousand entries for a while.
+            if start_date is not None:
+                if mem_date < start_date:
+                    continue
+            if end_date is not None:
+                if mem_date > end_date:
+                    continue
+            retval.append(mem_date)
 
-    def delete_memory(self, user_id, memory_date, memory):
-        return DataStore.delete_memory(self, user_id, memory_date, memory)
+        return sorted(retval)
+
+    def delete_memory(self, user_id, memory_date):
+        """
+
+        :param user_id:
+        :param memory_date:
+        :return: the deleted memory
+        :raises: MyDeticNoMemoryFound
+        """
+        mem_to_delete = self.get_memory(user_id, memory_date)
+        self._bucket.delete_key(self.generate_memory_key_name(user_id, memory_date))
+        return mem_to_delete
