@@ -55,3 +55,7 @@ target/
 
 # PyCharm
 .idea/
+
+# So we don't check in our AWS credentials
+*_s3_config.json
+
