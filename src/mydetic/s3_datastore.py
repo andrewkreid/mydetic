@@ -29,7 +29,9 @@ class S3DataStore(DataStore):
         self._s3_config = s3_config
 
         if len(self._s3_config['region']) > 0:
-            self._connection = boto.s3.connect_to_region(self._s3_config['region'])
+            self._connection = boto.s3.connect_to_region(self._s3_config['region'],
+                                                         aws_access_key_id=self._s3_config['aws_access_key_id'],
+                                                         aws_secret_access_key=self._s3_config['aws_secret_access_key'])
         else:
             self._connection = boto.connect_s3()
 
@@ -37,7 +39,10 @@ class S3DataStore(DataStore):
 
     def create_bucket_if_required(self):
         if self._bucket is None:
-            self._bucket = self._connection.create_bucket(self._s3_config['bucket'], location=self._s3_config['region'])
+            self._bucket = self._connection.lookup(self._s3_config['bucket'])
+            if self._bucket is None:
+                self._bucket = self._connection.create_bucket(self._s3_config['bucket'],
+                                                              location=self._s3_config['region'])
         return self._bucket
 
     @staticmethod
@@ -74,7 +79,7 @@ class S3DataStore(DataStore):
         Parse out the date from the memory key name
         :param key_name: string of key name
         :return: datetime.date
-        :raises: ValueError if key name is wrong format
+        :raise: ValueError if key name is wrong format
         """
         m = re.match('^.+/(\d+)\.json', key_name)
         if m:

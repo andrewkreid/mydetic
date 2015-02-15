@@ -34,7 +34,6 @@ def test_validate_config():
 
     # should not raise exception
     s3_config = {
-        'region': 'foo',
         'aws_access_key_id': 'foo',
         'aws_secret_access_key': 'foo',
         'bucket': 'foo',
