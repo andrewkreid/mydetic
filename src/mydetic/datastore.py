@@ -50,19 +50,15 @@ class DataStore:
         """
         raise NotImplementedError()
 
-    def add_memory(self, user_id, memory_date, memory):
+    def add_memory(self, memory):
         """
-
-        :param user_id:
-        :type user_id: str or unicode
-        :param memory_date:
         :param memory:
         :raises MyDeticMemoryAlreadyExists
         :return:
         """
         raise NotImplementedError()
 
-    def update_memory(self, user_id, memory_date, memory):
+    def update_memory(self, memory):
         raise NotImplementedError()
 
     def delete_memory(self, user_id, memory_date):

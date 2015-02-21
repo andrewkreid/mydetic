@@ -10,13 +10,14 @@ from mydeticexceptions import MyDeticInvalidMemoryString
 
 class MemoryData(object):
 
-    # TODO: _user_id ??????
+    _user_id = ''
     _memory_text = ''
     _memory_date = None
     _created_at = None
     _modified_at = None
 
-    def __init__(self, memory_text, memory_date, created_at=None, modified_at=None):
+    def __init__(self, user_id, memory_date, memory_text='', created_at=None, modified_at=None):
+        self._user_id = user_id
         self._memory_text = memory_text
         if not isinstance(memory_date, date):
             raise ValueError("memory_date must be a datetime.date")
@@ -36,12 +37,28 @@ class MemoryData(object):
             self._modified_at = self.created_at
 
     @property
+    def user_id(self):
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, user_id):
+        self._user_id = user_id
+
+    @property
     def memory_text(self):
         return self._memory_text
 
     @memory_text.setter
     def memory_text(self, memory_text):
         self._memory_text = memory_text
+
+    @property
+    def memory_date(self):
+        return self._memory_date
+
+    @memory_date.setter
+    def memory_date(self, memory_date):
+        self._memory_text = memory_date
 
     @property
     def created_at(self):
@@ -51,10 +68,19 @@ class MemoryData(object):
     def modified_at(self):
         return self._modified_at
 
+    def touch(self):
+        """
+        Update modified_at to current UTC time
+        :return:
+        """
+        self._modified_at = datetime.utcnow()
+        return self._modified_at
+
     def to_dict(self):
         return {
-            'memory_text': self._memory_text,
+            'user_id': self._user_id,
             'memory_date': self._memory_date.isoformat(),
+            'memory_text': self._memory_text,
             'created_at': self._created_at.isoformat(),
             'modified_at': self._modified_at.isoformat()
         }
@@ -64,6 +90,7 @@ class MemoryData(object):
         if not MemoryData.validate_memory_dict(memory_dict):
             raise MyDeticInvalidMemoryString(json.dumps(memory_dict))
         return MemoryData(
+            user_id=memory_dict['user_id'],
             memory_text=memory_dict['memory_text'],
             memory_date=dateutil.parser.parse(memory_dict['memory_date']).date(),
             created_at=dateutil.parser.parse(memory_dict['created_at']),
@@ -80,7 +107,7 @@ class MemoryData(object):
         :param memory_dict:
         :return: True if contains all fields and fields are valid.
         """
-        for param in ['memory_text', 'memory_date', 'created_at', 'modified_at']:
+        for param in ['user_id', 'memory_text', 'memory_date', 'created_at', 'modified_at']:
             if param not in memory_dict:
                 return False
         try:

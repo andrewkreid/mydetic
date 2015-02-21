@@ -55,11 +55,11 @@ def test_generate_key_name():
 @mock_s3
 def test_add_memory():
     s3store = S3DataStore(DEF_CONFIG)
-    s3store.add_memory('foo', date(2013, 11, 12), MemoryData('foo', date(2013, 11, 12)))
+    s3store.add_memory(MemoryData(user_id='foo', memory_date=date(2013, 11, 12)))
 
     try:
-        s3store.add_memory('foo', date(2013, 11, 12), MemoryData('foo', date(2013, 11, 12)))
-        assert False, "Should have throws exception"
+        s3store.add_memory(MemoryData(user_id='foo', memory_date=date(2013, 11, 12)))
+        assert False, "Should have thrown exception"
     except MyDeticMemoryAlreadyExists:
         pass
 
@@ -68,8 +68,8 @@ def test_add_memory():
 def test_get_memory():
     s3store = S3DataStore(DEF_CONFIG)
 
-    s3store.add_memory('bar', date(2014, 11, 12), MemoryData('bar memory', date(2014, 11, 12)))
-    memory = s3store.get_memory('bar', date(2014, 11, 12))
+    s3store.add_memory(MemoryData(user_id='foo', memory_text='bar memory', memory_date=date(2014, 11, 12)))
+    memory = s3store.get_memory('foo', date(2014, 11, 12))
     assert memory is not None
     assert memory.memory_text == 'bar memory'
 
@@ -79,19 +79,21 @@ def test_update_memory():
     s3store = S3DataStore(DEF_CONFIG)
     mem_date = date(2013, 11, 12)
     uid = 'foo'
-    s3store.add_memory(uid, mem_date, MemoryData('foo', mem_date))
+    s3store.add_memory(MemoryData(user_id=uid, memory_date=mem_date, memory_text='bar'))
 
     memory = s3store.get_memory(uid, mem_date)
-    assert memory.memory_text == 'foo'
+    assert memory.memory_text == 'bar'
 
     with pytest.raises(MyDeticNoMemoryFound):
-        s3store.update_memory('nosuchuid', mem_date, memory)
+        s3store.update_memory(MemoryData(user_id=uid, memory_date=date(2012, 1, 1)))
 
-    memory.memory_text = 'bar'
-    s3store.update_memory(uid, mem_date, memory)
+    memory.memory_text = 'changed'
+    s3store.update_memory(memory)
 
     updated_memory = s3store.get_memory(uid, mem_date)
     assert memory.memory_text == updated_memory.memory_text
+
+    # TODO: test that only memory_text and modified_at get updated
 
 
 @mock_s3
@@ -102,14 +104,10 @@ def test_list_memories():
     memories = s3store.list_memories(uid)
     assert len(memories) == 0
 
-    s3store.add_memory(uid, date(2014, 11, 14),
-                       MemoryData(memory_text='yet another memory', memory_date=date(2014, 11, 14)))
-    s3store.add_memory(uid, date(2014, 11, 12),
-                       MemoryData(memory_text='memory', memory_date=date(2014, 11, 12)))
-    s3store.add_memory(uid, date(2014, 11, 13),
-                       MemoryData(memory_text='another memory', memory_date=date(2014, 11, 13)))
-    s3store.add_memory('different uid', date(2014, 11, 13),
-                       MemoryData(memory_text='another memory', memory_date=date(2014, 11, 13)))
+    s3store.add_memory(MemoryData(user_id=uid, memory_text='yet another memory', memory_date=date(2014, 11, 14)))
+    s3store.add_memory(MemoryData(user_id=uid, memory_text='memory', memory_date=date(2014, 11, 12)))
+    s3store.add_memory(MemoryData(user_id=uid, memory_text='another memory', memory_date=date(2014, 11, 13)))
+    s3store.add_memory(MemoryData(user_id='someone else', memory_text='another memory', memory_date=date(2014, 11, 13)))
 
     memories = s3store.list_memories(uid)
     assert len(memories) == 3
@@ -135,7 +133,7 @@ def test_delete_memory():
     with pytest.raises(MyDeticNoMemoryFound):
         s3store.delete_memory(uid, mem_date)
 
-    s3store.add_memory(uid, mem_date, MemoryData(memory_text='foo', memory_date=mem_date))
+    s3store.add_memory(MemoryData(user_id=uid, memory_text='foo', memory_date=mem_date))
     assert s3store.has_memory(uid, mem_date)
 
     del_mem = s3store.delete_memory(uid, mem_date)
