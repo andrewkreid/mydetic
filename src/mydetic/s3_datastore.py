@@ -115,39 +115,35 @@ class S3DataStore(DataStore):
         k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
         return k is not None
 
-    def update_memory(self, user_id, memory_date, memory):
+    def update_memory(self, memory):
         """
-
-        :param user_id:
-        :param memory_date:
-        :param memory:
+        :param memory: updated MemoryData object. NOTE: only text is changed.
         :return: No return value
         :raises: MyDeticMemoryNotFoundError is memory doesn't already exist
         """
         self.create_bucket_if_required()
-        k = self._bucket.get_key(self.generate_memory_key_name(user_id, memory_date))
+        k = self._bucket.get_key(self.generate_memory_key_name(memory.user_id, memory.memory_date))
         if k is None:
-            raise MyDeticNoMemoryFound(user_id, memory_date)
-        k.set_contents_from_string(memory.as_json_str())
+            raise MyDeticNoMemoryFound(memory.user_id, memory.memory_date)
+        old_memory = self.get_memory(memory.user_id, memory.memory_date)
+        old_memory.memory_text = memory.memory_text
+        old_memory.touch()
+        k.set_contents_from_string(old_memory.as_json_str())
 
-    def add_memory(self, user_id, memory_date, memory):
+    def add_memory(self, memory):
         """
-
-        :param user_id:
-        :type user_id: str or unicode
-        :param memory_date:
         :param memory:
         :raises MyDeticMemoryAlreadyExists
         :return:
         """
         self.create_bucket_if_required()
-        if self.has_memory(user_id, memory_date):
-            raise MyDeticMemoryAlreadyExists(user_id, memory_date)
+        if self.has_memory(memory.user_id, memory.memory_date):
+            raise MyDeticMemoryAlreadyExists(memory.user_id, memory.memory_date)
 
         bucket = self._bucket
         k = Key(bucket)
-        k.key = self.generate_memory_key_name(user_id, memory_date)
-        k.set_contents_from_string(memory.as_json_str())
+        k.key = self.generate_memory_key_name(memory.user_id, memory.memory_date)
+        k.set_contents_from_string(memory.as_json_str(), headers={'Content-Type': 'application/json'})
 
     def list_memories(self, user_id, start_date=None, end_date=None):
         """
@@ -161,7 +157,11 @@ class S3DataStore(DataStore):
         retval = []
         keys = self._bucket.list(user_id)
         for k in keys:
-            mem_date = self.date_from_keyname(k.name)
+            try:
+                mem_date = self.date_from_keyname(k.name)
+            except ValueError:
+                # skip keys with invalid names
+                continue
             # TODO: replace these range checks with something more efficient. At one memory
             # TODO: per day we're not going to have more than a couple thousand entries for a while.
             if start_date is not None:

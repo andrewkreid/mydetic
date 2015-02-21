@@ -67,8 +67,8 @@ if __name__ == "__main__":
 
         if args.command == 'add':
             # Add a memory
-            ds.add_memory(user_id=args.userid, memory_date=mem_date,
-                          memory=MemoryData(text=args.memory))
+            ds.add_memory(
+                MemoryData(user_id=args.userid, memory_date=mem_date, memory_text=args.memory))
         elif args.command == 'ls':
             # List memories
             for mdate in ds.list_memories(user_id=args.userid):
@@ -79,8 +79,7 @@ if __name__ == "__main__":
                     print mdate.isoformat()
         elif args.command == 'update':
             # Update a memory
-            ds.update_memory(user_id=args.userid, memory_date=mem_date,
-                             memory=MemoryData(text=args.memory))
+            ds.update_memory(memory=MemoryData(user_id=args.userid, memory_date=mem_date, memory_text=args.memory))
         elif args.command == 'get':
             # get memory details
             if not ds.has_memory(user_id=args.userid, memory_date=mem_date):
