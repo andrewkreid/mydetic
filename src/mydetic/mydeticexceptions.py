@@ -63,4 +63,3 @@ class MyDeticInvalidMemoryString(MyDeticException):
 
     def __str__(self):
         return "MyDeticInvalidMemoryString: \"%s\"" % self._msg
-

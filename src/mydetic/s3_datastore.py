@@ -119,7 +119,7 @@ class S3DataStore(DataStore):
         """
         :param memory: updated MemoryData object. NOTE: only text is changed.
         :return: No return value
-        :raises: MyDeticMemoryNotFoundError is memory doesn't already exist
+        :raises: MyDeticNoMemoryFound is memory doesn't already exist
         """
         self.create_bucket_if_required()
         k = self._bucket.get_key(self.generate_memory_key_name(memory.user_id, memory.memory_date))
