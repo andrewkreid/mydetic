@@ -1,10 +1,5 @@
-"""
-Definition of the DataStore interface to the stored memories.
-
-S3DataStore implementation that stores memories in an S3 bucket.
-"""
-
-import datetime
+# Definition of the DataStore interface to the stored memories.
+# S3DataStore implementation that stores memories in an S3 bucket.
 
 
 class DataStore:
@@ -59,7 +54,20 @@ class DataStore:
         raise NotImplementedError()
 
     def update_memory(self, memory):
+        """
+        :param memory: updated MemoryData object. NOTE: only text is changed.
+        :return: No return value
+        :raises: MyDeticNoMemoryFound is memory doesn't already exist
+        """
         raise NotImplementedError()
 
     def delete_memory(self, user_id, memory_date):
+        """
+        :param user_id: str the User ID
+        :type user_id: str or unicode
+        :param memory_date:
+        :type memory_date: datetime.date
+        :return: The memory
+        :raises MyDeticNoMemoryFound if there isn't a memory on this day
+        """
         raise NotImplementedError()

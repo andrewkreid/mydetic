@@ -1,10 +1,8 @@
-"""
-class MemoryData represents all the data associated with a memory.
-"""
+# class MemoryData represents all the data associated with a memory.
+
 import json
 from datetime import datetime, date
 import dateutil.parser
-
 from mydeticexceptions import MyDeticInvalidMemoryString
 
 
