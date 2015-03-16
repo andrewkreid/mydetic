@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""
-MyDetic REST API
-"""
+#
+# MyDetic REST API
+#
 
 import sys
 import argparse
@@ -10,6 +10,7 @@ import json
 import logging
 import logging.config
 
+from retrying import retry
 from flask import Flask, abort, make_response
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 
