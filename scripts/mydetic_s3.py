@@ -88,6 +88,10 @@ if __name__ == "__main__":
                 print ds.get_memory(user_id=args.userid, memory_date=mem_date).as_json_str()
         elif args.command == 'delete':
             ds.delete_memory(user_id=args.userid, memory_date=mem_date)
+        else:
+            # unrecognised command
+            parser.print_help()
+            sys.exit(1)
 
     except MyDeticException, e:
         sys.stderr.write("%s\n" % str(e))

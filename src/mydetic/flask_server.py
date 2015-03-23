@@ -9,13 +9,15 @@ import argparse
 import json
 import logging
 import logging.config
+from datetime import datetime, date
 
 from retrying import retry
-from flask import Flask, abort, make_response
-from flask.ext.restful import Api, Resource, reqparse, fields, marshal
+from flask import Flask
+from flask.ext.restful import Api, Resource, reqparse, fields
 
 from mydetic.s3_datastore import S3DataStore
-from mydetic.memorydata import MemoryData
+from mydetic.mydeticexceptions import MyDeticException
+import errorcodes
 
 # The mydetic.datastore.DataStore to use
 ds = None
@@ -23,6 +25,50 @@ ds = None
 app = Flask(__name__, static_url_path="")
 api = Api(app)
 # TODO: Authentication
+
+
+def parse_iso_date(datestr):
+    """
+    :param datestr: date string in YYYY-MM-DD format
+    :return: datetime.date
+    :raises: ValueError
+    """
+    return datetime.strptime(datestr, "%Y-%m-%d").date()
+
+
+def generate_error_json(exception=None,
+                        mydetic_error_code=None,
+                        short_message=None, long_message=None ):
+    """
+    Generate a standard error JSON body for the API to return on errors.
+    :param exception: Optional MyDeticException to get error info from
+    :param mydetic_error_code: One of errorcodes
+    :param short_message: The default short message will come from errorcodes.error_descs. You can override this
+                          by passing in a string message
+    :param long_message:
+    :return: A JSON object
+    """
+    rval = {
+        'error_code': errorcodes.UNEXPLAINED_FAILURE,
+        'short_message': errorcodes.error_descs[errorcodes.UNEXPLAINED_FAILURE],
+        'long_message': ''
+    }
+    if exception is not None:
+        if not isinstance(exception, MyDeticException):
+            raise ValueError("Exception is not of type MyDeticException")
+        rval['error_code'] = exception.error_code
+        rval['long_message'] = str(exception)
+
+    if mydetic_error_code is not None:
+        rval['error_code'] = mydetic_error_code
+    if short_message is not None:
+        rval['short_message'] = short_message
+    else:
+        rval['short_message'] = errorcodes.error_descs[rval['error_code']]
+    if long_message is not None:
+        rval['long_message'] = long_message
+
+    return rval
 
 
 class MemoryListAPI(Resource):
@@ -45,8 +91,33 @@ class MemoryListAPI(Resource):
         return retval
 
 
+class MemoryAPI(Resource):
+    """ Handles CRUD operations on individual memory entries
+    """
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('uid', type=str, required=True,
+                                   help='No user ID provided')
+        super(MemoryAPI, self).__init__()
+
+    def get(self, date_str):
+        try:
+            req_args = self.reqparse.parse_args()
+            mem_date = parse_iso_date(date_str)
+            self.logger.debug("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
+            memory = ds.get_memory(req_args.uid, mem_date)
+            return memory.to_dict()
+        except MyDeticException, mde:
+            return generate_error_json(mde), 500
+        except ValueError:
+            # invalid date
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message='Expected YYYY-MM-DD'), 400
+
+
 api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
-# api.add_resource(MemoryAPI, '/todo/api/v1.0/memories/<int:id>', endpoint='memory')
+api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 from mydetic.memorydata import MemoryData
+from mydetic.datastore import ExceptionWrappedDataStore
 from mydetic.sqlite_datastore import SqliteDataStore
 from datetime import date
-from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
+from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, MyDeticDataStoreException
 import unittest
 import pytest
 
@@ -17,6 +18,16 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         except MyDeticMemoryAlreadyExists:
             pass
 
+    def test_only_mydetic_exceptions_thrown_for_add(self):
+        try:
+            store = SqliteDataStore(":memory:")
+            store._conn.close()
+            wrapped_store = ExceptionWrappedDataStore(store)
+            wrapped_store.add_memory(MemoryData(user_id='foo', memory_date=date(2013, 11, 12)))
+            assert False, "Should have thrown exception"
+        except MyDeticDataStoreException:
+            pass
+
     def test_get_memory(self):
         store = SqliteDataStore(":memory:")
 
@@ -24,6 +35,16 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         memory = store.get_memory('foo', date(2014, 11, 12))
         assert memory is not None
         assert memory.memory_text == 'bar memory'
+
+    def test_only_mydetic_exceptions_thrown_for_get(self):
+        try:
+            store = SqliteDataStore(":memory:")
+            store._conn.close()
+            wrapped_store = ExceptionWrappedDataStore(store)
+            wrapped_store.get_memory('foo', date(2014, 11, 12))
+            assert False, "Should have thrown exception"
+        except MyDeticDataStoreException:
+            pass
 
     def test_update_memory(self):
         store = SqliteDataStore(":memory:")
@@ -46,6 +67,17 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         assert memory.created_at == updated_memory.created_at
         assert memory.user_id == updated_memory.user_id
         assert memory.modified_at != updated_memory.modified_at
+
+    def test_only_mydetic_exceptions_thrown_for_update(self):
+        try:
+            uid = 'foo'
+            store = SqliteDataStore(":memory:")
+            store._conn.close()
+            wrapped_store = ExceptionWrappedDataStore(store)
+            wrapped_store.update_memory(MemoryData(user_id=uid, memory_date=date(2012, 1, 1)))
+            assert False, "Should have thrown exception"
+        except MyDeticDataStoreException:
+            pass
 
     def test_list_memories(self):
         store = SqliteDataStore(":memory:")
@@ -74,6 +106,17 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         memories = store.list_memories(uid, start_date=date(2014, 11, 13), end_date=date(2014, 11, 13))
         assert len(memories) == 1
 
+    def test_only_mydetic_exceptions_thrown_for_list(self):
+        try:
+            uid = 'foo'
+            store = SqliteDataStore(":memory:")
+            store._conn.close()
+            wrapped_store = ExceptionWrappedDataStore(store)
+            wrapped_store.list_memories(uid)
+            assert False, "Should have thrown exception"
+        except MyDeticDataStoreException:
+            pass
+
     def test_delete_memory(self):
         store = SqliteDataStore(":memory:")
         uid = 'del'
@@ -88,6 +131,18 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         del_mem = store.delete_memory(uid, mem_date)
         assert not store.has_memory(uid, mem_date)
         assert del_mem.memory_text == 'foo'
+
+    def test_only_mydetic_exceptions_thrown_for_delete(self):
+        try:
+            uid = 'foo'
+            mem_date = date(2014, 11, 13)
+            store = SqliteDataStore(":memory:")
+            wrapped_store = ExceptionWrappedDataStore(store)
+            store._conn.close()
+            wrapped_store.delete_memory(uid, mem_date)
+            assert False, "Should have thrown exception"
+        except MyDeticDataStoreException:
+            pass
 
 
 def suite():

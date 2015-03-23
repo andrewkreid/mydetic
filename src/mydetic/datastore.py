@@ -1,6 +1,8 @@
 # Definition of the DataStore interface to the stored memories.
 # S3DataStore implementation that stores memories in an S3 bucket.
 
+import mydeticexceptions
+
 
 class DataStore:
     """
@@ -71,3 +73,43 @@ class DataStore:
         :raises MyDeticNoMemoryFound if there isn't a memory on this day
         """
         raise NotImplementedError()
+
+
+class ExceptionWrappedDataStore(DataStore):
+    """
+    A decorator for a DataStore that ensures that all exceptions thrown are
+    descendants of MyDeticException.
+    """
+
+    def __init__(self, datastore_impl):
+        self._ds_impl = datastore_impl
+        DataStore.__init__(self)
+
+    def wrap_call(self, func, *args, **kwargs):
+        try:
+            return func(self._ds_impl, *args, **kwargs)
+        except Exception, e:
+            if isinstance(e, mydeticexceptions.MyDeticException):
+                raise
+            else:
+                raise mydeticexceptions.MyDeticDataStoreException(caused_by=e)
+
+    def get_memory(self, user_id, memory_date):
+        return self.wrap_call(ExceptionWrappedDataStore.get_memory, user_id, memory_date)
+
+    def has_memory(self, user_id, memory_date):
+        return self.wrap_call(ExceptionWrappedDataStore.has_memory, user_id, memory_date)
+
+    def update_memory(self, memory):
+        return self.wrap_call(ExceptionWrappedDataStore.update_memory, memory)
+
+    def add_memory(self, memory):
+        return self.wrap_call(ExceptionWrappedDataStore.add_memory, memory)
+
+    def list_memories(self, user_id, start_date=None, end_date=None):
+        return self.wrap_call(ExceptionWrappedDataStore.list_memories, user_id, start_date, end_date)
+
+    def delete_memory(self, user_id, memory_date):
+        return self.wrap_call(ExceptionWrappedDataStore.delete_memory, user_id, memory_date)
+
+

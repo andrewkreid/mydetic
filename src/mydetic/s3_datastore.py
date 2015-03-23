@@ -7,7 +7,8 @@ import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
+from mydeticexceptions import MyDeticException, MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, \
+    MyDeticDataStoreException
 from memorydata import MemoryData
 import re
 
@@ -33,7 +34,9 @@ class S3DataStore(DataStore):
                                                          aws_access_key_id=self._s3_config['aws_access_key_id'],
                                                          aws_secret_access_key=self._s3_config['aws_secret_access_key'])
         else:
-            self._connection = boto.connect_s3()
+            self._connection = boto.connect_s3(
+                aws_access_key_id=self._s3_config['aws_access_key_id'],
+                aws_secret_access_key=self._s3_config['aws_secret_access_key'])
 
         self._bucket = None
 
@@ -163,7 +166,7 @@ class S3DataStore(DataStore):
                 # skip keys with invalid names
                 continue
             # TODO: replace these range checks with something more efficient. At one memory
-            # TODO: per day we're not going to have more than a couple thousand entries for a while.
+            # TODO: per day we're not going to have more than a couple of thousand entries for a while.
             if start_date is not None:
                 if mem_date < start_date:
                     continue
@@ -176,7 +179,6 @@ class S3DataStore(DataStore):
 
     def delete_memory(self, user_id, memory_date):
         """
-
         :param user_id:
         :param memory_date:
         :return: the deleted memory
