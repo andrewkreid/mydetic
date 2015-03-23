@@ -3,7 +3,9 @@ import datetime
 import dateutil.parser
 import sqlite3
 from memorydata import MemoryData
-from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
+import errorcodes
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, \
+    MyDeticException, MyDeticDataStoreException
 
 
 # db model

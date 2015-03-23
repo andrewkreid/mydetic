@@ -1,11 +1,14 @@
 import boto
 from boto.s3.connection import Location
+import boto.exception
 from moto import mock_s3
 
+from mydetic.datastore import ExceptionWrappedDataStore
 from mydetic.s3_datastore import S3DataStore
 from datetime import date
 from mydetic.memorydata import MemoryData
-from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
+from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, \
+    MyDeticNoMemoryFound, MyDeticDataStoreException
 import pytest
 
 DEF_CONFIG = {
@@ -64,6 +67,17 @@ def test_add_memory():
         pass
 
 
+def test_only_mydetic_exceptions_thrown_for_add():
+    # don't use moto here because we want things to fail at the S3 level
+    try:
+        s3store = ExceptionWrappedDataStore(S3DataStore(DEF_CONFIG))
+        s3store.add_memory(MemoryData(user_id='foo', memory_date=date(2013, 11, 12)))
+        assert False, "Should have thrown exception"
+    except MyDeticDataStoreException:
+        # boto errors should come back wrapped in one of these
+        pass
+
+
 @mock_s3
 def test_get_memory():
     s3store = S3DataStore(DEF_CONFIG)
@@ -72,6 +86,17 @@ def test_get_memory():
     memory = s3store.get_memory('foo', date(2014, 11, 12))
     assert memory is not None
     assert memory.memory_text == 'bar memory'
+
+
+def test_only_mydetic_exceptions_thrown_for_get():
+    # don't use moto here because we want things to fail at the S3 level
+    try:
+        s3store = ExceptionWrappedDataStore(S3DataStore(DEF_CONFIG))
+        s3store.get_memory('foo', date(2014, 11, 12))
+        assert False, "Should have thrown exception"
+    except MyDeticDataStoreException:
+        # boto errors should come back wrapped in one of these
+        pass
 
 
 @mock_s3
@@ -94,6 +119,17 @@ def test_update_memory():
     assert memory.memory_text == updated_memory.memory_text
 
     # TODO: test that only memory_text and modified_at get updated
+
+
+def test_only_mydetic_exceptions_thrown_for_update():
+    # don't use moto here because we want things to fail at the S3 level
+    try:
+        s3store = ExceptionWrappedDataStore(S3DataStore(DEF_CONFIG))
+        s3store.update_memory(MemoryData(user_id='foo', memory_date=date(2012, 1, 1)))
+        assert False, "Should have thrown exception"
+    except MyDeticDataStoreException:
+        # boto errors should come back wrapped in one of these
+        pass
 
 
 @mock_s3
@@ -124,6 +160,17 @@ def test_list_memories():
     assert len(memories) == 1
 
 
+def test_only_mydetic_exceptions_thrown_for_list():
+    # don't use moto here because we want things to fail at the S3 level
+    try:
+        s3store = ExceptionWrappedDataStore(S3DataStore(DEF_CONFIG))
+        s3store.list_memories(user_id='foo')
+        assert False, "Should have thrown exception"
+    except MyDeticDataStoreException:
+        # boto errors should come back wrapped in one of these
+        pass
+
+
 @mock_s3
 def test_delete_memory():
     s3store = S3DataStore(DEF_CONFIG)
@@ -140,6 +187,18 @@ def test_delete_memory():
     assert not s3store.has_memory(uid, mem_date)
     assert del_mem.memory_text == 'foo'
 
+
+def test_only_mydetic_exceptions_thrown_for_delete():
+    # don't use moto here because we want things to fail at the S3 level
+    try:
+        uid = 'del'
+        mem_date = date(2014, 11, 13)
+        s3store = ExceptionWrappedDataStore(S3DataStore(DEF_CONFIG))
+        s3store.delete_memory(uid, mem_date)
+        assert False, "Should have thrown exception"
+    except MyDeticDataStoreException:
+        # boto errors should come back wrapped in one of these
+        pass
 
 
 
