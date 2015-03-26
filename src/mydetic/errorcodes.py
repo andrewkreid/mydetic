@@ -9,10 +9,10 @@ DATASTORE_FAILURE = 101
 
 # Logically invalid data operation (eg deleting a memory that doesn't exist or adding one that's
 # already there).
-INVALID_DATA_OPERATION = 103
+INVALID_DATA_OPERATION = 102
 
 # Data read from the data store is corrupted/in the incorrect format.
-INVALID_DATA_FORMAT = 104
+INVALID_DATA_FORMAT = 103
 
 # Fallback code. It would be implolite to use this if you actually know
 # what went wrong

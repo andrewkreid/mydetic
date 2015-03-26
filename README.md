@@ -36,6 +36,27 @@ but I'm going to write another for the following reasons:
 
 ## REST API
 
+### General Error Response
+
+API call errors will generally have the following format JSON in the response body:
+
+```javascript
+{
+    "error_code": 103, 
+    "long_message": "No memory available for mreynolds on 2015-12-11", 
+    "short_message": "Invalid Data Operation"
+}
+```
+
+Error codes are defined in ```errorcodes.py```. The current values are:
+
+Error Code  | Description
+------------|------------
+100         | Invalid caller input (eg badly formatted date)
+101         | Failed to read or write to/from the underlying data store. The long message should have more info
+102         | Logically invalid data operation (eg deleting a memory that doesn't exist)
+103         | Data in the data store is not in a recognised format.
+
 ### GET /mydetic/api/v1.0/memories
 
 Returns a list of dates that contain memories for a `uid`. It is not possible to query more than one `uid`
@@ -44,39 +65,76 @@ at a time.
 *  **URL Params**
 
    **Required:**
- 
+
    `uid=[alphanumeric]`
 
    **Optional:**
- 
+
    `start_date=[YYYY-MM-DD]`
    `end_date=[YYYY-MM-DD]`
    
    Optionally restrict returned dates to those later than or equal to `start_date` and/or earlier than or
    equal to `end_date`. You can specify either, none or both of `start_date` and `end_date`.
-   
+
 
 * **Success Response:**
-  
+
   * **Code:** 200 <br />
     **Content:** application/json
-    ```json
-    {
-        "memories": [
-            "2015-12-18", 
-            "2015-12-19", 
-            "2015-12-20"
-        ], 
-        "uid": "mreynolds"
-    }
-    ```
- 
+
+```javascript
+{
+    "memories": [
+        "2015-12-18",
+        "2015-12-19",
+        "2015-12-20"
+    ],
+    "uid": "mreynolds"
+}
+```
+
 * **Error Response:**
-  
+
   * TODO
 
 * **Sample Call:**
+
 ```
 curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?uid=mreynolds
 ```
 
+### GET /mydetic/api/v1.0/memories/YYY-MM-DD
+
+Returns a single memory for a particular date.
+
+*  **URL Params**
+
+   **Required:**
+
+   `uid=[alphanumeric]`
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** application/json
+
+```javascript
+{
+    "created_at": "2015-11-13T05:14:13.548922",
+    "memory_date": "2015-11-12",
+    "memory_text": "Today my favourite TV show was cancelled :(",
+    "modified_at": "2015-11-13T05:20:52.981991",
+    "user_id": "mreynolds"
+}
+```
+
+* **Error Response:**
+
+  * **Code:** 404 <br />
+    **Content:** application/json
+
+* **Sample Call:**
+
+```
+curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?uid=mreynolds
+```

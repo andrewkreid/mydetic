@@ -16,7 +16,7 @@ from flask import Flask
 from flask.ext.restful import Api, Resource, reqparse, fields
 
 from mydetic.s3_datastore import S3DataStore
-from mydetic.mydeticexceptions import MyDeticException
+from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound
 import errorcodes
 
 # The mydetic.datastore.DataStore to use
@@ -108,6 +108,8 @@ class MemoryAPI(Resource):
             self.logger.debug("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
             memory = ds.get_memory(req_args.uid, mem_date)
             return memory.to_dict()
+        except MyDeticNoMemoryFound, mnfe:
+            return generate_error_json(mnfe), 404
         except MyDeticException, mde:
             return generate_error_json(mde), 500
         except ValueError:
