@@ -56,6 +56,7 @@ Error Code  | Description
 101         | Failed to read or write to/from the underlying data store. The long message should have more info
 102         | Logically invalid data operation (eg deleting a memory that doesn't exist)
 103         | Data in the data store is not in a recognised format.
+999         | Unknown error.
 
 ### GET /mydetic/api/v1.0/memories
 
