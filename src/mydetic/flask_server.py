@@ -16,7 +16,7 @@ from flask import Flask
 from flask.ext.restful import Api, Resource, reqparse, fields
 
 from mydetic.s3_datastore import S3DataStore
-from mydetic.mydeticexceptions import MyDeticException
+from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound
 import errorcodes
 
 # The mydetic.datastore.DataStore to use
@@ -77,13 +77,40 @@ class MemoryListAPI(Resource):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('uid', type=str, required=True,
                                    help='No user ID provided')
-        # TODO: Date range params
+        self.reqparse.add_argument('start_date', type=str, required=False,
+                                   help='start date of query range (inclusive) YYYY-MM-DD')
+        self.reqparse.add_argument('end_date', type=str, required=False,
+                                   help='end date of query range (inclusive) YYYY-MM-DD')
         super(MemoryListAPI, self).__init__()
 
     def get(self):
         req_args = self.reqparse.parse_args()
-        self.logger.debug("Requesting memories for %s", req_args.uid)
-        memories = ds.list_memories(user_id=req_args.uid)
+
+        start_date = None
+        if req_args.start_date:
+            try:
+                start_date = parse_iso_date(req_args.start_date)
+            except ValueError:
+                return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                           long_message='Expected YYYY-MM-DD for start_date'), 400
+        end_date = None
+        if req_args.end_date:
+            try:
+                end_date = parse_iso_date(req_args.end_date)
+            except ValueError:
+                return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                           long_message='Expected YYYY-MM-DD for end_date'), 400
+
+        if start_date and end_date and (start_date > end_date):
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message='start_date after end_date'), 400
+
+        self.logger.debug("Requesting memories for %s (%s -> %s)",
+                          req_args.uid,
+                          start_date.isoformat() if start_date else 'NO_DATE',
+                          end_date.isoformat() if end_date else 'NO_DATE')
+
+        memories = ds.list_memories(user_id=req_args.uid, start_date=start_date, end_date=end_date)
         retval = dict()
         retval['uid'] = req_args.uid
         mem_dates = map(lambda d: d.isoformat(), memories)
@@ -108,6 +135,8 @@ class MemoryAPI(Resource):
             self.logger.debug("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
             memory = ds.get_memory(req_args.uid, mem_date)
             return memory.to_dict()
+        except MyDeticNoMemoryFound, mnfe:
+            return generate_error_json(mnfe), 404
         except MyDeticException, mde:
             return generate_error_json(mde), 500
         except ValueError:
