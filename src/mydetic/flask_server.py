@@ -11,12 +11,12 @@ import logging
 import logging.config
 from datetime import datetime, date
 
-from retrying import retry
-from flask import Flask
+from flask import Flask, request
 from flask.ext.restful import Api, Resource, reqparse, fields
 
+from memorydata import MemoryData
 from mydetic.s3_datastore import S3DataStore
-from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound
+from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists
 import errorcodes
 
 # The mydetic.datastore.DataStore to use
@@ -38,7 +38,7 @@ def parse_iso_date(datestr):
 
 def generate_error_json(exception=None,
                         mydetic_error_code=None,
-                        short_message=None, long_message=None ):
+                        short_message=None, long_message=None):
     """
     Generate a standard error JSON body for the API to return on errors.
     :param exception: Optional MyDeticException to get error info from
@@ -74,17 +74,22 @@ def generate_error_json(exception=None,
 class MemoryListAPI(Resource):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('uid', type=str, required=True,
-                                   help='No user ID provided')
-        self.reqparse.add_argument('start_date', type=str, required=False,
-                                   help='start date of query range (inclusive) YYYY-MM-DD')
-        self.reqparse.add_argument('end_date', type=str, required=False,
-                                   help='end date of query range (inclusive) YYYY-MM-DD')
+        self.reqparse_get = reqparse.RequestParser()
+        self.reqparse_get.add_argument('uid', type=str, required=True,
+                                       help='No user ID provided')
+        self.reqparse_get.add_argument('start_date', type=str, required=False,
+                                       help='start date of query range (inclusive) YYYY-MM-DD')
+        self.reqparse_get.add_argument('end_date', type=str, required=False,
+                                       help='end date of query range (inclusive) YYYY-MM-DD')
+
         super(MemoryListAPI, self).__init__()
 
     def get(self):
-        req_args = self.reqparse.parse_args()
+        """
+        Get the list of memories for a user
+        :return:
+        """
+        req_args = self.reqparse_get.parse_args()
 
         start_date = None
         if req_args.start_date:
@@ -110,17 +115,58 @@ class MemoryListAPI(Resource):
                           start_date.isoformat() if start_date else 'NO_DATE',
                           end_date.isoformat() if end_date else 'NO_DATE')
 
-        memories = ds.list_memories(user_id=req_args.uid, start_date=start_date, end_date=end_date)
+        try:
+            memories = ds.list_memories(user_id=req_args.uid, start_date=start_date, end_date=end_date)
+        except MyDeticException, mde:
+            return generate_error_json(mde), 500
         retval = dict()
         retval['uid'] = req_args.uid
         mem_dates = map(lambda d: d.isoformat(), memories)
         retval['memories'] = mem_dates
         return retval
 
+    def post(self):
+        """
+        Create a new memory for a user/date combination. Expects the request body to be
+        a MemoryData JSON object
+        :return:
+        """
+        if not request.json:
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message="POST request body was not JSON"), 400
+
+        for arg in ['user_id', 'memory_date', 'memory_text']:
+            if arg not in request.json:
+                return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                           long_message="expected '%s' parameter" % arg), 400
+
+        try:
+            memory_date = parse_iso_date(request.json['memory_date'])
+        except ValueError:
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message='Expected YYYY-MM-DD'), 400
+        memory_text = request.json['memory_text']
+        user_id = request.json['user_id']
+
+        memory = MemoryData(user_id=user_id, memory_date=memory_date, memory_text=memory_text)
+        self.logger.info("Adding memory for %s on %s", user_id, memory_date)
+        try:
+            ds.add_memory(memory)
+
+            # re-fetch the memory and return it in the respone body
+            added_memory = ds.get_memory(user_id, memory_date)
+            return added_memory.to_dict()
+        except MyDeticMemoryAlreadyExists, mdmae:
+            self.logger.info("Memory already exists on add (%s : %s)", user_id, memory_date)
+            return generate_error_json(mdmae)
+        except MyDeticException, mde:
+            return generate_error_json(mde)
+
 
 class MemoryAPI(Resource):
     """ Handles CRUD operations on individual memory entries
     """
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.reqparse = reqparse.RequestParser()
@@ -132,7 +178,7 @@ class MemoryAPI(Resource):
         try:
             req_args = self.reqparse.parse_args()
             mem_date = parse_iso_date(date_str)
-            self.logger.debug("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
+            self.logger.info("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
             memory = ds.get_memory(req_args.uid, mem_date)
             return memory.to_dict()
         except MyDeticNoMemoryFound, mnfe:
@@ -147,7 +193,6 @@ class MemoryAPI(Resource):
 
 api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
 api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MyDetic command-line')
