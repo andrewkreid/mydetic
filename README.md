@@ -104,6 +104,59 @@ at a time.
 curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?uid=mreynolds
 ```
 
+### POST /mydetic/api/v1.0/memories
+
+Creates a new memory
+
+* **URL Params**
+
+None
+
+* **Request body**
+
+JSON of the following form:
+
+```javascript
+{
+    "memory_date": "2015-03-27", 
+    "memory_text": "TGIF!", 
+    "user_id": "mreynolds"
+}
+```
+
+  * Dates must be in ISO format (YYYY-MM-DD)
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** application/json
+
+```javascript
+{
+    "created_at": "2015-03-28T05:10:12.609837", 
+    "memory_date": "2015-03-27", 
+    "memory_text": "TGIF!", 
+    "modified_at": "2015-03-28T05:10:12.609837", 
+    "user_id": "mreynolds"
+}
+```
+
+  * The ```created_at``` and ```modified_at``` timestamps are always in UTC timezone and in ISO format.
+
+* **Error Response:**
+
+  * **Code:** 400 on invaliv input or if a memory on that date already exists. <br />
+    **Content:** application/json
+
+* **Sample Call:**
+
+```
+curl http://127.0.0.1:5000/mydetic/api/v1.0/memories \
+  -X POST \
+  -d '{"user_id": "mreynolds", "memory_date": "2015-03-27", "memory_text": "TGIF!"}' \
+  --header "Content-Type: application/json"
+```
+
 ### GET /mydetic/api/v1.0/memories/YYY-MM-DD
 
 Returns a single memory for a particular date.
