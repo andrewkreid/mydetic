@@ -67,7 +67,7 @@ at a time.
 
    **Required:**
 
-   `uid=[alphanumeric]`
+   `user_id=[alphanumeric]`
 
    **Optional:**
 
@@ -165,7 +165,7 @@ Returns a single memory for a particular date.
 
    **Required:**
 
-   `uid=[alphanumeric]`
+   `user_id=[alphanumeric]`
 
 * **Success Response:**
 

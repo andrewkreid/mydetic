@@ -7,16 +7,18 @@
 import sys
 import argparse
 import json
+import copy
 import logging
 import logging.config
-from datetime import datetime, date
+from datetime import datetime
 
 from flask import Flask, request
 from flask.ext.restful import Api, Resource, reqparse, fields
 
 from memorydata import MemoryData
 from mydetic.s3_datastore import S3DataStore
-from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists
+from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists, \
+    MyDeticInvalidMemoryString
 import errorcodes
 
 # The mydetic.datastore.DataStore to use
@@ -71,11 +73,30 @@ def generate_error_json(exception=None,
     return rval
 
 
+def parse_memory_from_request():
+    if not request.json:
+        raise MyDeticInvalidMemoryString("POST request body was not JSON")
+
+    for arg in ['user_id', 'memory_date', 'memory_text']:
+        if arg not in request.json:
+            raise MyDeticInvalidMemoryString("expected '%s' parameter" % arg)
+
+    try:
+        memory_date = parse_iso_date(request.json['memory_date'])
+    except ValueError:
+        raise MyDeticInvalidMemoryString('Expected YYYY-MM-DD')
+
+    memory_text = request.json['memory_text']
+    user_id = request.json['user_id']
+
+    return MemoryData(user_id=user_id, memory_date=memory_date, memory_text=memory_text)
+
+
 class MemoryListAPI(Resource):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.reqparse_get = reqparse.RequestParser()
-        self.reqparse_get.add_argument('uid', type=str, required=True,
+        self.reqparse_get.add_argument('user_id', type=str, required=True,
                                        help='No user ID provided')
         self.reqparse_get.add_argument('start_date', type=str, required=False,
                                        help='start date of query range (inclusive) YYYY-MM-DD')
@@ -111,16 +132,16 @@ class MemoryListAPI(Resource):
                                        long_message='start_date after end_date'), 400
 
         self.logger.debug("Requesting memories for %s (%s -> %s)",
-                          req_args.uid,
+                          req_args.user_id,
                           start_date.isoformat() if start_date else 'NO_DATE',
                           end_date.isoformat() if end_date else 'NO_DATE')
 
         try:
-            memories = ds.list_memories(user_id=req_args.uid, start_date=start_date, end_date=end_date)
+            memories = ds.list_memories(user_id=req_args.user_id, start_date=start_date, end_date=end_date)
         except MyDeticException, mde:
             return generate_error_json(mde), 500
         retval = dict()
-        retval['uid'] = req_args.uid
+        retval['user_id'] = req_args.user_id
         mem_dates = map(lambda d: d.isoformat(), memories)
         retval['memories'] = mem_dates
         return retval
@@ -131,34 +152,20 @@ class MemoryListAPI(Resource):
         a MemoryData JSON object
         :return:
         """
-        if not request.json:
-            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
-                                       long_message="POST request body was not JSON"), 400
-
-        for arg in ['user_id', 'memory_date', 'memory_text']:
-            if arg not in request.json:
-                return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
-                                           long_message="expected '%s' parameter" % arg), 400
-
         try:
-            memory_date = parse_iso_date(request.json['memory_date'])
-        except ValueError:
-            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
-                                       long_message='Expected YYYY-MM-DD'), 400
-        memory_text = request.json['memory_text']
-        user_id = request.json['user_id']
-
-        memory = MemoryData(user_id=user_id, memory_date=memory_date, memory_text=memory_text)
-        self.logger.info("Adding memory for %s on %s", user_id, memory_date)
-        try:
+            memory = parse_memory_from_request()
+            self.logger.info("Adding memory for %s on %s", memory.user_id, memory.memory_date)
             ds.add_memory(memory)
 
-            # re-fetch the memory and return it in the respone body
-            added_memory = ds.get_memory(user_id, memory_date)
+            # re-fetch the memory and return it in the response body
+            added_memory = ds.get_memory(memory.user_id, memory.memory_date)
             return added_memory.to_dict()
         except MyDeticMemoryAlreadyExists, mdmae:
-            self.logger.info("Memory already exists on add (%s : %s)", user_id, memory_date)
+            self.logger.info("Memory already exists on add (%s : %s)", memory.user_id, memory.memory_date)
             return generate_error_json(mdmae)
+        except MyDeticInvalidMemoryString, mdims:
+            self.logger.info("Invalid memory string on add (%s)" % mdims.msg)
+            return generate_error_json(mdims)
         except MyDeticException, mde:
             return generate_error_json(mde)
 
@@ -170,7 +177,7 @@ class MemoryAPI(Resource):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('uid', type=str, required=True,
+        self.reqparse.add_argument('user_id', type=str, required=True,
                                    help='No user ID provided')
         super(MemoryAPI, self).__init__()
 
@@ -178,8 +185,8 @@ class MemoryAPI(Resource):
         try:
             req_args = self.reqparse.parse_args()
             mem_date = parse_iso_date(date_str)
-            self.logger.info("Requesting memory for %s on %s", req_args.uid, mem_date.isoformat())
-            memory = ds.get_memory(req_args.uid, mem_date)
+            self.logger.info("Requesting memory for %s on %s", req_args.user_id, mem_date.isoformat())
+            memory = ds.get_memory(req_args.user_id, mem_date)
             return memory.to_dict()
         except MyDeticNoMemoryFound, mnfe:
             return generate_error_json(mnfe), 404
@@ -190,9 +197,79 @@ class MemoryAPI(Resource):
             return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
                                        long_message='Expected YYYY-MM-DD'), 400
 
+    def put(self, date_str):
+        """
+        Modify an existing memory for a user/date combination. Expects the request body to be
+        a MemoryData JSON object
+        :return:
+        """
+        try:
+            req_args = self.reqparse.parse_args()
+            memory = parse_memory_from_request()
+            req_date = parse_iso_date(date_str)
+            if req_date != memory.memory_date:
+                raise MyDeticException(error_code=errorcodes.INVALID_INPUT,
+                                       msg="Parameter and body dates don't match")
+            if req_args.user_id != memory.user_id:
+                raise MyDeticException(error_code=errorcodes.INVALID_INPUT,
+                                       msg="Parameter and body user_id don't match")
+
+            self.logger.info("Updating memory for %s on %s", memory.user_id, memory.memory_date)
+            ds.update_memory(memory)
+
+            # re-fetch the memory and return it in the response body
+            updated_memory = ds.get_memory(memory.user_id, memory.memory_date)
+            return updated_memory.to_dict()
+        except MyDeticNoMemoryFound, mdnmf:
+            self.logger.info("Memory not found on update (%s)", date_str)
+            return generate_error_json(mdnmf)
+        except MyDeticInvalidMemoryString, mdims:
+            self.logger.info("Invalid memory string on add (%s)" % mdims.msg)
+            return generate_error_json(mdims)
+        except MyDeticException, mde:
+            return generate_error_json(mde)
+        except ValueError:
+            # invalid date
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message='Expected YYYY-MM-DD'), 400
+
+    def delete(self, date_str):
+        try:
+            req_args = self.reqparse.parse_args()
+            req_date = parse_iso_date(date_str)
+            memory = ds.delete_memory(user_id=req_args.user_id, memory_date=req_date)
+            return memory.to_dict()
+        except MyDeticNoMemoryFound, mdnmf:
+            self.logger.info("Memory not found on delete (%s)", date_str)
+            return generate_error_json(mdnmf)
+        except MyDeticInvalidMemoryString, mdims:
+            self.logger.info("Invalid memory string on add (%s)" % mdims.msg)
+            return generate_error_json(mdims)
+        except MyDeticException, mde:
+            return generate_error_json(mde)
+        except ValueError:
+            # invalid date
+            return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
+                                       long_message='Expected YYYY-MM-DD'), 400
+
 
 api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
 api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
+
+# This is the default configuration for the server. It will be merged with
+# entries from the config JSON file (which should be in the same format)
+DEFAULT_CONFIG = {
+    "s3_config": {
+        "aws_access_key_id": "",
+        "aws_secret_access_key": "",
+        "bucket": "mydetic.yourdomain",
+        "region": "ap-southeast-2"
+    },
+    "server_config": {
+        "port": 5000,
+        "debug": True
+    }
+}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MyDetic command-line')
@@ -215,12 +292,15 @@ if __name__ == "__main__":
     try:
         logging.debug("Configuring with %s", args.config)
         with open(args.config, 'r') as fp:
-            config = json.load(fp)
+            user_config = json.load(fp)
+        config = copy.deepcopy(DEFAULT_CONFIG)
+        config.update(user_config)
+
     except StandardError, e:
         logging.critical("Failed to load %s: %s\n", args.config, str(e))
         sys.exit(1)
 
-    ds = S3DataStore(s3_config=config)
+    ds = S3DataStore(s3_config=config["s3_config"])
 
-    # TODO: Add server config to config file (port, API version etc.)
-    app.run(debug=True)
+    server_config = config['server_config']
+    app.run(debug=server_config['debug'], port=server_config['port'])
