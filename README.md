@@ -128,7 +128,7 @@ JSON of the following form:
 
 * **Success Response:**
 
-  * **Code:** 200 <br />
+  * **Code:** 201 <br />
     **Content:** application/json
 
 ```javascript
@@ -191,4 +191,99 @@ Returns a single memory for a particular date.
 
 ```
 curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?uid=mreynolds
+```
+
+### PUT /mydetic/api/v1.0/memories/YYY-MM-DD
+
+Updates a single memory for a particular date.
+
+*  **URL Params**
+
+   **Required:**
+
+   `user_id=[alphanumeric]`
+
+* **Request body**
+
+JSON of the following form:
+
+```javascript
+{
+    "memory_date": "2015-03-27", 
+    "memory_text": "TGIF!", 
+    "user_id": "mreynolds"
+}
+```
+
+**Note:** Only the memory_text field will be updated.
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** application/json
+
+Response body contains the updated memory JSON.
+
+* **Error Response:**
+
+  * **Code:** 404 (no memory on that date for the user_id)<br />
+    **Content:** application/json
+  * **Code:** 400 (invalid input)<br />
+    **Content:** application/json
+
+
+* **Sample Call:**
+
+```
+$ curl http://127.0.0.1:6000/mydetic/api/v1.0/memories/2015-03-21 \
+    -X PUT \
+    -d '{"user_id": "darren", "memory_date": "2015-03-21", "memory_text": "Updated memories..."}' \
+    --header "Content-Type: application/json"
+```
+
+### DELETE /mydetic/api/v1.0/memories/YYY-MM-DD
+
+Deletes a single memory on a particular date.
+
+*  **URL Params**
+
+   **Required:**
+
+   `user_id=[alphanumeric]`
+
+* **Request body**
+
+   None
+   
+* **Success Response:**
+
+  * **Code:** 200 (successfully deleted)<br />
+    **Content:** application/json
+
+Response body contains the deleted memory JSON.
+```javascript
+{
+    "created_at": "2015-03-31T11:45:57.390296", 
+    "memory_date": "2015-03-21", 
+    "memory_text": "Deleted memories...", 
+    "modified_at": "2015-04-04T06:23:06.352444", 
+    "user_id": "mreynolds"
+}
+```
+
+* **Error Response:**
+
+  * **Code:** 404 (no memory on that date for the user_id)<br />
+    **Content:** application/json
+  * **Code:** 400 (invalid input)<br />
+    **Content:** application/json
+
+
+* **Sample Call:**
+
+```
+$ curl http://127.0.0.1:6000/mydetic/api/v1.0/memories/2015-03-21 \
+    -X PUT \
+    -d '{"user_id": "darren", "memory_date": "2015-03-21", "memory_text": "Updated memories..."}' \
+    --header "Content-Type: application/json"
 ```
