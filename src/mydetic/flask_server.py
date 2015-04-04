@@ -159,7 +159,7 @@ class MemoryListAPI(Resource):
 
             # re-fetch the memory and return it in the response body
             added_memory = ds.get_memory(memory.user_id, memory.memory_date)
-            return added_memory.to_dict()
+            return added_memory.to_dict(), 201
         except MyDeticMemoryAlreadyExists, mdmae:
             self.logger.info("Memory already exists on add (%s : %s)", memory.user_id, memory.memory_date)
             return generate_error_json(mdmae)
@@ -222,12 +222,12 @@ class MemoryAPI(Resource):
             return updated_memory.to_dict()
         except MyDeticNoMemoryFound, mdnmf:
             self.logger.info("Memory not found on update (%s)", date_str)
-            return generate_error_json(mdnmf)
+            return generate_error_json(mdnmf), 404
         except MyDeticInvalidMemoryString, mdims:
-            self.logger.info("Invalid memory string on add (%s)" % mdims.msg)
+            self.logger.info("Invalid memory string on add (%s)" % mdims.msg), 400
             return generate_error_json(mdims)
         except MyDeticException, mde:
-            return generate_error_json(mde)
+            return generate_error_json(mde), 500
         except ValueError:
             # invalid date
             return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
@@ -241,12 +241,12 @@ class MemoryAPI(Resource):
             return memory.to_dict()
         except MyDeticNoMemoryFound, mdnmf:
             self.logger.info("Memory not found on delete (%s)", date_str)
-            return generate_error_json(mdnmf)
+            return generate_error_json(mdnmf), 404
         except MyDeticInvalidMemoryString, mdims:
             self.logger.info("Invalid memory string on add (%s)" % mdims.msg)
-            return generate_error_json(mdims)
+            return generate_error_json(mdims), 400
         except MyDeticException, mde:
-            return generate_error_json(mde)
+            return generate_error_json(mde), 500
         except ValueError:
             # invalid date
             return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
