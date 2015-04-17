@@ -2,13 +2,13 @@
 DataStore implementation that stores data in an S3 Bucket.
 """
 
+import logging
 import datetime
 import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from mydeticexceptions import MyDeticException, MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, \
-    MyDeticDataStoreException
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
 from memorydata import MemoryData
 import re
 
@@ -25,6 +25,7 @@ class S3DataStore(DataStore):
         :param s3_config: Dictionary containing S3 connection details.
         """
         DataStore.__init__(self)
+        self.logger = logging.getLogger(__name__)
         if s3_config is not None:
             self.validate_s3_params(s3_config)
         self._s3_config = s3_config

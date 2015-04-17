@@ -14,19 +14,37 @@ from datetime import datetime
 
 from flask import Flask, request
 from flask.ext.restful import Api, Resource, reqparse, fields
+from flask.ext.httpauth import HTTPBasicAuth
 
 from memorydata import MemoryData
 from mydetic.s3_datastore import S3DataStore
 from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists, \
     MyDeticInvalidMemoryString
 import errorcodes
+from mydetic.passwordstore import FilePasswordStore
 
 # The mydetic.datastore.DataStore to use
 ds = None
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
-# TODO: Authentication
+auth = HTTPBasicAuth()
+password_store = None
+
+
+@auth.verify_password
+def verify_pw(username, password):
+    """
+    Called to verify HTTP Basic auth username/password combinations
+    :param username:
+    :param password:
+    :return: True if credentials are valid, False otherwise
+    """
+    logger = logging.getLogger('verify_pw')
+    if not password_store:
+        logger.error("No password store specified")
+        return False
+    return password_store.verify(username, password)
 
 
 def parse_iso_date(datestr):
@@ -93,6 +111,10 @@ def parse_memory_from_request():
 
 
 class MemoryListAPI(Resource):
+    """
+    Handles the REST API for listing and creating new memories.
+    """
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.reqparse_get = reqparse.RequestParser()
@@ -252,22 +274,23 @@ class MemoryAPI(Resource):
             return generate_error_json(mydetic_error_code=errorcodes.INVALID_INPUT,
                                        long_message='Expected YYYY-MM-DD'), 400
 
-
-api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
-api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
-
 # This is the default configuration for the server. It will be merged with
 # entries from the config JSON file (which should be in the same format)
 DEFAULT_CONFIG = {
     "s3_config": {
-        "aws_access_key_id": "",
-        "aws_secret_access_key": "",
+        "aws_access_key_id": "UNSET",
+        "aws_secret_access_key": "UNSET",
         "bucket": "mydetic.yourdomain",
         "region": "ap-southeast-2"
     },
     "server_config": {
         "port": 5000,
         "debug": True
+    },
+    "auth_config": {
+        "method": "HTTP Basic",
+        "store": "file",
+        "store_file": "passwords.json"
     }
 }
 
@@ -291,14 +314,23 @@ if __name__ == "__main__":
 
     try:
         logging.debug("Configuring with %s", args.config)
+        config = copy.deepcopy(DEFAULT_CONFIG)
         with open(args.config, 'r') as fp:
             user_config = json.load(fp)
-        config = copy.deepcopy(DEFAULT_CONFIG)
-        config.update(user_config)
+            config.update(user_config)
 
     except StandardError, e:
         logging.critical("Failed to load %s: %s\n", args.config, str(e))
         sys.exit(1)
+
+    # Set up password store for HTTP Basic auth
+    if config['auth_config']['method'] == "HTTP Basic":
+        password_store = FilePasswordStore(config['auth_config']['store_file'])
+        MemoryAPI.decorators = [auth.login_required]
+        MemoryListAPI.decorators = [auth.login_required]
+
+    api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
+    api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
 
     ds = S3DataStore(s3_config=config["s3_config"])
 
