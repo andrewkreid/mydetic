@@ -20,7 +20,7 @@ public class MemoryData {
     public MemoryData(String userId, String memoryText, Date memoryDate) {
         this.userId = userId;
         this.memoryText = memoryText;
-        this.memoryDate = (Date)memoryDate.clone();
+        this.memoryDate = (Date) memoryDate.clone();
     }
 
     public String getUserId() {
@@ -46,4 +46,5 @@ public class MemoryData {
     public void setMemoryDate(Date memoryDate) {
         this.memoryDate = memoryDate;
     }
+
 }

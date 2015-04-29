@@ -10,8 +10,10 @@ import java.util.Date;
 public class Utils {
 
     static DateFormat isoDf = new SimpleDateFormat("yyyy-MM-dd");
+
     /**
      * Parse an ISO format date (YYYY-MM-DD) into a java.util.Date
+     *
      * @param isostr the date in "YYYY-MM-DD" format
      * @return a Date
      * @throws java.text.ParseException

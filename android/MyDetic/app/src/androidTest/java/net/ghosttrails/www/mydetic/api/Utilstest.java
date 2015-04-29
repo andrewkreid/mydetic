@@ -1,4 +1,4 @@
-package net.ghosttrails.www.mydetic;
+package net.ghosttrails.www.mydetic.api;
 
 import junit.framework.TestCase;
 
@@ -32,7 +32,7 @@ public class Utilstest extends TestCase {
             Date d1 = Utils.parseIsoDate("20tr14-11-12");
             fail("Should have thrown a ParseException");
         } catch (ParseException e) {
-            // Exception should have been throws
+            // Exception should have been thrown
         }
     }
 }
