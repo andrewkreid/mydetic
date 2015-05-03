@@ -9,24 +9,29 @@ import java.util.TreeMap;
  */
 public class MemoryDataList {
 
-    private String userID;
+    private String userId;
     private TreeMap<Date, Boolean> dates;
 
     public MemoryDataList() {
         this.dates = new TreeMap<Date, Boolean>();
     }
 
-    public MemoryDataList(String userID, TreeMap<Date, Boolean> dates) {
-        this.userID = userID;
+    public MemoryDataList(String userId) {
+        this.userId = userId;
+        this.dates = new TreeMap<Date, Boolean>();
+    }
+
+    public MemoryDataList(String userId, TreeMap<Date, Boolean> dates) {
+        this.userId = userId;
         this.dates = dates;
     }
 
     public String getUserID() {
-        return userID;
+        return userId;
     }
 
     public void setUserID(String userID) {
-        this.userID = userID;
+        this.userId = userID;
     }
 
     public void setDate(Date date) {
@@ -45,4 +50,15 @@ public class MemoryDataList {
         return this.dates.keySet();
     }
 
+    /**
+     * @return a deep copy of this object.
+     */
+    @Override
+    protected Object clone() {
+        MemoryDataList retval = new MemoryDataList(this.userId);
+        for(Date d: this.getDates()) {
+            retval.setDate(d);
+        }
+        return retval;
+    }
 }

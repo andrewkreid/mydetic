@@ -47,4 +47,11 @@ public class MemoryData {
         this.memoryDate = memoryDate;
     }
 
+    /**
+     * Deep copy
+     */
+    @Override
+    protected Object clone()  {
+        return new MemoryData(this.userId, this.memoryText, this.memoryDate);
+    }
 }
