@@ -7,51 +7,51 @@ import java.util.Date;
  */
 public class MemoryData {
 
-    private String userId;
-    private String memoryText;
-    private Date memoryDate;
+  private String userId;
+  private String memoryText;
+  private Date memoryDate;
 
-    public MemoryData() {
-        this.userId = null;
-        this.memoryDate = null;
-        this.memoryText = null;
-    }
+  public MemoryData() {
+    this.userId = null;
+    this.memoryDate = null;
+    this.memoryText = null;
+  }
 
-    public MemoryData(String userId, String memoryText, Date memoryDate) {
-        this.userId = userId;
-        this.memoryText = memoryText;
-        this.memoryDate = (Date) memoryDate.clone();
-    }
+  public MemoryData(String userId, String memoryText, Date memoryDate) {
+    this.userId = userId;
+    this.memoryText = memoryText;
+    this.memoryDate = (Date) memoryDate.clone();
+  }
 
-    public String getUserId() {
-        return userId;
-    }
+  public String getUserId() {
+    return userId;
+  }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
 
-    public String getMemoryText() {
-        return memoryText;
-    }
+  public String getMemoryText() {
+    return memoryText;
+  }
 
-    public void setMemoryText(String memoryText) {
-        this.memoryText = memoryText;
-    }
+  public void setMemoryText(String memoryText) {
+    this.memoryText = memoryText;
+  }
 
-    public Date getMemoryDate() {
-        return memoryDate;
-    }
+  public Date getMemoryDate() {
+    return memoryDate;
+  }
 
-    public void setMemoryDate(Date memoryDate) {
-        this.memoryDate = memoryDate;
-    }
+  public void setMemoryDate(Date memoryDate) {
+    this.memoryDate = memoryDate;
+  }
 
-    /**
-     * Deep copy
-     */
-    @Override
-    protected Object clone()  {
-        return new MemoryData(this.userId, this.memoryText, this.memoryDate);
-    }
+  /**
+   * Deep copy
+   */
+  @Override
+  protected Object clone() {
+    return new MemoryData(this.userId, this.memoryText, this.memoryDate);
+  }
 }
