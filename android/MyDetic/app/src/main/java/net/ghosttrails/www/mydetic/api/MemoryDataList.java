@@ -1,5 +1,7 @@
 package net.ghosttrails.www.mydetic.api;
 
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeMap;
@@ -49,12 +51,33 @@ public class MemoryDataList {
     return this.dates.keySet();
   }
 
+  public void clear() {
+    this.dates.clear();
+  }
+
+  /**
+   * Update this memory list's memories from another, adding or
+   * overwriting existing memories.
+   *
+   * @param memories a MemoryDataList to merge from.
+   */
+  public void mergeFrom(MemoryDataList memories) throws MyDeticException {
+    if (!this.userId.equals(memories.getUserID())) {
+      throw new MyDeticException(
+          "Tried to merge MemoryDataLists with different userIds");
+    }
+    for (Date d : memories.getDates()) {
+      this.setDate(d);
+    }
+  }
+
   /**
    * @return a deep copy of this object.
    */
   @Override
-  protected Object clone() {
-    MemoryDataList retval = new MemoryDataList(this.userId);
+  protected Object clone() throws CloneNotSupportedException {
+    MemoryDataList retval = (MemoryDataList)super.clone();
+    retval.setUserID(this.userId);
     for (Date d : this.getDates()) {
       retval.setDate(d);
     }

@@ -1,5 +1,9 @@
 package net.ghosttrails.www.mydetic.api;
 
+import android.util.Log;
+
+import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
+
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -12,12 +16,16 @@ public class SampleSetPopulator {
    * Create a sample set of memories for testing.
    */
   public static void populateTestSet(MemoryApi api, String userId,
-                                     boolean removeExisting)
-      throws NoMemoryFoundException {
+                                     boolean removeExisting) {
     if (removeExisting) {
       MemoryDataList memories = api.getMemories(userId);
       for (Date d : memories.getDates()) {
-        api.deleteMemory(userId, d);
+        try {
+          api.deleteMemory(userId, d);
+        } catch (NoMemoryFoundException e) {
+          Log.e("MyDetic",
+              "SampleSetPopulator.populateTestSet threw NoMemoryFoundException");
+        }
       }
     }
 

@@ -7,6 +7,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
+import net.ghosttrails.www.mydetic.api.MemoryApi;
+import net.ghosttrails.www.mydetic.api.MemoryDataList;
+import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+
 
 public class HomeActivity extends ActionBarActivity {
 
@@ -14,6 +20,18 @@ public class HomeActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
+
+    // refetch the memories from the API.
+    MyDeticApplication app = (MyDeticApplication)getApplicationContext();
+    MemoryDataList memories = app.getMemories();
+    memories.clear();
+    try {
+      memories.mergeFrom(app.getApi().getMemories(app.getUserId()));
+    } catch (MyDeticException e) {
+      // something went wrong fetching memories initially
+      // TODO: what's the right thing to do here.
+      e.printStackTrace();
+    }
   }
 
   @Override

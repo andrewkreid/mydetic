@@ -1,9 +1,28 @@
 package net.ghosttrails.www.mydetic;
 
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TwoLineListItem;
+
+import net.ghosttrails.www.mydetic.api.MemoryDataList;
+import net.ghosttrails.www.mydetic.api.Utils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class MemoryListActivity extends ActionBarActivity {
@@ -12,6 +31,14 @@ public class MemoryListActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
+
+    MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+
+    MemoryDataList memories = app.getMemories();
+    final ListView listview = (ListView) findViewById(R.id.listview);
+
+    final MemoriesAdapter adapter = new MemoriesAdapter(this, memories);
+    listview.setAdapter(adapter);
   }
 
   @Override
@@ -35,4 +62,96 @@ public class MemoryListActivity extends ActionBarActivity {
 
     return super.onOptionsItemSelected(item);
   }
+
+  private class MemoriesAdapter extends BaseAdapter {
+
+    private Context context;
+    private MemoryDataList memories;
+    private SparseArray<Date> positionMap;
+
+    public MemoriesAdapter(Context context, MemoryDataList memories) {
+      this.memories = memories;
+      this.context = context;
+      this.positionMap = new SparseArray<Date>();
+      int idx = 0;
+      for (Date d : this.memories.getDates()) {
+        positionMap.put(idx, d);
+        idx++;
+      }
+    }
+
+    /**
+     * How many items are in the data set represented by this Adapter.
+     *
+     * @return Count of items.
+     */
+    @Override
+    public int getCount() {
+      return positionMap.size();
+    }
+
+    /**
+     * Get the data item associated with the specified position in the data set.
+     *
+     * @param position Position of the item whose data we want within the adapter's
+     *                 data set.
+     * @return The data at the specified position.
+     */
+    @Override
+    public Object getItem(int position) {
+      return positionMap.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+      return 0;
+    }
+
+    /**
+     * Get a View that displays the data at the specified position in the data set. You can either
+     * create a View manually or inflate it from an XML layout file. When the View is inflated, the
+     * parent View (GridView, ListView...) will apply default layout parameters unless you use
+     * {@link LayoutInflater#inflate(int, ViewGroup, boolean)}
+     * to specify a root view and to prevent attachment to the root.
+     *
+     * @param position    The position of the item within the adapter's data set of the item whose view
+     *                    we want.
+     * @param convertView The old view to reuse, if possible. Note: You should check that this view
+     *                    is non-null and of an appropriate type before using. If it is not possible to convert
+     *                    this view to display the correct data, this method can create a new view.
+     *                    Heterogeneous lists can specify their number of view types, so that this View is
+     *                    always of the right type (see {@link #getViewTypeCount()} and
+     *                    {@link #getItemViewType(int)}).
+     * @param parent      The parent that this view will eventually be attached to
+     * @return A View corresponding to the data at the specified position.
+     */
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+      // TODO: This is lazy. Replace with a custom layout for list items.
+
+      TwoLineListItem twoLineListItem;
+
+      if (convertView == null) {
+        LayoutInflater inflater = (LayoutInflater) context
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        twoLineListItem = (TwoLineListItem) inflater.inflate(
+            android.R.layout.simple_list_item_2, null);
+      } else {
+        twoLineListItem = (TwoLineListItem) convertView;
+      }
+
+      TextView text1 = twoLineListItem.getText1();
+      TextView text2 = twoLineListItem.getText2();
+
+      text1.setText(Utils.isoFormat(positionMap.get(position)));
+
+      // TODO: Should be first line of the memory text if we know it.
+      text2.setText("boing");
+
+      return twoLineListItem;
+    }
+
+  }
+
 }

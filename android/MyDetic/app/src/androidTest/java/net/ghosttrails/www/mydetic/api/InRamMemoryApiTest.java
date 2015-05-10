@@ -2,6 +2,8 @@ package net.ghosttrails.www.mydetic.api;
 
 import junit.framework.TestCase;
 
+import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
+
 import java.util.Date;
 
 /**
