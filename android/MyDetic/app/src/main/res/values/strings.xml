@@ -2,4 +2,8 @@
     <string name="app_name">MyDetic</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="open_memory_list">Memory List</string>
+    <string name="title_activity_memory_list">MemoryListActivity</string>
+    <string name="list_view_desc">This is the List View</string>
 </resources>
