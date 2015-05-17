@@ -1,6 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -9,10 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
@@ -25,7 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class MemoryListActivity extends ActionBarActivity {
+public class MemoryListActivity extends ActionBarActivity
+    implements AdapterView.OnItemClickListener {
+
+  public static final String MEMORY_DETAIL_DATE = "net.ghosttrails.mydetic.MemoryDetailDate";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +41,13 @@ public class MemoryListActivity extends ActionBarActivity {
     MyDeticApplication app = (MyDeticApplication) getApplicationContext();
 
     MemoryDataList memories = app.getMemories();
-    final ListView listview = (ListView) findViewById(R.id.listview);
+    final ListView listView = (ListView) findViewById(R.id.listview);
+
+    // Set a click handler for items in the list.
+    listView.setOnItemClickListener(this);
 
     final MemoriesAdapter adapter = new MemoriesAdapter(this, memories);
-    listview.setAdapter(adapter);
+    listView.setAdapter(adapter);
   }
 
   @Override
@@ -61,6 +70,29 @@ public class MemoryListActivity extends ActionBarActivity {
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Callback method to be invoked when an item in this AdapterView has
+   * been clicked.
+   * <p/>
+   * Implementers can call getItemAtPosition(position) if they need
+   * to access the data associated with the selected item.
+   *
+   * @param parent   The AdapterView where the click happened.
+   * @param view     The view within the AdapterView that was clicked (this
+   *                 will be a view provided by the adapter)
+   * @param position The position of the view in the adapter.
+   * @param id       The row id of the item that was clicked.
+   */
+  @Override
+  public void onItemClick(AdapterView<?> parent, View view, int position,
+                          long id) {
+    MemoriesAdapter adapter = (MemoriesAdapter) parent.getAdapter();
+    Date d = (Date) adapter.getItem(position);
+    Intent intent = new Intent(this, MemoryDetailActivity.class);
+    intent.putExtra(MEMORY_DETAIL_DATE, Utils.isoFormat(d));
+    startActivity(intent);
   }
 
   private class MemoriesAdapter extends BaseAdapter {
