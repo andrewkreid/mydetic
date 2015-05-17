@@ -8,4 +8,5 @@
     <string name="list_view_desc">This is the List View</string>
     <string name="no_data">No data</string>
     <string name="title_activity_memory_detail">Memory Detail</string>
+    <string name="def_memory_date">Memory Date</string>
 </resources>

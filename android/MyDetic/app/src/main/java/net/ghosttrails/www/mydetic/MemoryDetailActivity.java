@@ -1,16 +1,19 @@
 package net.ghosttrails.www.mydetic;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
+import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -19,6 +22,8 @@ import java.util.Date;
 public class MemoryDetailActivity extends ActionBarActivity {
 
   private MemoryData memoryData;
+  private TextView dateTextView;
+  private EditText memoryEditText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -28,21 +33,22 @@ public class MemoryDetailActivity extends ActionBarActivity {
     Intent intent = getIntent();
     String memoryDateStr = intent.getStringExtra(MemoryListActivity.MEMORY_DETAIL_DATE);
 
-    TextView dateText = (TextView)this.findViewById(R.id.memory_title);
-    dateText.setText("Select Date...");
+    memoryEditText = (EditText)this.findViewById(R.id.memory_text);
+
+    dateTextView = (TextView)this.findViewById(R.id.memory_title);
+    dateTextView.setText("Select Date...");
     // TODO: tapping opens date picker.
 
     if (memoryDateStr != null) {
 
       try {
-        Date memorydate = Utils.parseIsoDate(memoryDateStr);
-        // TODO: Nicer date formatting (day of week etc.)
-        dateText.setText(Utils.isoFormat(memorydate));
+        Date memoryDate = Utils.parseIsoDate(memoryDateStr);
 
         // fetch the memory
         MyDeticApplication app = (MyDeticApplication)getApplicationContext();
 
-        // TODO: Asynchronous api call to fetch the memory.
+        // TODO: Progress spinner while the memory loads.
+        new FetchMemoryTask().execute(memoryDate);
 
       } catch (ParseException e) {
         Log.e("MemoryDetailActivity", "Could not parse [" + memoryDateStr + "] as Date");
@@ -71,5 +77,41 @@ public class MemoryDetailActivity extends ActionBarActivity {
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Background task to fetch MemoryData objects from the API.
+   */
+  private class FetchMemoryTask extends AsyncTask<Date, Void, MemoryData> {
+    @Override
+    protected void onPostExecute(MemoryData memoryData) {
+      if (memoryData == null) {
+        // Couldn't be fetched
+        // TODO: propagate error info back here somehow for nicer messages.
+        dateTextView.setText("Could not fetch");
+        memoryEditText.setText("");
+      } else {
+        super.onPostExecute(memoryData);
+        MemoryDetailActivity.this.memoryData = memoryData;
+        // TODO: Nicer date formatting (day of week etc.)
+        dateTextView.setText(Utils.isoFormat(memoryData.getMemoryDate()));
+        memoryEditText.setText(memoryData.getMemoryText());
+      }
+    }
+
+    @Override
+    protected MemoryData doInBackground(Date... params) {
+      Date memoryDate = params[0];
+      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+      try {
+        MemoryData memoryData = app.getApi().getMemory(app.getUserId(),
+            memoryDate);
+        return memoryData;
+      } catch (NoMemoryFoundException e) {
+        Log.e("MemoryDetailActivity", e.getMessage());
+      }
+
+      return null;
+    }
   }
 }
