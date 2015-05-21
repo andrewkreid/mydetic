@@ -46,14 +46,16 @@
             android:layout_height="wrap_content"
             android:text="Save"
             style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/memory_save"/>
+            android:id="@+id/memory_save"
+            android:onClick="saveClicked"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Refresh"
             style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/memory_refresh"/>
+            android:id="@+id/memory_refresh"
+            android:onClick="refreshClicked"/>
     </LinearLayout>
 
 

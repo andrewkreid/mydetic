@@ -14,11 +14,36 @@ import java.util.TreeMap;
 public class InRamMemoryApi implements MemoryApi {
 
   private Map<String, Map<Date, MemoryData>> memoryLists;
+  private int simulatedDelayMs;
 
   public InRamMemoryApi() {
-    memoryLists = new HashMap<String, Map<Date, MemoryData>>();
+    this(0);
   }
 
+  /**
+   *
+   * @param simulatedDelayMs delay each call by this number of milliseconds.
+   */
+  public InRamMemoryApi(int simulatedDelayMs) {
+    memoryLists = new HashMap<String, Map<Date, MemoryData>>();
+    this.simulatedDelayMs = simulatedDelayMs;
+  }
+
+  public int getSimulatedDelayMs() {
+    return simulatedDelayMs;
+  }
+
+  public void setSimulatedDelayMs(int simulatedDelayMs) {
+    this.simulatedDelayMs = simulatedDelayMs;
+  }
+
+  private void simulatedSleep() {
+    try {
+      Thread.sleep(simulatedDelayMs);
+    } catch(InterruptedException e) {
+      // We don't really care if we get interrupted occasionally.
+    }
+  }
   /**
    * @param userId the user id
    * @return the Map for userId. Create and return an empty one if required.
@@ -36,6 +61,7 @@ public class InRamMemoryApi implements MemoryApi {
    */
   @Override
   public MemoryDataList getMemories(String userId) {
+    simulatedSleep();
     Map<Date, MemoryData> memoryMap = this.getListForUserId(userId);
     MemoryDataList retval = new MemoryDataList(userId);
     for (Date d : memoryMap.keySet()) {
@@ -55,6 +81,7 @@ public class InRamMemoryApi implements MemoryApi {
    */
   @Override
   public MemoryDataList getMemories(String userId, Date fromDate, Date toDate) {
+    simulatedSleep();
     Map<Date, MemoryData> memoryMap = this.getListForUserId(userId);
     MemoryDataList retval = new MemoryDataList(userId);
     for (Date d : memoryMap.keySet()) {
@@ -80,6 +107,7 @@ public class InRamMemoryApi implements MemoryApi {
   @Override
   public MemoryData getMemory(String userId,
                               Date memoryDate) throws NoMemoryFoundException {
+    simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     if (!list.containsKey(memoryDate)) {
       throw new NoMemoryFoundException(userId, memoryDate);
@@ -96,6 +124,7 @@ public class InRamMemoryApi implements MemoryApi {
    */
   @Override
   public MemoryData putMemory(String userId, MemoryData memory) {
+    simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     list.put(memory.getMemoryDate(), (MemoryData) memory.clone());
     return list.get(memory.getMemoryDate());
@@ -109,6 +138,7 @@ public class InRamMemoryApi implements MemoryApi {
    */
   @Override
   public boolean hasMemory(String userId, Date memoryDate) {
+    simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     return list.containsKey(memoryDate);
   }
@@ -122,6 +152,7 @@ public class InRamMemoryApi implements MemoryApi {
   @Override
   public MemoryData deleteMemory(String userId,
                                  Date memoryDate) throws NoMemoryFoundException {
+    simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     if (!list.containsKey(memoryDate)) {
       throw new NoMemoryFoundException(userId, memoryDate);

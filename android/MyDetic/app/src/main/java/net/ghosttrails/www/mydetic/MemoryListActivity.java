@@ -40,6 +40,7 @@ public class MemoryListActivity extends ActionBarActivity
 
     MyDeticApplication app = (MyDeticApplication) getApplicationContext();
 
+    // TODO: Fetch list on background thread.
     MemoryDataList memories = app.getMemories();
     final ListView listView = (ListView) findViewById(R.id.listview);
 

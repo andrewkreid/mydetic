@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +26,8 @@ public class MemoryDetailActivity extends ActionBarActivity {
   private MemoryData memoryData;
   private TextView dateTextView;
   private EditText memoryEditText;
+
+  private ProgressDialog progressDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +55,8 @@ public class MemoryDetailActivity extends ActionBarActivity {
         new FetchMemoryTask().execute(memoryDate);
 
       } catch (ParseException e) {
-        Log.e("MemoryDetailActivity", "Could not parse [" + memoryDateStr + "] as Date");
+        Log.e("MemoryDetailActivity", "Could not parse ["
+            + memoryDateStr + "] as Date");
       }
 
     }
@@ -80,18 +85,44 @@ public class MemoryDetailActivity extends ActionBarActivity {
   }
 
   /**
+   * Handle taps on the "Save" button. Saves the current memory text using
+   * the API.
+   * @param view Button that was clicked.
+   */
+  public void saveClicked(View view) {
+    // TODO: Save memory text
+  }
+
+  public void refreshClicked(View view) {
+    // TODO: Refresh memory.
+  }
+
+  /**
    * Background task to fetch MemoryData objects from the API.
    */
   private class FetchMemoryTask extends AsyncTask<Date, Void, MemoryData> {
+
+    @Override
+    protected void onPreExecute() {
+      progressDialog = new ProgressDialog(MemoryDetailActivity.this);
+      progressDialog.setTitle("Processing...");
+      progressDialog.setMessage("Please wait.");
+      progressDialog.setCancelable(false);
+      progressDialog.setIndeterminate(true);
+      progressDialog.show();
+    }
+
     @Override
     protected void onPostExecute(MemoryData memoryData) {
+      if ((progressDialog != null) && progressDialog.isShowing()) {
+        progressDialog.dismiss();
+      }
       if (memoryData == null) {
         // Couldn't be fetched
         // TODO: propagate error info back here somehow for nicer messages.
         dateTextView.setText("Could not fetch");
         memoryEditText.setText("");
       } else {
-        super.onPostExecute(memoryData);
         MemoryDetailActivity.this.memoryData = memoryData;
         // TODO: Nicer date formatting (day of week etc.)
         dateTextView.setText(Utils.isoFormat(memoryData.getMemoryDate()));
@@ -104,9 +135,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
       Date memoryDate = params[0];
       MyDeticApplication app = (MyDeticApplication) getApplicationContext();
       try {
-        MemoryData memoryData = app.getApi().getMemory(app.getUserId(),
-            memoryDate);
-        return memoryData;
+        return app.getApi().getMemory(app.getUserId(), memoryDate);
       } catch (NoMemoryFoundException e) {
         Log.e("MemoryDetailActivity", e.getMessage());
       }

@@ -36,9 +36,14 @@ public class MyDeticApplication extends Application {
   public void onCreate() {
     super.onCreate();
     // Init the api and memory list
+    // TODO: userId from settings.
     userId = "mreynolds";
-    api = new InRamMemoryApi();
-    SampleSetPopulator.populateTestSet(api, userId, true);
+    InRamMemoryApi ramApi = new InRamMemoryApi();
+
+    SampleSetPopulator.populateTestSet(ramApi, userId, true);
+    ramApi.setSimulatedDelayMs(2000);
+    api = ramApi;
+
     memories = new MemoryDataList();
     memories.setUserID(userId);
 
