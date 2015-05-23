@@ -1,12 +1,16 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Application;
+import android.util.Log;
 
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -40,8 +44,12 @@ public class MyDeticApplication extends Application {
     userId = "mreynolds";
     InRamMemoryApi ramApi = new InRamMemoryApi();
 
-    SampleSetPopulator.populateTestSet(ramApi, userId, true);
-    ramApi.setSimulatedDelayMs(4000);
+    try {
+      SampleSetPopulator.populateTestSet(ramApi, userId, true);
+    } catch (MyDeticException e) {
+      Log.e("MyDeticApplication", "Same Populate Failed", e);
+    }
+    ramApi.setSimulatedDelayMs(2000);
     api = ramApi;
 
     memories = new MemoryDataList();

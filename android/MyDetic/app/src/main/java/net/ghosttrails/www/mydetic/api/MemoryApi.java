@@ -1,6 +1,8 @@
 package net.ghosttrails.www.mydetic.api;
 
-import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.util.Date;
 
@@ -14,7 +16,7 @@ public interface MemoryApi {
    * @param userId
    * @return A list of all memories for user userId
    */
-  MemoryDataList getMemories(String userId);
+  MemoryDataList getMemories(String userId) throws MyDeticReadFailedException;
 
   /**
    * Get a list of memories between fromDate and toDate (inclusive). Either
@@ -25,16 +27,18 @@ public interface MemoryApi {
    * @param toDate
    * @return
    */
-  MemoryDataList getMemories(String userId, Date fromDate, Date toDate);
+  MemoryDataList getMemories(String userId, Date fromDate, Date toDate)
+      throws MyDeticReadFailedException;
 
   /**
    * @param userId
    * @param memoryDate
    * @return a MemoryData object containing the memory for the userId and date.
-   * @throws NoMemoryFoundException if no memory exists.
+   * @throws MyDeticNoMemoryFoundException if no memory exists.
    */
   MemoryData getMemory(String userId,
-                       Date memoryDate) throws NoMemoryFoundException;
+                       Date memoryDate) throws MyDeticReadFailedException,
+      MyDeticNoMemoryFoundException;
 
   /**
    * Adds or updates a memory
@@ -42,8 +46,10 @@ public interface MemoryApi {
    * @param userId
    * @param memory
    * @return The added memory.
+   * @throws MyDeticWriteFailedException
    */
-  MemoryData putMemory(String userId, MemoryData memory);
+  MemoryData putMemory(String userId, MemoryData memory) throws
+      MyDeticWriteFailedException;
 
   /**
    * @param userId
@@ -51,14 +57,15 @@ public interface MemoryApi {
    * @return true if there is a memory for the userId on memoryDate,
    * false otherwise.
    */
-  boolean hasMemory(String userId, Date memoryDate);
+  boolean hasMemory(String userId, Date memoryDate) throws
+      MyDeticReadFailedException;
 
   /**
    * @param userId
    * @param memoryDate
    * @return
-   * @throws NoMemoryFoundException
+   * @throws MyDeticNoMemoryFoundException
    */
   MemoryData deleteMemory(String userId,
-                          Date memoryDate) throws NoMemoryFoundException;
+                          Date memoryDate) throws MyDeticNoMemoryFoundException;
 }

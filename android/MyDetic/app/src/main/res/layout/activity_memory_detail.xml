@@ -44,7 +44,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="@string/savebutton"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/memory_save"
             android:onClick="saveClicked"/>
@@ -52,7 +52,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Refresh"
+            android:text="@string/refreshbutton"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/memory_refresh"
             android:onClick="refreshClicked"/>

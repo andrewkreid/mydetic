@@ -2,7 +2,7 @@ package net.ghosttrails.www.mydetic.api;
 
 import junit.framework.TestCase;
 
-import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 
 import java.util.Date;
 
@@ -37,19 +37,19 @@ public class InRamMemoryApiTest extends TestCase {
             assertEquals(userId, md.getUserId());
             assertEquals(date, md.getMemoryDate());
             assertEquals("a memory", md.getMemoryText());
-        } catch(NoMemoryFoundException nme) {
+        } catch(MyDeticNoMemoryFoundException nme) {
             fail(nme.getMessage());
         }
 
         try {
             MemoryData md = api.getMemory("different user", date);
-            fail("Should have thrown NoMemoryFoundException");
-        } catch(NoMemoryFoundException nme) {
+            fail("Should have thrown MyDeticNoMemoryFoundException");
+        } catch(MyDeticNoMemoryFoundException nme) {
             // expected.
         }
     }
 
-    public void testUpdate() throws  NoMemoryFoundException {
+    public void testUpdate() throws MyDeticNoMemoryFoundException {
         api.putMemory(userId, new MemoryData(userId, "a memory", date));
         MemoryData md = api.getMemory(userId, date);
         assertEquals("a memory", md.getMemoryText());
@@ -77,7 +77,7 @@ public class InRamMemoryApiTest extends TestCase {
         assertEquals(1, api.getMemories(userId, new Date(2014, 5, 3), new Date(2014, 5, 3)).getDates().size());
     }
 
-    public void testDelete() throws NoMemoryFoundException {
+    public void testDelete() throws MyDeticNoMemoryFoundException {
         api.putMemory(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
         api.putMemory(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
         api.putMemory(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
@@ -90,7 +90,7 @@ public class InRamMemoryApiTest extends TestCase {
         try {
             api.deleteMemory(userId, new Date(2014, 5, 1));
             fail("Should have thrown exception");
-        } catch(NoMemoryFoundException nme) {
+        } catch(MyDeticNoMemoryFoundException nme) {
             // Should have thrown exception
         }
     }

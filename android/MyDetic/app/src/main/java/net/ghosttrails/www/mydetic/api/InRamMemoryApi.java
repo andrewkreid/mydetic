@@ -1,6 +1,6 @@
 package net.ghosttrails.www.mydetic.api;
 
-import net.ghosttrails.www.mydetic.exceptions.NoMemoryFoundException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -102,15 +102,15 @@ public class InRamMemoryApi implements MemoryApi {
    * @param userId     the user id
    * @param memoryDate the date to get a memory for
    * @return a MemoryData object containing the memory for the userId and date.
-   * @throws NoMemoryFoundException if no memory exists.
+   * @throws MyDeticNoMemoryFoundException if no memory exists.
    */
   @Override
   public MemoryData getMemory(String userId,
-                              Date memoryDate) throws NoMemoryFoundException {
+                              Date memoryDate) throws MyDeticNoMemoryFoundException {
     simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     if (!list.containsKey(memoryDate)) {
-      throw new NoMemoryFoundException(userId, memoryDate);
+      throw new MyDeticNoMemoryFoundException(userId, memoryDate);
     }
     return list.get(memoryDate);
   }
@@ -147,15 +147,15 @@ public class InRamMemoryApi implements MemoryApi {
    * @param userId
    * @param memoryDate
    * @return
-   * @throws NoMemoryFoundException
+   * @throws MyDeticNoMemoryFoundException
    */
   @Override
   public MemoryData deleteMemory(String userId,
-                                 Date memoryDate) throws NoMemoryFoundException {
+                                 Date memoryDate) throws MyDeticNoMemoryFoundException {
     simulatedSleep();
     Map<Date, MemoryData> list = getListForUserId(userId);
     if (!list.containsKey(memoryDate)) {
-      throw new NoMemoryFoundException(userId, memoryDate);
+      throw new MyDeticNoMemoryFoundException(userId, memoryDate);
     } else {
       return list.remove(memoryDate);
     }
