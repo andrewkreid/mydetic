@@ -1,6 +1,8 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,22 +18,14 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 public class HomeActivity extends ActionBarActivity {
 
+  private ProgressDialog progressDialog;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
 
-    // refetch the memories from the API.
-    MyDeticApplication app = (MyDeticApplication)getApplicationContext();
-    MemoryDataList memories = app.getMemories();
-    memories.clear();
-    try {
-      memories.mergeFrom(app.getApi().getMemories(app.getUserId()));
-    } catch (MyDeticException e) {
-      // something went wrong fetching memories initially
-      // TODO: what's the right thing to do here.
-      e.printStackTrace();
-    }
+    new FetchMemoryListTask().execute();
   }
 
   @Override
@@ -59,5 +53,41 @@ public class HomeActivity extends ActionBarActivity {
   public void memoryListClicked(View view) {
     Intent intent = new Intent(this, MemoryListActivity.class);
     startActivity(intent);
+  }
+
+  private class FetchMemoryListTask extends AsyncTask<Void, Void, MemoryDataList> {
+
+    @Override
+    protected MemoryDataList doInBackground(Void... voids) {
+      // refetch the memories from the API.
+      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+      MemoryDataList memories = app.getMemories();
+      memories.clear();
+      try {
+        memories.mergeFrom(app.getApi().getMemories(app.getUserId()));
+      } catch (MyDeticException e) {
+        // something went wrong fetching memories initially
+        // TODO: what's the right thing to do here.
+        e.printStackTrace();
+      }
+      return memories;
+    }
+
+    @Override
+    protected void onPostExecute(MemoryDataList memories) {
+      if ((progressDialog != null) && progressDialog.isShowing()) {
+        progressDialog.dismiss();
+      }
+    }
+
+    @Override
+    protected void onPreExecute() {
+      progressDialog = new ProgressDialog(HomeActivity.this);
+      progressDialog.setTitle("Processing...");
+      progressDialog.setMessage("Please wait.");
+      progressDialog.setCancelable(false);
+      progressDialog.setIndeterminate(true);
+      progressDialog.show();
+    }
   }
 }

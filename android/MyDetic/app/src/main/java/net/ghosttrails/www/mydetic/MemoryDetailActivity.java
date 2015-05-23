@@ -51,7 +51,6 @@ public class MemoryDetailActivity extends ActionBarActivity {
         // fetch the memory
         MyDeticApplication app = (MyDeticApplication)getApplicationContext();
 
-        // TODO: Progress spinner while the memory loads.
         new FetchMemoryTask().execute(memoryDate);
 
       } catch (ParseException e) {

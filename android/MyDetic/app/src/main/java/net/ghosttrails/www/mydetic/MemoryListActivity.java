@@ -1,7 +1,9 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -33,6 +35,8 @@ public class MemoryListActivity extends ActionBarActivity
 
   public static final String MEMORY_DETAIL_DATE = "net.ghosttrails.mydetic.MemoryDetailDate";
 
+  private ProgressDialog progressDialog;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -40,14 +44,10 @@ public class MemoryListActivity extends ActionBarActivity
 
     MyDeticApplication app = (MyDeticApplication) getApplicationContext();
 
-    // TODO: Fetch list on background thread.
-    MemoryDataList memories = app.getMemories();
     final ListView listView = (ListView) findViewById(R.id.listview);
-
-    // Set a click handler for items in the list.
     listView.setOnItemClickListener(this);
 
-    final MemoriesAdapter adapter = new MemoriesAdapter(this, memories);
+    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this, app.getMemories());
     listView.setAdapter(adapter);
   }
 

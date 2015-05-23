@@ -41,7 +41,7 @@ public class MyDeticApplication extends Application {
     InRamMemoryApi ramApi = new InRamMemoryApi();
 
     SampleSetPopulator.populateTestSet(ramApi, userId, true);
-    ramApi.setSimulatedDelayMs(2000);
+    ramApi.setSimulatedDelayMs(4000);
     api = ramApi;
 
     memories = new MemoryDataList();
