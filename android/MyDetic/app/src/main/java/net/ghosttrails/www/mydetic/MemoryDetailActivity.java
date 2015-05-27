@@ -59,20 +59,13 @@ public class MemoryDetailActivity extends ActionBarActivity {
     // TODO: tapping opens date picker.
 
     if (memoryDateStr != null) {
-
       try {
         Date memoryDate = Utils.parseIsoDate(memoryDateStr);
-
-        // fetch the memory
-        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-
         new FetchMemoryTask().execute(memoryDate);
-
       } catch (ParseException e) {
         Log.e("MemoryDetailActivity", "Could not parse ["
             + memoryDateStr + "] as Date");
       }
-
     }
   }
 
@@ -122,7 +115,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
   }
 
   public void refreshClicked(View view) {
-    // TODO: Refresh memory.
+    new FetchMemoryTask().execute(MemoryDetailActivity.this.memoryData.getMemoryDate());
   }
 
   private class SaveMemoryTask extends AsyncTask<MemoryData, Void, Boolean> {
