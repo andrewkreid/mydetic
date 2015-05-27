@@ -110,6 +110,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
   }
 
   private void updateUIFromData() {
+    // TODO: disable save button if we don't have a memory.
     if (memoryData == null) {
       dateTextView.setText("No Data");
       memoryEditText.setText("");
