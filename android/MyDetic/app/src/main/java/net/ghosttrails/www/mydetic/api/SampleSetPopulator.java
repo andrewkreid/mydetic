@@ -37,7 +37,7 @@ public class SampleSetPopulator {
     addMemory(api, userId, 2015, 4, 29, "Dreamt about cheese.");
     addMemory(api, userId, 2015, 4, 30,
         "Accidentally shaved off my hipster beard");
-    addMemory(api, userId, 2015, 5, 3, "I don't like cabbage wih vegemite.");
+    addMemory(api, userId, 2015, 5, 3, "I don't like cabbage with vegemite.");
     addMemory(api, userId, 2015, 5, 4, "Winter is coming.");
     addMemory(api, userId, 2015, 5, 5,
         "It is possible I already had some presentiment of my future. The " +

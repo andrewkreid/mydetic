@@ -60,8 +60,15 @@ public class MemoryDetailActivity extends ActionBarActivity {
 
     if (memoryDateStr != null) {
       try {
+        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
         Date memoryDate = Utils.parseIsoDate(memoryDateStr);
-        new FetchMemoryTask().execute(memoryDate);
+
+        memoryData = app.getCachedMemory(memoryDate);
+        if(memoryData == null) {
+          new FetchMemoryTask().execute(memoryDate);
+        } else {
+          updateUIFromData();
+        }
       } catch (ParseException e) {
         Log.e("MemoryDetailActivity", "Could not parse ["
             + memoryDateStr + "] as Date");
@@ -102,6 +109,17 @@ public class MemoryDetailActivity extends ActionBarActivity {
     }
   }
 
+  private void updateUIFromData() {
+    if (memoryData == null) {
+      dateTextView.setText("No Data");
+      memoryEditText.setText("");
+    } else {
+      // TODO: Nicer date formatting (day of week etc.)
+      dateTextView.setText(Utils.isoFormat(memoryData.getMemoryDate()));
+      memoryEditText.setText(memoryData.getMemoryText());
+    }
+  }
+
   /**
    * Handle taps on the "Save" button. Saves the current memory text using
    * the API.
@@ -138,6 +156,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
       MyDeticApplication app = (MyDeticApplication) getApplicationContext();
       try {
         app.getApi().putMemory(app.getUserId(), memoryData);
+        app.setCachedMemory(memoryData);
       } catch (MyDeticWriteFailedException e) {
         // TODO: Decide what to do about read/write errors globally.
         Log.e("MemoryDetailActivity", "Failed to save memory", e);
@@ -165,14 +184,12 @@ public class MemoryDetailActivity extends ActionBarActivity {
       if (memoryData == null) {
         // Couldn't be fetched
         // TODO: propagate error info back here somehow for nicer messages.
-        dateTextView.setText("Could not fetch");
-        memoryEditText.setText("");
       } else {
+        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
         MemoryDetailActivity.this.memoryData = memoryData;
-        // TODO: Nicer date formatting (day of week etc.)
-        dateTextView.setText(Utils.isoFormat(memoryData.getMemoryDate()));
-        memoryEditText.setText(memoryData.getMemoryText());
+        app.setCachedMemory(memoryData);
       }
+      updateUIFromData();
     }
 
     @Override

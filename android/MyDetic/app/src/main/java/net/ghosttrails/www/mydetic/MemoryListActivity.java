@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
+import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 
@@ -33,21 +35,24 @@ import java.util.List;
 public class MemoryListActivity extends ActionBarActivity
     implements AdapterView.OnItemClickListener {
 
-  public static final String MEMORY_DETAIL_DATE = "net.ghosttrails.mydetic.MemoryDetailDate";
+  public static final String MEMORY_DETAIL_DATE =
+      "net.ghosttrails.mydetic.MemoryDetailDate";
 
   private ProgressDialog progressDialog;
+  private MyDeticApplication app;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
 
-    MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+    app = (MyDeticApplication) getApplicationContext();
 
     final ListView listView = (ListView) findViewById(R.id.listview);
     listView.setOnItemClickListener(this);
 
-    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this, app.getMemories());
+    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this,
+        app.getMemories());
     listView.setAdapter(adapter);
   }
 
@@ -177,10 +182,18 @@ public class MemoryListActivity extends ActionBarActivity
       TextView text1 = twoLineListItem.getText1();
       TextView text2 = twoLineListItem.getText2();
 
-      text1.setText(Utils.isoFormat(positionMap.get(position)));
+      Date memoryDate = positionMap.get(position);
+      text1.setText(Utils.isoFormat(memoryDate));
 
-      // TODO: Should be first line of the memory text if we know it.
-      text2.setText("boing");
+      // Use the first line of the memory text if we know it.
+      MemoryData memoryData = app.getCachedMemory(memoryDate);
+      if (memoryData != null) {
+        text2.setEllipsize(TextUtils.TruncateAt.END);
+        text2.setSingleLine();
+        text2.setText(memoryData.getMemoryText());
+      } else {
+        text2.setText("");
+      }
 
       return twoLineListItem;
     }

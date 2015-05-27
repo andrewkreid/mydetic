@@ -82,4 +82,18 @@ public class MyDeticApplication extends Application {
       MemoryDataList memories) {
     this.memories = memories;
   }
+
+  /**
+   * Fetch a memory from the cache if one exists. As the app loads memories,
+   * they are stored in this cache to avoid unnecesary network calls.
+   * @param d the date of the memory
+   * @return a MemoryData if one has been cached, null otherwise.
+   */
+  public MemoryData getCachedMemory(Date d) {
+    return memoryCache.get(d);
+  }
+
+  public void setCachedMemory(MemoryData memoryData) {
+    memoryCache.put(memoryData.getMemoryDate(), memoryData);
+  }
 }
