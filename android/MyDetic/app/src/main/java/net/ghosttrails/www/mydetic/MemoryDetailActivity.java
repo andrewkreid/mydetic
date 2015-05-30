@@ -4,8 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,11 +16,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.text.ParseException;
@@ -27,11 +29,24 @@ import java.util.Date;
 
 public class MemoryDetailActivity extends ActionBarActivity {
 
+  private Date memoryDate;
   private MemoryData memoryData;
   private TextView dateTextView;
   private EditText memoryEditText;
   private Button saveButton;
   private Button refreshButton;
+
+
+  /**
+   * is this activity for creating a new memory or editing an existing one
+   */
+  public enum MemoryDetailMode {
+    MODE_NEW,
+    MODE_EXISTING
+  }
+
+  private MemoryDetailMode editMode;
+  private boolean hasLoadedMemory;
 
   private ProgressDialog progressDialog;
 
@@ -46,34 +61,70 @@ public class MemoryDetailActivity extends ActionBarActivity {
     progressDialog.setCancelable(false);
     progressDialog.setIndeterminate(true);
 
+    // Will be set to true the first time the memory is loaded. This is so we
+    // don't accidentally overwrite a memory that didn't load with a new one.
+    hasLoadedMemory = false;
+
     Intent intent = getIntent();
     String memoryDateStr = intent.getStringExtra(MemoryListActivity
         .MEMORY_DETAIL_DATE);
+    if (memoryDateStr != null) {
+      try {
+        memoryDate = Utils.parseIsoDate(memoryDateStr);
+      } catch (ParseException e) {
+        // TODO: Do something here, but what?
+        Log.e("MemoryDetailActivity", "Could not parse ["
+            + memoryDateStr + "] as Date");
+      }
+    }
+
+    String editModeStr = intent.getStringExtra(MemoryListActivity
+        .MEMORY_DETAIL_EDITMODE);
+    if("edit".equals(editModeStr)) {
+      editMode = MemoryDetailMode.MODE_EXISTING;
+    } else {
+      editMode = MemoryDetailMode.MODE_NEW;
+    }
 
     memoryEditText = (EditText) this.findViewById(R.id.memory_text);
+    memoryEditText.addTextChangedListener(new TextWatcher() {
+
+      @Override
+      public void beforeTextChanged(CharSequence charSequence, int i, int i1,
+                                    int i2) {
+      }
+
+      @Override
+      public void onTextChanged(CharSequence charSequence,
+                                int i, int i1, int i2) {
+      }
+
+      @Override
+      public void afterTextChanged(Editable editable) {
+        // Enable save button if we've typed some text.
+        saveButton.setEnabled(memoryEditText.getText().length() > 0);
+      }
+    });
+
     refreshButton = (Button) this.findViewById(R.id.memory_refresh);
     saveButton = (Button) this.findViewById(R.id.memory_save);
+    saveButton.setEnabled(false);
 
     dateTextView = (TextView) this.findViewById(R.id.memory_title);
     dateTextView.setText("Select Date...");
     // TODO: tapping opens date picker.
 
-    if (memoryDateStr != null) {
-      try {
-        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-        Date memoryDate = Utils.parseIsoDate(memoryDateStr);
-
-        memoryData = app.getCachedMemory(memoryDate);
-        if(memoryData == null) {
-          new FetchMemoryTask().execute(memoryDate);
-        } else {
-          updateUIFromData();
-        }
-      } catch (ParseException e) {
-        Log.e("MemoryDetailActivity", "Could not parse ["
-            + memoryDateStr + "] as Date");
+    if (editMode == MemoryDetailMode.MODE_EXISTING) {
+      // Load the memory.
+      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+      memoryData = app.getCachedMemory(memoryDate);
+      if (memoryData == null) {
+        new FetchMemoryTask().execute(memoryDate);
+      } else {
+        updateUIFromData();
       }
     }
+    updateUIFromData();
   }
 
   @Override
@@ -109,15 +160,25 @@ public class MemoryDetailActivity extends ActionBarActivity {
     }
   }
 
+  /**
+   * Enable and disable bits of the UI depending on what state the Activity
+   * is in.
+   */
   private void updateUIFromData() {
-    // TODO: disable save button if we don't have a memory.
-    if (memoryData == null) {
-      dateTextView.setText("No Data");
-      memoryEditText.setText("");
-    } else {
+    if(memoryDate != null) {
       // TODO: Nicer date formatting (day of week etc.)
-      dateTextView.setText(Utils.isoFormat(memoryData.getMemoryDate()));
+      dateTextView.setText(Utils.isoFormat(memoryDate));
+    }
+    // If there's a memoryData, update the text from it.
+    if (memoryData != null) {
       memoryEditText.setText(memoryData.getMemoryText());
+    }
+    // save is enabled unless there is no memory text OR if we're in edit mode
+    // and haven't loaded the memory yet.
+    if(editMode == MemoryDetailMode.MODE_EXISTING && !hasLoadedMemory) {
+      saveButton.setEnabled(false);
+    } else {
+      saveButton.setEnabled(memoryEditText.getText().length() > 0);
     }
   }
 
@@ -129,12 +190,20 @@ public class MemoryDetailActivity extends ActionBarActivity {
    */
   public void saveClicked(View view) {
     hideKeyboard();
-    memoryData.setMemoryText(memoryEditText.getText().toString());
+    if (memoryData == null) {
+      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+      memoryData = new MemoryData(app.getUserId(),
+          memoryEditText.getText().toString(), memoryDate);
+    } else {
+      memoryData.setMemoryText(memoryEditText.getText().toString());
+    }
     new SaveMemoryTask().execute(memoryData);
   }
 
   public void refreshClicked(View view) {
-    new FetchMemoryTask().execute(MemoryDetailActivity.this.memoryData.getMemoryDate());
+    if (memoryDate != null) {
+      new FetchMemoryTask().execute(memoryDate);
+    }
   }
 
   private class SaveMemoryTask extends AsyncTask<MemoryData, Void, Boolean> {
@@ -145,10 +214,16 @@ public class MemoryDetailActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
+    protected void onPostExecute(Boolean saveSuccessfull) {
       if ((progressDialog != null) && progressDialog.isShowing()) {
         progressDialog.dismiss();
       }
+      if (saveSuccessfull) {
+        // Once we've saved, we're in edit mode.
+        editMode = MemoryDetailMode.MODE_EXISTING;
+        hasLoadedMemory = true;
+      }
+      updateUIFromData();
     }
 
     @Override
@@ -185,10 +260,19 @@ public class MemoryDetailActivity extends ActionBarActivity {
       if (memoryData == null) {
         // Couldn't be fetched
         // TODO: propagate error info back here somehow for nicer messages.
+        Context context = getApplicationContext();
+        CharSequence text = "Failed to fetch memory";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+        // TODO: We need to distinguish between a failed load and a date that
+        // TODO: has no memory yet, so that we don't overwrite an existing one.
       } else {
         MyDeticApplication app = (MyDeticApplication) getApplicationContext();
         MemoryDetailActivity.this.memoryData = memoryData;
         app.setCachedMemory(memoryData);
+        hasLoadedMemory = true;
       }
       updateUIFromData();
     }

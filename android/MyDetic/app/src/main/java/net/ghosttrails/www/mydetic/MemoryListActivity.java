@@ -37,6 +37,8 @@ public class MemoryListActivity extends ActionBarActivity
 
   public static final String MEMORY_DETAIL_DATE =
       "net.ghosttrails.mydetic.MemoryDetailDate";
+  public static final String MEMORY_DETAIL_EDITMODE =
+      "net.ghosttrails.mydetic.MemoryDetailEditMode";
 
   private ProgressDialog progressDialog;
   private MyDeticApplication app;
@@ -98,6 +100,7 @@ public class MemoryListActivity extends ActionBarActivity
     Date d = (Date) adapter.getItem(position);
     Intent intent = new Intent(this, MemoryDetailActivity.class);
     intent.putExtra(MEMORY_DETAIL_DATE, Utils.isoFormat(d));
+    intent.putExtra(MEMORY_DETAIL_EDITMODE, "edit");
     startActivity(intent);
   }
 
