@@ -2,6 +2,8 @@
 
 > Eidetic: *relating to or denoting mental images having unusual vividness and detail, as if actually visible. "an eidetic memory"*
 
+> *"It is my nature, my joy and my curse, to forget nothing. Every rattling chain and whistling wind, every sight, smell, and taste, remains changeless in my mind, and though I know it is not so with everyone, I cannot imagine what it can mean to be otherwise, as if one had slept when in fact an experience is merely remote."* - Gene Wolfe, The Shadow Of The Torturer.
+
 Yet Another [OhLife](http://ohlife.com/shutdown) Clone.
 
 The intent is to make some code you can run yourself to store your own
