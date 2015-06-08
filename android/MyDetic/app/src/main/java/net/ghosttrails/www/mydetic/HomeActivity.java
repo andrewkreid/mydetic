@@ -55,6 +55,12 @@ public class HomeActivity extends ActionBarActivity {
     startActivity(intent);
   }
 
+  public void memoryNewClicked(View view) {
+    Intent intent = new Intent(this, MemoryDetailActivity.class);
+    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
+    startActivity(intent);
+  }
+
   private class FetchMemoryListTask extends AsyncTask<Void, Void, MemoryDataList> {
 
     @Override

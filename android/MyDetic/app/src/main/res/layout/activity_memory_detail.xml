@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/def_memory_date"
-        android:id="@+id/memory_title"/>
+        android:id="@+id/memory_title"
+        android:onClick="dateFieldClicked"/>
 
     <EditText
         android:id="@+id/memory_text"

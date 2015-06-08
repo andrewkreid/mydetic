@@ -1,5 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.DatePickerDialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,9 +28,16 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 
-public class MemoryDetailActivity extends ActionBarActivity {
+public class MemoryDetailActivity extends ActionBarActivity
+  implements DatePickerDialog.OnDateSetListener {
+
+  public static final String MEMORY_DETAIL_DATE =
+      "net.ghosttrails.mydetic.MemoryDetailDate";
+  public static final String MEMORY_DETAIL_EDITMODE =
+      "net.ghosttrails.mydetic.MemoryDetailEditMode";
 
   private Date memoryDate;
   private MemoryData memoryData;
@@ -35,7 +45,6 @@ public class MemoryDetailActivity extends ActionBarActivity {
   private EditText memoryEditText;
   private Button saveButton;
   private Button refreshButton;
-
 
   /**
    * is this activity for creating a new memory or editing an existing one
@@ -66,8 +75,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
     hasLoadedMemory = false;
 
     Intent intent = getIntent();
-    String memoryDateStr = intent.getStringExtra(MemoryListActivity
-        .MEMORY_DETAIL_DATE);
+    String memoryDateStr = intent.getStringExtra(MEMORY_DETAIL_DATE);
     if (memoryDateStr != null) {
       try {
         memoryDate = Utils.parseIsoDate(memoryDateStr);
@@ -78,8 +86,7 @@ public class MemoryDetailActivity extends ActionBarActivity {
       }
     }
 
-    String editModeStr = intent.getStringExtra(MemoryListActivity
-        .MEMORY_DETAIL_EDITMODE);
+    String editModeStr = intent.getStringExtra(MEMORY_DETAIL_EDITMODE);
     if("edit".equals(editModeStr)) {
       editMode = MemoryDetailMode.MODE_EXISTING;
     } else {
@@ -112,7 +119,6 @@ public class MemoryDetailActivity extends ActionBarActivity {
 
     dateTextView = (TextView) this.findViewById(R.id.memory_title);
     dateTextView.setText("Select Date...");
-    // TODO: tapping opens date picker.
 
     if (editMode == MemoryDetailMode.MODE_EXISTING) {
       // Load the memory.
@@ -180,6 +186,8 @@ public class MemoryDetailActivity extends ActionBarActivity {
     } else {
       saveButton.setEnabled(memoryEditText.getText().length() > 0);
     }
+    // Refresh is disabled in MODE_NEW
+    refreshButton.setEnabled(editMode == MemoryDetailMode.MODE_EXISTING);
   }
 
   /**
@@ -201,8 +209,41 @@ public class MemoryDetailActivity extends ActionBarActivity {
   }
 
   public void refreshClicked(View view) {
+    // TODO: warn about overwriting changes (also when closing activity).
     if (memoryDate != null) {
       new FetchMemoryTask().execute(memoryDate);
+    }
+  }
+
+  public void dateFieldClicked(View view) {
+    // Only allow date field to be edited when adding a new memory.
+    if (editMode == MemoryDetailMode.MODE_NEW) {
+      DatePickerFragment newFragment = new DatePickerFragment();
+      newFragment.addListener(this);
+      newFragment.show(getFragmentManager(), "datePicker");
+    }
+  }
+
+  @Override
+  /**
+   * Called when the user selects a date from the date picker in MODE_NEW.
+   * Checks if a memory exists on that date.
+   */
+  public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+    memoryDate = new GregorianCalendar(year, month, day).getTime();
+    MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+    if (app.getMemories().hasDate(memoryDate)) {
+      // There is already a memory on this date. Switch to edit mode and load
+      // it.
+      editMode = MemoryDetailMode.MODE_EXISTING;
+      memoryData = app.getCachedMemory(memoryDate);
+      if (memoryData == null) {
+        new FetchMemoryTask().execute(memoryDate);
+      } else {
+        updateUIFromData();
+      }
+    } else {
+      updateUIFromData();
     }
   }
 
@@ -222,6 +263,8 @@ public class MemoryDetailActivity extends ActionBarActivity {
         // Once we've saved, we're in edit mode.
         editMode = MemoryDetailMode.MODE_EXISTING;
         hasLoadedMemory = true;
+        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
+        // TODO: Add to application memory list.
       }
       updateUIFromData();
     }
@@ -289,4 +332,6 @@ public class MemoryDetailActivity extends ActionBarActivity {
       return null;
     }
   }
+
+
 }

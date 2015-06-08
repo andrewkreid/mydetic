@@ -50,7 +50,7 @@ public class MyDeticApplication extends Application {
       Log.e("MyDeticApplication", "Same Populate Failed", e);
     }
     ramApi.setSimulatedDelayMs(2000);
-    ramApi.setSimulatedFailureRate(50);
+    ramApi.setSimulatedFailureRate(25);
     api = ramApi;
 
     memories = new MemoryDataList();
@@ -96,5 +96,6 @@ public class MyDeticApplication extends Application {
 
   public void setCachedMemory(MemoryData memoryData) {
     memoryCache.put(memoryData.getMemoryDate(), memoryData);
+    memories.setDate(memoryData.getMemoryDate());
   }
 }

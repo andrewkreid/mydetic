@@ -14,11 +14,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/open_memory_list"
-        android:id="@+id/button"
+        android:id="@+id/memory_list_button"
         android:layout_below="@+id/textView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="25dp"
         android:onClick="memoryListClicked"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/new_memory"
+        android:id="@+id/new_memory_button"
+        android:layout_below="@+id/memory_list_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="12dp"
+        android:onClick="memoryNewClicked"/>
 
 </RelativeLayout>
