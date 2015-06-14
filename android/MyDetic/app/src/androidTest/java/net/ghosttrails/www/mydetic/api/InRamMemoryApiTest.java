@@ -3,6 +3,7 @@ package net.ghosttrails.www.mydetic.api;
 import junit.framework.TestCase;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
 import java.util.Date;
 
@@ -21,7 +22,7 @@ public class InRamMemoryApiTest extends TestCase {
         this.api = new InRamMemoryApi();
     }
 
-    public void testAddAndRetrieve() {
+    public void testAddAndRetrieve() throws MyDeticReadFailedException {
 
         assertEquals("Should have no memories", 0, api.getMemories(userId).getDates().size());
 
@@ -49,7 +50,7 @@ public class InRamMemoryApiTest extends TestCase {
         }
     }
 
-    public void testUpdate() throws MyDeticNoMemoryFoundException {
+    public void testUpdate() throws MyDeticNoMemoryFoundException, MyDeticReadFailedException {
         api.putMemory(userId, new MemoryData(userId, "a memory", date));
         MemoryData md = api.getMemory(userId, date);
         assertEquals("a memory", md.getMemoryText());
@@ -59,7 +60,7 @@ public class InRamMemoryApiTest extends TestCase {
         assertEquals("another memory", md.getMemoryText());
     }
 
-    public void testRetrieveRange() {
+    public void testRetrieveRange() throws MyDeticReadFailedException {
 
         api.putMemory(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
         api.putMemory(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
@@ -77,7 +78,7 @@ public class InRamMemoryApiTest extends TestCase {
         assertEquals(1, api.getMemories(userId, new Date(2014, 5, 3), new Date(2014, 5, 3)).getDates().size());
     }
 
-    public void testDelete() throws MyDeticNoMemoryFoundException {
+    public void testDelete() throws MyDeticNoMemoryFoundException, MyDeticReadFailedException {
         api.putMemory(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
         api.putMemory(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
         api.putMemory(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
