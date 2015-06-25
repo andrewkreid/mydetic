@@ -5,8 +5,8 @@
 #
 
 import os
+import traceback
 import sys
-print >>sys.stderr, "in flask_server.py"
 import argparse
 import json
 import copy
@@ -14,7 +14,7 @@ import logging
 import logging.config
 from datetime import datetime
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask.ext.restful import Api, Resource, reqparse, fields
 from flask.ext.httpauth import HTTPBasicAuth
 
@@ -128,6 +128,7 @@ class MemoryListAPI(Resource):
         Get the list of memories for a user
         :return:
         """
+        self.logger.error("VV GET")
         req_args = self.reqparse_get.parse_args()
 
         start_date = None
@@ -340,25 +341,45 @@ def init_config():
 
 # The mydetic.datastore.DataStore to use
 ds = None
+config = None
 
-app = Flask(__name__, static_url_path="")
-api = Api(app)
-password_store = None
+def create_app():
+    global ds
+    global config
 
-config = init_config()
+    try:
+        app = Flask(__name__, static_url_path="")
+        api = Api(app)
+        password_store = None
 
-# Set up password store for HTTP Basic auth
-if config['auth_config']['method'] == "HTTP Basic":
-    password_store = FilePasswordStore(config['auth_config']['store_file'])
-    MemoryAPI.decorators = [auth.login_required]
-    MemoryListAPI.decorators = [auth.login_required]
+        config = init_config()
 
-api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
-api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
+        # A stand alone route for testing
+        @app.route('/')
+        def index():
+            ### Some code here ###
+            return jsonify({'status': 200, 'success':True})
 
-ds = S3DataStore(s3_config=config["s3_config"])
+        # Set up password store for HTTP Basic auth
+        if config['auth_config']['method'] == "HTTP Basic":
+            password_store = FilePasswordStore(config['auth_config']['store_file'])
+            MemoryAPI.decorators = [auth.login_required]
+            MemoryListAPI.decorators = [auth.login_required]
 
-server_config = config['server_config']
+        api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
+        api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
+
+        ds = S3DataStore(s3_config=config["s3_config"])
+
+        server_config = config['server_config']
+
+        return app
+    except:
+        traceback.print_exc(file=sys.stderr)
+    return None
+
 
 if __name__ == "__main__":
+    app = create_app()
+    server_config = config['server_config']
     app.run(debug=server_config['debug'], port=server_config['port'])
