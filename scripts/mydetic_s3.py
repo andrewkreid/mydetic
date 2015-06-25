@@ -63,7 +63,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
-        ds = S3DataStore(s3_config=config)
+        ds = S3DataStore(s3_config=config["s3_config"])
 
         if args.command == 'add':
             # Add a memory
