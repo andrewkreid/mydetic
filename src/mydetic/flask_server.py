@@ -4,6 +4,8 @@
 # MyDetic REST API
 #
 
+import os
+import traceback
 import sys
 import argparse
 import json
@@ -12,25 +14,18 @@ import logging
 import logging.config
 from datetime import datetime
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask.ext.restful import Api, Resource, reqparse, fields
 from flask.ext.httpauth import HTTPBasicAuth
 
-from memorydata import MemoryData
+from mydetic.memorydata import MemoryData
 from mydetic.s3_datastore import S3DataStore
 from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists, \
     MyDeticInvalidMemoryString
 import errorcodes
 from mydetic.passwordstore import FilePasswordStore
 
-# The mydetic.datastore.DataStore to use
-ds = None
-
-app = Flask(__name__, static_url_path="")
-api = Api(app)
 auth = HTTPBasicAuth()
-password_store = None
-
 
 @auth.verify_password
 def verify_pw(username, password):
@@ -44,6 +39,7 @@ def verify_pw(username, password):
     if not password_store:
         logger.error("No password store specified")
         return False
+    logger.debug("Verifying password for %s" % username)
     return password_store.verify(username, password)
 
 
@@ -132,6 +128,7 @@ class MemoryListAPI(Resource):
         Get the list of memories for a user
         :return:
         """
+        self.logger.error("VV GET")
         req_args = self.reqparse_get.parse_args()
 
         start_date = None
@@ -294,45 +291,95 @@ DEFAULT_CONFIG = {
     }
 }
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='MyDetic command-line')
-    parser.add_argument('-c', '--config', help='mydetic config JSON file', required=True)
-    parser.add_argument('-l', '--logconfig', help='logging config file', required=False)
+# Initialize the API configuration from the command-line and/or
+# env vars
+def init_config():
+    config_filename = None
+    logging_filename = None
 
-    args = parser.parse_args()
-    if not args.config:
-        parser.print_help()
-        sys.exit(1)
+    if __name__ == "__main__":
+        # Use command-line args if we're running standalone
 
-    # set up logging
-    if args.logconfig:
-        logging.config.fileConfig(args.logconfig)
+        parser = argparse.ArgumentParser(description='MyDetic command-line')
+        parser.add_argument('-c', '--config', help='mydetic config JSON file', required=False)
+        parser.add_argument('-l', '--logconfig', help='logging config file', required=False)
+        # parser = OptionParser()
+        # parser.add_option("-c", "--config", dest="config",
+        #                           help="mydetic config JSON file", metavar="FILE")
+        # parser.add_option("-l", "--logconfig", dest="logconfig",
+        #                           help="logging config file", metavar="FILE")
+
+        args = parser.parse_args()
+        # (options, args) = parser.parse_args()
+
+        config_filename = args.config
+        logging_filename = args.logconfig
+    else:
+        # Look for environment variables
+        if 'MYDETIC_LOGCONFIG' in os.environ:
+            logging_filename = os.environ['MYDETIC_LOGCONFIG']
+        if 'MYDETIC_CONFIG' in os.environ:
+            config_filename = os.environ['MYDETIC_CONFIG']
+
+    the_config = copy.deepcopy(DEFAULT_CONFIG)
+
+    if config_filename is not None:
+        logging.debug("Configuring with %s", config_filename)
+        with open(config_filename, 'r') as fp:
+            user_config = json.load(fp)
+            the_config.update(user_config)
+
+    if logging_filename is not None:
+        logging.config.fileConfig(logging_filename)
     else:
         logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p',
                             level=logging.DEBUG)
+    return the_config
+
+# ---------------------------------------------------------------------------
+
+# The mydetic.datastore.DataStore to use
+ds = None
+config = None
+
+def create_app():
+    global ds
+    global config
 
     try:
-        logging.debug("Configuring with %s", args.config)
-        config = copy.deepcopy(DEFAULT_CONFIG)
-        with open(args.config, 'r') as fp:
-            user_config = json.load(fp)
-            config.update(user_config)
+        app = Flask(__name__, static_url_path="")
+        api = Api(app)
+        password_store = None
 
-    except StandardError, e:
-        logging.critical("Failed to load %s: %s\n", args.config, str(e))
-        sys.exit(1)
+        config = init_config()
 
-    # Set up password store for HTTP Basic auth
-    if config['auth_config']['method'] == "HTTP Basic":
-        password_store = FilePasswordStore(config['auth_config']['store_file'])
-        MemoryAPI.decorators = [auth.login_required]
-        MemoryListAPI.decorators = [auth.login_required]
+        # A stand alone route for testing
+        @app.route('/')
+        def index():
+            ### Some code here ###
+            return jsonify({'status': 200, 'success':True})
 
-    api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
-    api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
+        # Set up password store for HTTP Basic auth
+        if config['auth_config']['method'] == "HTTP Basic":
+            password_store = FilePasswordStore(config['auth_config']['store_file'])
+            MemoryAPI.decorators = [auth.login_required]
+            MemoryListAPI.decorators = [auth.login_required]
 
-    ds = S3DataStore(s3_config=config["s3_config"])
+        api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
+        api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
 
+        ds = S3DataStore(s3_config=config["s3_config"])
+
+        server_config = config['server_config']
+
+        return app
+    except:
+        traceback.print_exc(file=sys.stderr)
+    return None
+
+
+if __name__ == "__main__":
+    app = create_app()
     server_config = config['server_config']
     app.run(debug=server_config['debug'], port=server_config['port'])

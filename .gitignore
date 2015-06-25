@@ -58,4 +58,4 @@ target/
 
 # So we don't check in our AWS credentials
 *_s3_config.json
-passwords.json
+password*.json
