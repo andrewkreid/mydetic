@@ -8,11 +8,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 /**
  * Class to store the application's configuration.
@@ -47,18 +47,61 @@ public class MyDeticConfig {
    * @param context the application context (needed for file IO).
    * @param filename the filename to load from
    */
-  public void load(Context context, String filename) throws
+  public void loadFromFile(Context context, String filename) throws
       IOException, JSONException {
     FileInputStream fis = context.openFileInput(filename);
-    InputStreamReader reader = new InputStreamReader(fis);
+    loadFromStream(fis);
+    fis.close();
+  }
+
+  public void loadFromStream(InputStream is) throws IOException, JSONException {
+    InputStreamReader reader = new InputStreamReader(is);
     BufferedReader bufReader = new BufferedReader(reader);
     StringBuilder fileContents = new StringBuilder();
-    String curLine = bufReader.readLine();
-    while (curLine != null) {
+    String curLine;
+    while ((curLine = bufReader.readLine()) != null) {
       fileContents.append(curLine);
       fileContents.append("\n");
     }
-    JSONObject jsonObject = new JSONObject(fileContents.toString());
+    deserializeFromJSON(fileContents.toString());
+    bufReader.close();
+  }
+
+  public void saveToStream(OutputStream os) throws JSONException, IOException {
+    os.write(serializeToJSON().getBytes());
+  }
+
+  /**
+   * Save the config to the filename provided.
+   * @param context the application context (needed for file IO).
+   * @param filename the filename to save to
+   * @throws JSONException, IOException
+   */
+  public void saveToFile(Context context, String filename)
+      throws JSONException, IOException {
+    FileOutputStream fos
+        = context.openFileOutput(filename, Context.MODE_PRIVATE);
+    saveToStream(fos);
+    fos.close();
+  }
+
+  /**
+   * Serialize the config to JSON that can be saved
+   * @return A String containing the JSON config
+   * @throws JSONException
+   */
+  private String serializeToJSON() throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("configVersion", CONFIG_VERSION);
+    jsonObject.put("activeDataStore", activeDataStore);
+    jsonObject.put("apiUrl", apiUrl);
+    jsonObject.put("userName", userName);
+    jsonObject.put("userPassword", bodgyEncrypt(userPassword));
+    return jsonObject.toString(2);
+  }
+
+  private void deserializeFromJSON(String jsonStr) throws JSONException {
+    JSONObject jsonObject = new JSONObject(jsonStr);
     int configVersion = jsonObject.getInt("configVersion");
     if (configVersion > CONFIG_VERSION) {
       String errMsg = String.format("Config version of %d is larger than " +
@@ -72,27 +115,6 @@ public class MyDeticConfig {
       userName = jsonObject.getString("userName");
       userPassword = bodgyDecrypt(jsonObject.getString("userPassword"));
     }
-  }
-
-  /**
-   * Save the config to the filename provided.
-   * @param context the application context (needed for file IO).
-   * @param filename the filename to save to
-   * @throws JSONException
-   */
-  public void save(Context context, String filename)
-      throws JSONException, IOException {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("configVersion", CONFIG_VERSION);
-    jsonObject.put("activeDataSource", activeDataStore);
-    jsonObject.put("apiUrl", apiUrl);
-    jsonObject.put("userName", userName);
-    jsonObject.put("userPassword", bodgyEncrypt(userPassword));
-
-    FileOutputStream fos
-        = context.openFileOutput(filename, Context.MODE_PRIVATE);
-    fos.write(jsonObject.toString(4).getBytes());
-    fos.close();
   }
 
   private String bodgyEncrypt(String clearText) {
