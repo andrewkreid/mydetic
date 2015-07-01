@@ -4,6 +4,8 @@ This directory contains files and instructions for deploying
 the MyDetic REST API as a WSGI service in the [Apache](http://httpd.apache.org/)
 web server on an EC2 instance in AWS.
 
+**NOTE:** This isn't the best, or a perfectly secure configuration, just the bare minimum required to get going.
+
 Background Reading:
 
 * [Flask mod_wsgi tutorial](http://flask.pocoo.org/docs/0.10/deploying/mod_wsgi/)
@@ -72,9 +74,11 @@ cd $HOME
 mkdir src
 cd src
 git clone https://github.com/andrewkreid/mydetic.git
+```
 
 ### configure VirtualEnv
 
+```
 cd $HOME
 virtualenv mydetic-env
 source mydetic-env/bin/activate
@@ -83,13 +87,16 @@ cd src/mydetic
 pip install -r requirements.txt
 cd src
 python ./setup.py install
+```
 
 ### customise WSGI file
 
 edit ```$HOME/src/mydetic/apache/mydetic.wsgi```. Change the location of the virtualenv files.
 
+```
 sudo mkdir -p /var/www/mydetic
 sudo cp mydetic.wsgi /var/www/mydetic
+```
 
 ### Create Apache VirtualHost
 
