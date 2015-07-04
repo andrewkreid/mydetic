@@ -26,27 +26,26 @@ sent in the clear)
 sudo yum install httpd mod_ssl mod_wsgi-python27
 ```
 
-# Generate private key
+#### Generate private key
 ```
 openssl genrsa -out ca.key 2048
 ```
 
-# Generate CSR
+#### Generate CSR
 ```
 openssl req -new -key ca.key -out ca.csr
 ```
 
-# Generate Self Signed Key
+#### Generate Self Signed Key
 ```
 openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt
 ```
 
-# Copy the files to the correct locations
+#### Copy the files to the correct locations
 ```
 cp ca.crt /etc/pki/tls/certs
 cp ca.key /etc/pki/tls/private/ca.key
 cp ca.csr /etc/pki/tls/private/ca.csr
-
 ```
 
 Edit ```/etc/httpd/conf.d/ssl.conf``` and make the following changes
