@@ -13,7 +13,7 @@
     <string name="savebutton">Save</string>
     <string name="new_memory">Add a Memory</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="data_store_label">Data Store</string>
+    <string name="data_store_label">Data Store :</string>
     <string name="api_url_label">API URL :</string>
     <string name="user_name_label">UserName :</string>
     <string name="password_label">Password :</string>

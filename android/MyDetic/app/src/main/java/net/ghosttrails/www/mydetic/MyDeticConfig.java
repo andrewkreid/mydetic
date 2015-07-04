@@ -22,6 +22,7 @@ public class MyDeticConfig {
   public static String DS_INRAM = "In RAM (testing)";
   public static String DS_RESTAPI = "REST API";
 
+  /** key for password encryption. TODO: move this to a config file */
   private static String secretKey = "16utS1WskaJqTtSRxE6hYA==:CKw5QpwyayYsXIs0TMas2Yv2k2dXXeAgTa0ijWoQyTw=";
 
   /** config format version. Can be used to help handle non backwards-compatible

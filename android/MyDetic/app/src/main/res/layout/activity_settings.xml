@@ -9,29 +9,32 @@
                 tools:context="net.ghosttrails.www.mydetic.SettingsActivity"
             android:columnCount="2">
 
+    <LinearLayout
+        android:id="@+id/dataStoreLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/data_store_label"
+            android:id="@+id/dataStoreTextView"
+            />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/data_store_label"
-        android:id="@+id/dataStoreTextView"
-        />
-
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/dataStoreSpinner"
-        android:layout_below="@+id/dataStoreTextView"
-    />
-
-    <TextView
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dataStoreSpinner"
+            style="@style/Base.TextAppearance.AppCompat"
+            />
+    </LinearLayout>
+     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/api_url_label"
         android:id="@+id/apiUrlTextView"
-        android:layout_below="@+id/dataStoreSpinner"
+        android:layout_below="@+id/dataStoreLayout"
         />
 
     <EditText

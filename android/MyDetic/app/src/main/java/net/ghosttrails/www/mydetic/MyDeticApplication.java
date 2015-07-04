@@ -1,7 +1,9 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
@@ -12,6 +14,10 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
+import org.json.JSONException;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -20,9 +26,13 @@ import java.util.HashMap;
  */
 public class MyDeticApplication extends Application {
 
+  /** Name of the file used to store the application config */
+  public static String CONFIG_FILENAME = "mydetic_config.json";
+
   private String userId;
   private MemoryApi api;
   private MemoryDataList memories;
+  private MyDeticConfig config;
 
   /** cache of memories we've downloaded already */
   private HashMap<Date, MemoryData> memoryCache;
@@ -98,4 +108,31 @@ public class MyDeticApplication extends Application {
     memoryCache.put(memoryData.getMemoryDate(), memoryData);
     memories.setDate(memoryData.getMemoryDate());
   }
+
+  public MyDeticConfig getConfig() {
+    // Lazy initialisation
+    if (config == null) {
+      config = new MyDeticConfig();
+      try {
+        config.loadFromFile(this, CONFIG_FILENAME);
+      } catch (FileNotFoundException e) {
+        // Not a problem, just the first time the app has been used so there's
+        // no config yet.
+      } catch (IOException e) {
+        displayError(getApplicationContext(), "Error loading configuration");
+      } catch (JSONException e) {
+        displayError(getApplicationContext(), "Invalid configuration format");
+      }
+    }
+    return config;
+  }
+
+  public static void displayError(Context context, String message) {
+    int duration = Toast.LENGTH_SHORT;
+
+    Toast toast = Toast.makeText(context, message, duration);
+    toast.show();
+  }
+
+
 }
