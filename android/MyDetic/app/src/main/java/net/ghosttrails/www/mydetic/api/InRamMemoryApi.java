@@ -9,6 +9,7 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -353,5 +354,26 @@ public class InRamMemoryApi implements MemoryApi {
     new DeleteMemoryTask().execute(params);
   }
 
+  /**
+   * Testing method to populate data.
+   *
+   * @param userId
+   * @param memories
+   */
+  public void populateMemories(String userId, List<MemoryData> memories) {
+    Map<Date, MemoryData> list = getListForUserId(userId);
+    for (MemoryData memory: memories) {
+      list.put(memory.getMemoryDate(), (MemoryData)memory.clone());
+    }
+  }
+
+  /**
+   * Testing method to clear data
+   * @param userId
+   */
+  public void clearMemories(String userId) {
+    Map<Date, MemoryData> list = getListForUserId(userId);
+    list.clear();
+  }
 
 }

@@ -19,13 +19,33 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 public class HomeActivity extends ActionBarActivity {
 
   private ProgressDialog progressDialog;
+  private MyDeticApplication app;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
 
-    new FetchMemoryListTask().execute();
+    app = (MyDeticApplication) getApplicationContext();
+    app.getApi().getMemories(app.getUserId(), new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList memories) {
+        MemoryDataList appMemories = app.getMemories();
+        memories.clear();
+        try {
+          appMemories.mergeFrom(memories);
+        } catch (MyDeticException e) {
+          AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        }
+      }
+
+      @Override
+      public void onApiError(MyDeticException e) {
+        AppUtils.smallToast(getApplicationContext(), e.getMessage());
+      }
+    });
+
+    // new FetchMemoryListTask().execute();
   }
 
   @Override
@@ -65,6 +85,7 @@ public class HomeActivity extends ActionBarActivity {
     startActivity(intent);
   }
 
+  /*
   private class FetchMemoryListTask extends AsyncTask<Void, Void, MemoryDataList> {
 
     @Override
@@ -100,4 +121,5 @@ public class HomeActivity extends ActionBarActivity {
       progressDialog.show();
     }
   }
+  */
 }

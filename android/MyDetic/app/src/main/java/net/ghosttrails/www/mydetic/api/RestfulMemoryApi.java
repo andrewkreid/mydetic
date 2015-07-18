@@ -50,76 +50,33 @@ public class RestfulMemoryApi implements MemoryApi {
     return builder.toString();
   }
 
-  /**
-   * @param userId which user's memories to use
-   * @return A list of all memories for user userId
-   */
   @Override
-  public MemoryDataList getMemories(String userId) throws MyDeticReadFailedException {
-    return getMemories(userId, null, null);
+  public void getMemories(String userId,
+                          MemoryListListener listener) {
+
   }
 
-  /**
-   * Get a list of memories between fromDate and toDate (inclusive). Either
-   * date can be null, which indicates no bound on he range in that direction.
-   *
-   * @param userId   which user's memories to use
-   * @param fromDate If not null, only memories from this date or later will be
-   *                 returned.
-   * @param toDate   If not null, only memories on this date and earlier will be
-   *                 returned.
-   * @return a MemoryDataList containing the dates that have memories for the
-   * userId
-   */
   @Override
-  public MemoryDataList getMemories(String userId, Date fromDate, Date toDate) throws MyDeticReadFailedException {
-    return null;
+  public void getMemories(String userId, Date fromDate, Date toDate,
+                          MemoryListListener listener) {
+
   }
 
-  /**
-   * @param userId     which user's memories to use
-   * @param memoryDate the date to get the memory for.
-   * @return a MemoryData object containing the memory for the userId and date.
-   * @throws MyDeticNoMemoryFoundException if no memory exists.
-   */
   @Override
-  public MemoryData getMemory(String userId, Date memoryDate) throws MyDeticReadFailedException, MyDeticNoMemoryFoundException {
-    return null;
+  public void getMemory(String userId, Date memoryDate,
+                        SingleMemoryListener listener) {
+
   }
 
-  /**
-   * Adds or updates a memory
-   *
-   * @param userId which user's memories to use
-   * @param memory The memory to add/update.
-   * @return The added memory.
-   * @throws MyDeticWriteFailedException
-   */
   @Override
-  public MemoryData putMemory(String userId, MemoryData memory) throws MyDeticWriteFailedException {
-    return null;
+  public void putMemory(String userId, MemoryData memory,
+                        SingleMemoryListener listener) {
+
   }
 
-  /**
-   * @param userId     which user's memories to use
-   * @param memoryDate The date to check for
-   * @return true if there is a memory for the userId on memoryDate,
-   * false otherwise.
-   * @throws MyDeticReadFailedException
-   */
   @Override
-  public boolean hasMemory(String userId, Date memoryDate) throws MyDeticReadFailedException {
-    return false;
-  }
+  public void deleteMemory(String userId, Date memoryDate,
+                           SingleMemoryListener listener) {
 
-  /**
-   * @param userId     which user's memories to use
-   * @param memoryDate The date of the memory to delete
-   * @return The deleted memory
-   * @throws MyDeticNoMemoryFoundException
-   */
-  @Override
-  public MemoryData deleteMemory(String userId, Date memoryDate) throws MyDeticNoMemoryFoundException {
-    return null;
   }
 }

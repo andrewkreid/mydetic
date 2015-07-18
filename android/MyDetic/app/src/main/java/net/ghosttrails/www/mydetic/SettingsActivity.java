@@ -104,10 +104,10 @@ public class SettingsActivity extends ActionBarActivity {
         config.saveToFile(getApplicationContext(),
             MyDeticApplication.CONFIG_FILENAME);
       } catch (IOException e) {
-        MyDeticApplication.displayError(getApplicationContext(),
+        AppUtils.smallToast(getApplicationContext(),
             "Error loading configuration");
       } catch (JSONException e) {
-        MyDeticApplication.displayError(getApplicationContext(),
+        AppUtils.smallToast(getApplicationContext(),
             "Invalid configuration format");
       }
     }

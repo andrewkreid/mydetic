@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class MemoryListActivity extends ActionBarActivity
+public class MemoryListActivity extends AppCompatActivity
     implements AdapterView.OnItemClickListener {
 
   private ProgressDialog progressDialog;

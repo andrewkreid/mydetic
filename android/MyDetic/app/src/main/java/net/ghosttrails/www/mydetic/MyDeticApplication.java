@@ -119,19 +119,12 @@ public class MyDeticApplication extends Application {
         // Not a problem, just the first time the app has been used so there's
         // no config yet.
       } catch (IOException e) {
-        displayError(getApplicationContext(), "Error loading configuration");
+        AppUtils.smallToast(getApplicationContext(), "Error loading configuration");
       } catch (JSONException e) {
-        displayError(getApplicationContext(), "Invalid configuration format");
+        AppUtils.smallToast(getApplicationContext(), "Invalid configuration format");
       }
     }
     return config;
-  }
-
-  public static void displayError(Context context, String message) {
-    int duration = Toast.LENGTH_SHORT;
-
-    Toast toast = Toast.makeText(context, message, duration);
-    toast.show();
   }
 
 
