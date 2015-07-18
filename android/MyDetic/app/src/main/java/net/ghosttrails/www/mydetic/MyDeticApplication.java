@@ -60,7 +60,7 @@ public class MyDeticApplication extends Application {
       Log.e("MyDeticApplication", "Same Populate Failed", e);
     }
     ramApi.setSimulatedDelayMs(1000);
-    ramApi.setSimulatedFailureRate(10);
+    ramApi.setSimulatedFailureRate(0);
     api = ramApi;
 
     memories = new MemoryDataList();

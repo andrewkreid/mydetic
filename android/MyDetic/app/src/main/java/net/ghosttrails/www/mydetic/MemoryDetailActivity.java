@@ -264,7 +264,7 @@ public class MemoryDetailActivity extends AppCompatActivity
       // Once we've saved, we're in edit mode.
       editMode = MemoryDetailMode.MODE_EXISTING;
       hasLoadedMemory = true;
-      // TODO: Add to application memory list.
+      app.setCachedMemory(memory);
       updateUIFromData();
     }
 
@@ -322,9 +322,9 @@ public class MemoryDetailActivity extends AppCompatActivity
       if ((progressDialog != null) && progressDialog.isShowing()) {
         progressDialog.dismiss();
       }
-      if (memoryData != null) {
-        MemoryDetailActivity.this.memoryData = memoryData;
-        app.setCachedMemory(memoryData);
+      if (memory != null) {
+        MemoryDetailActivity.this.memoryData = memory;
+        app.setCachedMemory(memory);
         hasLoadedMemory = true;
       }
       updateUIFromData();

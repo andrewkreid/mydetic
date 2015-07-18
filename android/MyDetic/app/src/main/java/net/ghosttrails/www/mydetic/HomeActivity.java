@@ -31,7 +31,7 @@ public class HomeActivity extends ActionBarActivity {
       @Override
       public void onApiResponse(MemoryDataList memories) {
         MemoryDataList appMemories = app.getMemories();
-        memories.clear();
+        appMemories.clear();
         try {
           appMemories.mergeFrom(memories);
         } catch (MyDeticException e) {
