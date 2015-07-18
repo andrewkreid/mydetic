@@ -1,5 +1,8 @@
 package net.ghosttrails.www.mydetic.api;
 
+import com.android.volley.VolleyError;
+
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
@@ -13,59 +16,73 @@ import java.util.Date;
 public interface MemoryApi {
 
   /**
-   * @param userId
-   * @return A list of all memories for user userId
+   * Callback interface for Api methods that return a MemoryDataList
    */
-  MemoryDataList getMemories(String userId) throws MyDeticReadFailedException;
+  interface MemoryListListener {
+    void onApiRespose(MemoryDataList memories);
+
+    void onApiError(MyDeticException exception);
+  }
+
+  /**
+   * Callback interface for Api methods that return a MemoryData
+   */
+  interface SingleMemoryListener {
+    void onApiRespose(MemoryData memory);
+
+    void onApiError(MyDeticException exception);
+  }
+
+  /**
+   * @param userId   which user's memories to use
+   * @param listener callback to receive the memory list.
+   */
+  void getMemories(String userId, MemoryListListener listener);
 
   /**
    * Get a list of memories between fromDate and toDate (inclusive). Either
-   * date can be null, which indicates no bound on he range in that direction.
+   * date can be null, which indicates no bound on the range in that direction.
    *
-   * @param userId
-   * @param fromDate
-   * @param toDate
-   * @return
+   * @param userId   which user's memories to use
+   * @param fromDate If not null, only memories from this date or later will be
+   *                 returned.
+   * @param toDate   If not null, only memories on this date and earlier will be
+   *                 returned.
+   * @param listener callback to receive the memory list.
    */
-  MemoryDataList getMemories(String userId, Date fromDate, Date toDate)
-      throws MyDeticReadFailedException;
+  void getMemories(String userId, Date fromDate, Date toDate,
+                   MemoryListListener listener);
 
   /**
-   * @param userId
-   * @param memoryDate
-   * @return a MemoryData object containing the memory for the userId and date.
-   * @throws MyDeticNoMemoryFoundException if no memory exists.
+   * @param userId     which user's memories to use
+   * @param memoryDate the date to get the memory for.
+   * @param listener   callback to receive the memory.
    */
-  MemoryData getMemory(String userId,
-                       Date memoryDate) throws MyDeticReadFailedException,
-      MyDeticNoMemoryFoundException;
+  void getMemory(String userId, Date memoryDate, SingleMemoryListener
+      listener);
 
   /**
    * Adds or updates a memory
    *
-   * @param userId
-   * @param memory
-   * @return The added memory.
-   * @throws MyDeticWriteFailedException
+   * @param userId   which user's memories to use
+   * @param memory   The memory to add/update.
+   * @param listener callback to receive the memory.
    */
-  MemoryData putMemory(String userId, MemoryData memory) throws
-      MyDeticWriteFailedException;
+  void putMemory(String userId, MemoryData memory, SingleMemoryListener
+      listener);
 
   /**
-   * @param userId
-   * @param memoryDate
-   * @return true if there is a memory for the userId on memoryDate,
-   * false otherwise.
+   * @param userId     which user's memories to use
+   * @param memoryDate The date to check for
+   * @param listener   callback to receive the memory.
    */
-  boolean hasMemory(String userId, Date memoryDate) throws
-      MyDeticReadFailedException;
+  void hasMemory(String userId, Date memoryDate, SingleMemoryListener listener);
 
   /**
-   * @param userId
-   * @param memoryDate
-   * @return
-   * @throws MyDeticNoMemoryFoundException
+   * @param userId     which user's memories to use
+   * @param memoryDate The date of the memory to delete
+   * @param listener   callback to receive the memory.
    */
-  MemoryData deleteMemory(String userId,
-                          Date memoryDate) throws MyDeticNoMemoryFoundException;
+  void deleteMemory(String userId, Date memoryDate, SingleMemoryListener
+      listener);
 }

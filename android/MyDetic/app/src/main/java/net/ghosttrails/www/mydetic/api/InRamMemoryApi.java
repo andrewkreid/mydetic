@@ -1,5 +1,8 @@
 package net.ghosttrails.www.mydetic.api;
 
+import android.os.AsyncTask;
+
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
@@ -10,10 +13,77 @@ import java.util.Random;
 import java.util.TreeMap;
 
 /**
- * Non-persistent in-RAM MemoryApi implementation. Used mainly
- * for testing.
+ * Non-persistent in-RAM MemoryApi implementation. Used mainly for testing.
+ * Simulates the network by running background threads and (optionally) randomly
+ * failing some number of them.
  */
 public class InRamMemoryApi implements MemoryApi {
+
+  /**
+   * Helper class for passing results around in AsyncTask
+   */
+  private class AsyncResult {
+    public MemoryListListener listListener;
+    public SingleMemoryListener singleMemoryListener;
+    public MemoryDataList memoryList;
+    public MemoryData memory;
+    public MyDeticException exception;
+  }
+
+  /**
+   * Helper class for passing parameters to AsyncTask
+   */
+  private class AsyncParams {
+    public MemoryListListener listListener;
+    public SingleMemoryListener singleMemoryListener;
+    public String userId;
+    public InRamMemoryApi api;
+    public Date fromDate;
+    public Date toDate;
+  }
+
+  /**
+   * Class for fetching the memory list asynchronously.
+   */
+  private class getMemoriesTask extends AsyncTask<AsyncParams, Void,
+      AsyncResult> {
+
+    @Override
+    protected AsyncResult doInBackground(AsyncParams... asyncParamses) {
+      AsyncParams params = asyncParamses[0];
+      AsyncResult result = new AsyncResult();
+
+      result.listListener = params.listListener;
+
+      simulatedSleep();
+      if (checkSimulatedFail()) {
+        result.exception = new MyDeticReadFailedException("Simulated");
+        return result;
+      }
+
+      Map<Date, MemoryData> memoryMap = params.api.getListForUserId(params
+          .userId);
+      MemoryDataList retval = new MemoryDataList(params.userId);
+      for (Date d : memoryMap.keySet()) {
+        if ((params.fromDate != null) && (d.before(params.fromDate))) {
+          // before specified from date.
+          continue;
+        }
+        if ((params.toDate != null) && (d.after(params.toDate))) {
+          // after toDate, so we're done.
+          break;
+        }
+        retval.setDate(d);
+      }
+      result.memoryList = retval;
+      return result;
+    }
+
+    @Override
+    protected void onPostExecute(AsyncResult asyncResult) {
+      
+    }
+  }
 
   private Map<String, Map<Date, MemoryData>> memoryLists;
   private int simulatedDelayMs;
@@ -96,19 +166,12 @@ public class InRamMemoryApi implements MemoryApi {
   }
 
   /**
-   * @param userId the user id.
-   * @return A list of all memory dates for user userId
+   * @param userId   the user id.
+   * @param listener The callback to receive the results.
    */
   @Override
-  public MemoryDataList getMemories(String userId)
-      throws MyDeticReadFailedException {
-    simulatedSleep();
-    Map<Date, MemoryData> memoryMap = this.getListForUserId(userId);
-    MemoryDataList retval = new MemoryDataList(userId);
-    for (Date d : memoryMap.keySet()) {
-      retval.setDate(d);
-    }
-    return retval;
+  public void getMemories(String userId, MemoryListListener listener) {
+    getMemories(userId, null, null, listener);
   }
 
   /**
@@ -118,25 +181,11 @@ public class InRamMemoryApi implements MemoryApi {
    * @param userId   the user id.
    * @param fromDate the earliest date to include memories from.
    * @param toDate   the latest date to include memories from.
-   * @return a MemoryDataList
    */
   @Override
-  public MemoryDataList getMemories(String userId, Date fromDate, Date toDate) {
-    simulatedSleep();
-    Map<Date, MemoryData> memoryMap = this.getListForUserId(userId);
-    MemoryDataList retval = new MemoryDataList(userId);
-    for (Date d : memoryMap.keySet()) {
-      if ((fromDate != null) && (d.before(fromDate))) {
-        // before specified from date.
-        continue;
-      }
-      if ((toDate != null) && (d.after(toDate))) {
-        // after toDate, so we're done.
-        break;
-      }
-      retval.setDate(d);
-    }
-    return retval;
+  public void getMemories(String userId, Date fromDate, Date toDate,
+                          MemoryListListener listener) {
+    TODO
   }
 
   /**
@@ -150,7 +199,7 @@ public class InRamMemoryApi implements MemoryApi {
                               Date memoryDate) throws
       MyDeticNoMemoryFoundException, MyDeticReadFailedException {
     simulatedSleep();
-    if(checkSimulatedFail()) {
+    if (checkSimulatedFail()) {
       throw new MyDeticReadFailedException("simulated");
     }
     Map<Date, MemoryData> list = getListForUserId(userId);
