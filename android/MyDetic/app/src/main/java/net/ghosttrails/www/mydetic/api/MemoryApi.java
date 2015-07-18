@@ -19,7 +19,7 @@ public interface MemoryApi {
    * Callback interface for Api methods that return a MemoryDataList
    */
   interface MemoryListListener {
-    void onApiRespose(MemoryDataList memories);
+    void onApiResponse(MemoryDataList memories);
 
     void onApiError(MyDeticException exception);
   }
@@ -28,7 +28,7 @@ public interface MemoryApi {
    * Callback interface for Api methods that return a MemoryData
    */
   interface SingleMemoryListener {
-    void onApiRespose(MemoryData memory);
+    void onApiResponse(MemoryData memory);
 
     void onApiError(MyDeticException exception);
   }
@@ -70,13 +70,6 @@ public interface MemoryApi {
    */
   void putMemory(String userId, MemoryData memory, SingleMemoryListener
       listener);
-
-  /**
-   * @param userId     which user's memories to use
-   * @param memoryDate The date to check for
-   * @param listener   callback to receive the memory.
-   */
-  void hasMemory(String userId, Date memoryDate, SingleMemoryListener listener);
 
   /**
    * @param userId     which user's memories to use
