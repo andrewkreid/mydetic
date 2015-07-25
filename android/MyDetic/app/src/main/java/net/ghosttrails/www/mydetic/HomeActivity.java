@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +17,7 @@ import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 
-public class HomeActivity extends ActionBarActivity {
+public class HomeActivity extends AppCompatActivity {
 
   private ProgressDialog progressDialog;
   private MyDeticApplication app;

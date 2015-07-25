@@ -2,6 +2,7 @@ package net.ghosttrails.www.mydetic;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +15,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends AppCompatActivity {
 
   private MyDeticConfig config;
   private Spinner dataSourceSpinner;

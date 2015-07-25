@@ -277,44 +277,6 @@ public class MemoryDetailActivity extends AppCompatActivity
     }
   }
 
-  /*
-  private class DeprecatedSaveMemoryTask extends AsyncTask<MemoryData, Void, Boolean> {
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog.show();
-    }
-
-    @Override
-    protected void onPostExecute(Boolean saveSuccessfull) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-      if (saveSuccessfull) {
-        // Once we've saved, we're in edit mode.
-        editMode = MemoryDetailMode.MODE_EXISTING;
-        hasLoadedMemory = true;
-        // TODO: Add to application memory list.
-      }
-      updateUIFromData();
-    }
-
-    @Override
-    protected Boolean doInBackground(MemoryData... memoryDatas) {
-      MemoryData memoryData = memoryDatas[0];
-      try {
-        app.getApi().putMemory(app.getUserId(), memoryData);
-        app.setCachedMemory(memoryData);
-      } catch (MyDeticWriteFailedException e) {
-        // TODO: Decide what to do about read/write errors globally.
-        Log.e("MemoryDetailActivity", "Failed to save memory", e);
-        return false;
-      }
-      return true;
-    }
-  }
-  */
-
   private class FetchMemoryListener implements MemoryApi.SingleMemoryListener {
 
     @Override
@@ -340,54 +302,5 @@ public class MemoryDetailActivity extends AppCompatActivity
       AppUtils.smallToast(getApplicationContext(), exception.getMessage());
     }
   }
-
-  /**
-   * Background task to fetch MemoryData objects from the API.
-   */
-  /*
-  private class DeprecatedFetchMemoryTask extends AsyncTask<Date, Void, MemoryData> {
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog.show();
-    }
-
-    @Override
-    protected void onPostExecute(MemoryData memoryData) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-      if (memoryData == null) {
-        // Couldn't be fetched
-        // TODO: propagate error info back here somehow for nicer messages.
-        Context context = getApplicationContext();
-        CharSequence text = "Failed to fetch memory";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
-        // TODO: We need to distinguish between a failed load and a date that
-        // TODO: has no memory yet, so that we don't overwrite an existing one.
-      } else {
-        MemoryDetailActivity.this.memoryData = memoryData;
-        app.setCachedMemory(memoryData);
-        hasLoadedMemory = true;
-      }
-      updateUIFromData();
-    }
-
-    @Override
-    protected MemoryData doInBackground(Date... params) {
-      Date memoryDate = params[0];
-      try {
-        return app.getApi().getMemory(app.getUserId(), memoryDate);
-      } catch (MyDeticException e) {
-        Log.e("MemoryDetailActivity", e.getMessage());
-      }
-      return null;
-    }
-  }
-  */
-
 
 }
