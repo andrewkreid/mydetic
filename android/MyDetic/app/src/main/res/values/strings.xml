@@ -17,4 +17,6 @@
     <string name="api_url_label">API URL :</string>
     <string name="user_name_label">UserName :</string>
     <string name="password_label">Password :</string>
+    <string name="action_list">Memory List</string>
+    <string name="action_new">Add Memory</string>
 </resources>

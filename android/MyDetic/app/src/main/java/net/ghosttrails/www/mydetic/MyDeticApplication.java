@@ -24,7 +24,7 @@ import java.util.HashMap;
 /**
  * Singleton to store global application state
  */
-public class MyDeticApplication extends Application {
+public class MyDeticApplication extends Application implements MemoryAppInterface {
 
   /** Name of the file used to store the application config */
   public static String CONFIG_FILENAME = "mydetic_config.json";

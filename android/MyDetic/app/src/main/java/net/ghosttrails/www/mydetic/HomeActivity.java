@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +23,9 @@ public class HomeActivity extends AppCompatActivity {
 
   private ProgressDialog progressDialog;
   private MyDeticApplication app;
+  private RecyclerView mRecyclerView;
+  private RecyclerView.Adapter mAdapter;
+  private RecyclerView.LayoutManager mLayoutManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,21 @@ public class HomeActivity extends AppCompatActivity {
     setContentView(R.layout.activity_home);
 
     app = (MyDeticApplication) getApplicationContext();
+
+    mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
+
+    // use this setting to improve performance if you know that changes
+    // in content do not change the layout size of the RecyclerView
+    mRecyclerView.setHasFixedSize(true);
+
+    // use a linear layout manager
+    mLayoutManager = new LinearLayoutManager(this);
+    mRecyclerView.setLayoutManager(mLayoutManager);
+
+    // specify an adapter (see also next example)
+    mAdapter = new MemoryCardviewAdaptor(app);
+    mRecyclerView.setAdapter(mAdapter);
+
     app.getApi().getMemories(app.getUserId(), new MemoryApi.MemoryListListener() {
       @Override
       public void onApiResponse(MemoryDataList memories) {
@@ -45,8 +65,6 @@ public class HomeActivity extends AppCompatActivity {
         AppUtils.smallToast(getApplicationContext(), e.getMessage());
       }
     });
-
-    // new FetchMemoryListTask().execute();
   }
 
   @Override
@@ -67,7 +85,14 @@ public class HomeActivity extends AppCompatActivity {
 
     switch (id) {
       case R.id.action_settings:
-        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(new Intent(this, SettingsActivity.class));
+        return true;
+      case R.id.action_list:
+        startActivity(new Intent(this, MemoryListActivity.class));
+        return true;
+      case R.id.action_new:
+        Intent intent = new Intent(this, MemoryDetailActivity.class);
+        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         startActivity(intent);
         return true;
       default:
@@ -85,42 +110,4 @@ public class HomeActivity extends AppCompatActivity {
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
     startActivity(intent);
   }
-
-  /*
-  private class FetchMemoryListTask extends AsyncTask<Void, Void, MemoryDataList> {
-
-    @Override
-    protected MemoryDataList doInBackground(Void... voids) {
-      // refetch the memories from the API.
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-      MemoryDataList memories = app.getMemories();
-      memories.clear();
-      try {
-        memories.mergeFrom(app.getApi().getMemories(app.getUserId()));
-      } catch (MyDeticException e) {
-        // something went wrong fetching memories initially
-        // TODO: what's the right thing to do here.
-        e.printStackTrace();
-      }
-      return memories;
-    }
-
-    @Override
-    protected void onPostExecute(MemoryDataList memories) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-    }
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog = new ProgressDialog(HomeActivity.this);
-      progressDialog.setTitle("Processing...");
-      progressDialog.setMessage("Please wait.");
-      progressDialog.setCancelable(false);
-      progressDialog.setIndeterminate(true);
-      progressDialog.show();
-    }
-  }
-  */
 }
