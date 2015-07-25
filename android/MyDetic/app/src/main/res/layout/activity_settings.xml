@@ -19,6 +19,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/data_store_label"
             android:id="@+id/dataStoreTextView"
+            android:textColor="@color/text_secondary"
             />
 
         <Spinner
@@ -35,6 +36,7 @@
         android:text="@string/api_url_label"
         android:id="@+id/apiUrlTextView"
         android:layout_below="@+id/dataStoreLayout"
+        android:textColor="@color/text_secondary"
         />
 
     <EditText
@@ -44,7 +46,8 @@
         android:layout_below="@+id/apiUrlTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:inputType="textUri"/>
+        android:inputType="textUri"
+        android:textColor="@color/text_secondary"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,7 +65,8 @@
         android:layout_below="@+id/apiUserNameTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:inputType="textEmailAddress"/>
+        android:inputType="textEmailAddress"
+        android:textColor="@color/text_secondary"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -80,5 +84,6 @@
         android:layout_below="@+id/passwordTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        android:textColor="@color/text_secondary"/>
 </RelativeLayout>

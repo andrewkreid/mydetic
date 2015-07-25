@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -19,7 +20,7 @@ import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends Activity {
 
   private ProgressDialog progressDialog;
   private MyDeticApplication app;

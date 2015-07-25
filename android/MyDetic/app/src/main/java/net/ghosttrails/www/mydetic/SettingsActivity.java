@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +16,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends Activity {
 
   private MyDeticConfig config;
   private Spinner dataSourceSpinner;

@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
@@ -33,7 +34,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class MemoryDetailActivity extends AppCompatActivity
+public class MemoryDetailActivity extends Activity
   implements DatePickerDialog.OnDateSetListener {
 
   public static final String MEMORY_DETAIL_DATE =

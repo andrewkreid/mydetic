@@ -36,7 +36,7 @@ public class MemoryCardviewAdaptor extends
     public ViewHolder(CardView v) {
       super(v);
       mView = v;
-      titleView = (TextView)mView.findViewById(R.id.memory_card_view_title);
+      titleView = (TextView) mView.findViewById(R.id.memory_card_view_title);
     }
 
     public void fillCard(Date d) {
@@ -56,10 +56,9 @@ public class MemoryCardviewAdaptor extends
 
   // Create new views (invoked by the layout manager)
   @Override
-  public MemoryCardviewAdaptor.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                 int viewType) {
+  public MemoryCardviewAdaptor.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     // create a new view
-    CardView v = (CardView)LayoutInflater.from(parent.getContext())
+    CardView v = (CardView) LayoutInflater.from(parent.getContext())
         .inflate(R.layout.memory_card, parent, false);
     // TODO set the view's size, margins, paddings and layout parameters
     return new ViewHolder(v);
@@ -88,6 +87,7 @@ public class MemoryCardviewAdaptor extends
   /**
    * Map a list position to a date. Position 0 is today, 1 is yesterday, and
    * so on...
+   *
    * @param position the list position.
    */
   private Date positionToDate(int position) {
