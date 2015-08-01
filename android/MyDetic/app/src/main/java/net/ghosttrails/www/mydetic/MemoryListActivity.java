@@ -50,8 +50,7 @@ public class MemoryListActivity extends Activity
     final ListView listView = (ListView) findViewById(R.id.listview);
     listView.setOnItemClickListener(this);
 
-    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this,
-        app.getMemories());
+    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this, app.getMemories());
     listView.setAdapter(adapter);
   }
 
@@ -67,14 +66,13 @@ public class MemoryListActivity extends Activity
     // Handle action bar item clicks here. The action bar will
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
+    switch(item.getItemId()) {
+      case R.id.action_settings:
+        startActivity(new Intent(this, SettingsActivity.class));
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
     }
-
-    return super.onOptionsItemSelected(item);
   }
 
   /**
@@ -91,8 +89,7 @@ public class MemoryListActivity extends Activity
    * @param id       The row id of the item that was clicked.
    */
   @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position,
-                          long id) {
+  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     MemoriesAdapter adapter = (MemoriesAdapter) parent.getAdapter();
     Date d = (Date) adapter.getItem(position);
     Intent intent = new Intent(this, MemoryDetailActivity.class);

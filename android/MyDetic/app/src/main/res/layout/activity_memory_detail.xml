@@ -30,7 +30,8 @@
         android:scrollbars="vertical"
         android:singleLine="false"
         android:layout_below="@+id/memory_title"
-        android:layout_above="@+id/linearLayout"/>
+        android:layout_above="@+id/linearLayout"
+        android:textColor="@color/text_secondary"/>
 
     <LinearLayout
         android:orientation="horizontal"
