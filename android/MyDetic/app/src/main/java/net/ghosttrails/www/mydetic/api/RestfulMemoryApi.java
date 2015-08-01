@@ -7,9 +7,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 import net.ghosttrails.www.mydetic.MyDeticConfig;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.util.Date;
 
@@ -34,6 +31,7 @@ public class RestfulMemoryApi implements MemoryApi {
   /**
    * Builds the full URL for a REST request, combining the config URL and
    * possibly API_URL (if the config is only a host name).
+   *
    * @return The full URL string.
    */
   private String getApiUrl() {
