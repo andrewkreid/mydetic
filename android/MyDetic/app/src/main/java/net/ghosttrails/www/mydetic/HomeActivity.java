@@ -17,7 +17,10 @@ import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
+import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+
+import java.util.Date;
 
 
 public class HomeActivity extends Activity {
@@ -46,7 +49,20 @@ public class HomeActivity extends Activity {
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     // specify an adapter (see also next example)
-    mAdapter = new MemoryCardviewAdaptor(app);
+    mAdapter = new MemoryCardviewAdaptor(app, new CustomItemClickListener() {
+      @Override
+      public void onItemClick(View v, int position, Date memoryDate) {
+        // Clicking on a Memory card takes you to the detail activity for that date.
+        Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
+        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
+        if (app.getCachedMemory(memoryDate) != null) {
+          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
+        } else {
+          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
+        }
+        startActivity(intent);
+      }
+    });
     mRecyclerView.setAdapter(mAdapter);
 
     app.getApi().getMemories(app.getUserId(), new MemoryApi.MemoryListListener() {
@@ -102,25 +118,16 @@ public class HomeActivity extends Activity {
   }
 
   @Override
-  protected void onRestart() {
-    super.onRestart();
-    if (mAdapter != null) {
-      // Probably not the most elegant way to do this, but the displayed cards may have been
-      // modified elsewhere in the app.
-      mAdapter.notifyDataSetChanged();
-
-    }
+  protected void onResume() {
+    super.onResume();
     mRecyclerView.invalidate();
   }
 
-  public void memoryListClicked(View view) {
-    Intent intent = new Intent(this, MemoryListActivity.class);
-    startActivity(intent);
+  @Override
+  protected void onRestart() {
+    super.onRestart();
+    mAdapter.notifyDataSetChanged();
+    mRecyclerView.invalidate();
   }
 
-  public void memoryNewClicked(View view) {
-    Intent intent = new Intent(this, MemoryDetailActivity.class);
-    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
-    startActivity(intent);
-  }
 }

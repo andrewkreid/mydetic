@@ -2,7 +2,9 @@ package net.ghosttrails.www.mydetic;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -22,6 +24,7 @@ public class MemoryCardviewAdaptor extends
   static final int NUM_CARDS = 7;
 
   private MemoryAppInterface app;
+  private CustomItemClickListener listener;
 
   // Provide a reference to the views for each data item
   // Complex data items may need more than one view per item, and
@@ -30,6 +33,7 @@ public class MemoryCardviewAdaptor extends
     public CardView mView;
     public TextView titleView;
     public TextView memoryTextView;
+    public Date memoryDate;
 
     public ViewHolder(CardView v) {
       super(v);
@@ -39,19 +43,23 @@ public class MemoryCardviewAdaptor extends
     }
 
     public void fillCard(Date d) {
+      memoryDate = d;
       titleView.setText(Utils.isoFormat(d));
       memoryTextView.setText("");
     }
 
     public void fillCard(MemoryData memory) {
+      memoryDate = memory.getMemoryDate();
       titleView.setText(Utils.isoFormat(memory.getMemoryDate()));
       memoryTextView.setText(memory.getMemoryText());
     }
+
   }
 
   // Provide a suitable constructor (depends on the kind of dataset)
-  public MemoryCardviewAdaptor(MemoryAppInterface app) {
+  public MemoryCardviewAdaptor(MemoryAppInterface app, CustomItemClickListener listener) {
     this.app = app;
+    this.listener = listener;
   }
 
   // Create new views (invoked by the layout manager)
@@ -60,8 +68,15 @@ public class MemoryCardviewAdaptor extends
     // create a new view
     CardView v = (CardView) LayoutInflater.from(parent.getContext())
         .inflate(R.layout.memory_card, parent, false);
+    final ViewHolder mViewHolder = new ViewHolder(v);
+    v.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        listener.onItemClick(v, mViewHolder.getPosition(), mViewHolder.memoryDate);
+      }
+    });
     // TODO set the view's size, margins, paddings and layout parameters
-    return new ViewHolder(v);
+    return mViewHolder;
   }
 
   // Replace the contents of a view (invoked by the layout manager)

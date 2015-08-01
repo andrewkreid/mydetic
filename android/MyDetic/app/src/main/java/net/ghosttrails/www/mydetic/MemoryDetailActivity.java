@@ -288,6 +288,7 @@ public class MemoryDetailActivity extends Activity
       if (memory != null) {
         MemoryDetailActivity.this.memoryData = memory;
         app.setCachedMemory(memory);
+        editMode = MemoryDetailMode.MODE_EXISTING;
         hasLoadedMemory = true;
       }
       updateUIFromData();
