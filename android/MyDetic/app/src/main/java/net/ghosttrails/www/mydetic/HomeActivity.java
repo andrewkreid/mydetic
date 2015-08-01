@@ -101,6 +101,18 @@ public class HomeActivity extends Activity {
     }
   }
 
+  @Override
+  protected void onRestart() {
+    super.onRestart();
+    if (mAdapter != null) {
+      // Probably not the most elegant way to do this, but the displayed cards may have been
+      // modified elsewhere in the app.
+      mAdapter.notifyDataSetChanged();
+
+    }
+    mRecyclerView.invalidate();
+  }
+
   public void memoryListClicked(View view) {
     Intent intent = new Intent(this, MemoryListActivity.class);
     startActivity(intent);

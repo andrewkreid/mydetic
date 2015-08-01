@@ -3,6 +3,7 @@ package net.ghosttrails.www.mydetic.api;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Generic utility functions for working with Memories
@@ -26,4 +27,5 @@ public class Utils {
   public static String isoFormat(Date date) {
     return isoDf.format(date);
   }
+
 }

@@ -3,14 +3,11 @@ package net.ghosttrails.www.mydetic;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
-
-import org.w3c.dom.Text;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -32,20 +29,23 @@ public class MemoryCardviewAdaptor extends
   public static class ViewHolder extends RecyclerView.ViewHolder {
     public CardView mView;
     public TextView titleView;
+    public TextView memoryTextView;
 
     public ViewHolder(CardView v) {
       super(v);
       mView = v;
       titleView = (TextView) mView.findViewById(R.id.memory_card_view_title);
+      memoryTextView = (TextView) mView.findViewById(R.id.memory_card_text_view);
     }
 
     public void fillCard(Date d) {
       titleView.setText(Utils.isoFormat(d));
+      memoryTextView.setText("");
     }
 
     public void fillCard(MemoryData memory) {
       titleView.setText(Utils.isoFormat(memory.getMemoryDate()));
-      // TODO: Fill in rest of card.
+      memoryTextView.setText(memory.getMemoryText());
     }
   }
 
@@ -92,6 +92,10 @@ public class MemoryCardviewAdaptor extends
    */
   private Date positionToDate(int position) {
     Calendar cal = Calendar.getInstance();
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
     cal.add(Calendar.DAY_OF_MONTH, -position);
     return cal.getTime();
   }
