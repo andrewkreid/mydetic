@@ -92,7 +92,7 @@ at a time.
         "2015-12-19",
         "2015-12-20"
     ],
-    "uid": "mreynolds"
+    "user_id": "mreynolds"
 }
 ```
 
@@ -103,7 +103,7 @@ at a time.
 * **Sample Call:**
 
 ```
-curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?uid=mreynolds
+curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?user_id=mreynolds
 ```
 
 ### POST /mydetic/api/v1.0/memories
@@ -192,7 +192,7 @@ Returns a single memory for a particular date.
 * **Sample Call:**
 
 ```
-curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?uid=mreynolds
+curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?user_id=mreynolds
 ```
 
 ### PUT /mydetic/api/v1.0/memories/YYY-MM-DD
