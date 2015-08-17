@@ -11,7 +11,7 @@ diary entries rather than build a service that will scale to many users.
 
 ## Development Status
 
-Pre-Alpha. Early development. Almost nothing works.
+Pre-Alpha. Early development. REST API backed by S3 works. Android app in development.
 
 ## Motivation
 
@@ -33,8 +33,8 @@ but I'm going to write another for the following reasons:
 
 * Store entries in Amazon S3 to start, but abstract the DAO for other data stores 
 (thanks to [nMustaki](https://github.com/nMustaki) for contributing an SQLite store).
-* Provide a REST API for manipulating the store, based on Flask-RESTful. (under construction)
-* Write an Android app that uses the REST API. (not started)
+* Provide a REST API for manipulating the store, based on Flask-RESTful. (working)
+* Write an Android app that uses the REST API. (in progress)
 
 ## REST API
 
