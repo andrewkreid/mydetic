@@ -41,7 +41,7 @@ public class BasicAuthJsonObjectRequest extends JsonObjectRequest {
 
   @Override
   public Map<String, String> getHeaders() throws AuthFailureError {
-    return createBasicAuthHeader("user", "password");
+    return createBasicAuthHeader(username, password);
   }
 
   Map<String, String> createBasicAuthHeader(String username, String password) {
