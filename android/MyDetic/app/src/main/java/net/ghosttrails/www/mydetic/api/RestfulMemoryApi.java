@@ -3,10 +3,18 @@ package net.ghosttrails.www.mydetic.api;
 import android.content.Context;
 import android.net.Uri;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 
 import net.ghosttrails.www.mydetic.MyDeticConfig;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -16,7 +24,7 @@ import java.util.Date;
 public class RestfulMemoryApi implements MemoryApi {
 
   // The default URL path for API calls.
-  private static final String API_PATH = "mydetic/api/v1.0/memories";
+  private static final String API_PATH = "mydetic/api/v1.0";
 
   private RequestQueue requestQueue;
   private Context context;
@@ -50,8 +58,28 @@ public class RestfulMemoryApi implements MemoryApi {
 
   @Override
   public void getMemories(String userId,
-                          MemoryListListener listener) {
+                          final MemoryListListener listener) {
+    String url = String.format("%s/memories?userid=%s", getApiUrl(), userId);
+    BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
+        config.getUserPassword(),
+        Request.Method.GET, url, null,
+        new Response.Listener<JSONObject>() {
+          @Override
+          public void onResponse(JSONObject response) {
+            try {
+              listener.onApiResponse(MemoryDataList.fromJSON(response));
+            } catch (MyDeticException e) {
+              listener.onApiError(e);
+            }
+          }
+        }, new Response.ErrorListener() {
 
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
+      }
+    });
+    requestQueue.add(jsObjRequest);
   }
 
   @Override

@@ -1,7 +1,14 @@
 package net.ghosttrails.www.mydetic.api;
 
+import android.text.format.DateUtils;
+
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
@@ -67,8 +74,43 @@ public class MemoryDataList {
       throw new MyDeticException(
           "Tried to merge MemoryDataLists with different userIds");
     }
-    for (Date d : memories.getDates()) {
+    for (Date d: memories.getDates()) {
       this.setDate(d);
+    }
+  }
+
+  /**
+   * Build a MemoryDataList from the JSON wire format.
+   *
+   * {
+   *   "memories": [
+   *    "2015-12-18",
+   *    "2015-12-19",
+   *    "2015-12-20"
+   *   ],
+   *   "user_id": "mreynolds"
+   * }
+   *
+   * @param jsonObject JSON returned from the REST API
+   * @return a MemoryDataList object.
+   * @throws MyDeticException on format errors
+   */
+  static MemoryDataList fromJSON(JSONObject jsonObject) throws MyDeticException {
+    MemoryDataList memoryDataList = new MemoryDataList();
+
+    try {
+      String userId = jsonObject.getString("user_id");
+      memoryDataList.setUserID(userId);
+
+      JSONArray memoryArray = jsonObject.getJSONArray("memories");
+      for(int i = 0; i < memoryArray.length(); i++) {
+        String dateStr = memoryArray.getString(i);
+        memoryDataList.setDate(Utils.parseIsoDate(dateStr));
+      }
+
+      return memoryDataList;
+    } catch (JSONException | ParseException e) {
+      throw new MyDeticException("Format error in memory list JSON:" + e.toString());
     }
   }
 

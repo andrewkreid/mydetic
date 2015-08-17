@@ -50,7 +50,7 @@ public class MyDeticApplication extends Application implements MemoryAppInterfac
   public void onCreate() {
     super.onCreate();
     // Init the api and memory list
-    // TODO: userId from settings.
+    // TODO: userId and API from settings.
     userId = "mreynolds";
     InRamMemoryApi ramApi = new InRamMemoryApi();
 
