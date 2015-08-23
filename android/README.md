@@ -8,6 +8,19 @@ to disable to encourage good security.
 To allow a self-signed certificate (which the MyDetic REST API will probably
 have), you need to do the following:
 
-(instructions taken from this CodeProject page)
+(instructions taken from [this CodeProject page](http://www.codeproject.com/Articles/826045/Android-security-Implementation-of-Self-signed-SSL))
 
-TODO
+Download [bcprov-jdk15on-146.jar](http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar).
+
+Find the public SSL key you installed into Apache (`/etc/pki/tls/certs/ca.crt`) and copy it to a text file locally.
+
+Run
+
+    keytool -import -alias mydetic -file ca.crt \
+        -keystore mydeticssl.bks -storetype BKS -providerClass \
+        org.bouncycastle.jce.provider.BouncyCastleProvider \
+        -providerpath bcprov-jdk15on-146.jar
+
+Set the password to `mydetic`
+
+Copy the resulting `mydeticssl.bks` file to `MyDetic/app/src/main/res/raw/`
