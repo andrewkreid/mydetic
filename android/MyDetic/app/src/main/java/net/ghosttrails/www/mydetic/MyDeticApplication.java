@@ -9,6 +9,7 @@ import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
+import net.ghosttrails.www.mydetic.api.RestfulMemoryApi;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
@@ -49,24 +50,11 @@ public class MyDeticApplication extends Application implements MemoryAppInterfac
   @Override
   public void onCreate() {
     super.onCreate();
-    // Init the api and memory list
-    // TODO: userId and API from settings.
-    userId = "mreynolds";
-    InRamMemoryApi ramApi = new InRamMemoryApi();
 
-    try {
-      SampleSetPopulator.populateTestSet(ramApi, userId, true);
-    } catch (MyDeticException e) {
-      Log.e("MyDeticApplication", "Same Populate Failed", e);
-    }
-    ramApi.setSimulatedDelayMs(1000);
-    ramApi.setSimulatedFailureRate(0);
-    api = ramApi;
+    this.config = getConfig();
 
-    memories = new MemoryDataList();
-    memories.setUserID(userId);
-
-    this.memoryCache = new HashMap<Date, MemoryData>();
+    refreshSettingsFromConfig();
+    reloadMemories();
   }
 
   public String getUserId() {
@@ -92,6 +80,34 @@ public class MyDeticApplication extends Application implements MemoryAppInterfac
   public void setMemories(
       MemoryDataList memories) {
     this.memories = memories;
+  }
+
+  /** Update the API and user params from the config (eg when it has changed).
+   *  Clear existing memory data in RAM.
+   *
+   */
+  public void refreshSettingsFromConfig() {
+    // Init the api and memory list
+    // TODO: userId and API from settings.
+    userId = config.getUserName();
+    if (config.getActiveDataStore().equals(MyDeticConfig.DS_INRAM)) {
+      InRamMemoryApi ramApi = new InRamMemoryApi();
+      ramApi.setSimulatedDelayMs(1000);
+      ramApi.setSimulatedFailureRate(0);
+      api = ramApi;
+      try {
+        SampleSetPopulator.populateTestSet(ramApi, userId, true);
+      } catch (MyDeticException e) {
+        Log.e("MyDeticApplication", "Same Populate Failed", e);
+      }
+    } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_RESTAPI)) {
+      api = new RestfulMemoryApi(getApplicationContext(), config);
+    }
+
+    memories = new MemoryDataList();
+    memories.setUserID(userId);
+
+    this.memoryCache = new HashMap<Date, MemoryData>();
   }
 
   /**
@@ -127,5 +143,40 @@ public class MyDeticApplication extends Application implements MemoryAppInterfac
     return config;
   }
 
+  public void reloadMemories() {
+    reloadMemories(new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList memories) {
+        // empty callback
+      }
 
+      @Override
+      public void onApiError(MyDeticException exception) {
+        // empty callback
+      }
+    });
+  }
+
+  public void reloadMemories(final MemoryApi.MemoryListListener externalListener) {
+    api.getMemories(userId, new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList newMemories) {
+        memories.clear();
+        try {
+          memories.mergeFrom(newMemories);
+        } catch (MyDeticException e) {
+          AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        }
+        externalListener.onApiResponse(memories);
+      }
+
+      @Override
+      public void onApiError(MyDeticException e) {
+        AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        Log.e("MyDetic", e.getMessage());
+        externalListener.onApiError(e);
+      }
+    });
+
+  }
 }

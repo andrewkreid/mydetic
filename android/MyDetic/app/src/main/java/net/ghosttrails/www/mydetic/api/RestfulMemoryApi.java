@@ -2,13 +2,12 @@ package net.ghosttrails.www.mydetic.api;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 
 import net.ghosttrails.www.mydetic.MyDeticConfig;
@@ -27,12 +26,10 @@ public class RestfulMemoryApi implements MemoryApi {
   private static final String API_PATH = "mydetic/api/v1.0";
 
   private RequestQueue requestQueue;
-  private Context context;
   private MyDeticConfig config;
 
   public RestfulMemoryApi(Context ctx, MyDeticConfig config) {
-    context = ctx;
-    requestQueue = Volley.newRequestQueue(context.getApplicationContext());
+    requestQueue = RequestQueueSingleton.getInstance(ctx).getRequestQueue();
     this.config = config;
   }
 
@@ -46,7 +43,8 @@ public class RestfulMemoryApi implements MemoryApi {
     StringBuilder builder = new StringBuilder();
     builder.append(config.getApiUrl());
     Uri configUri = Uri.parse(config.getApiUrl());
-    if ((configUri.getPath() == null) || (configUri.getPath().length() == 1)) {
+    Log.i("MyDetic", String.format("getPath() = %s", configUri.getPath()));
+    if ((configUri.getPath() == null) || (configUri.getPath().length() <= 1)) {
       // There is no path, or the path is just "/", use the default API_PATH
       if (!config.getApiUrl().endsWith("/")) {
         builder.append("/");
@@ -59,7 +57,7 @@ public class RestfulMemoryApi implements MemoryApi {
   @Override
   public void getMemories(String userId,
                           final MemoryListListener listener) {
-    String url = String.format("%s/memories?userid=%s", getApiUrl(), userId);
+    String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
     BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
         config.getUserPassword(),
         Request.Method.GET, url, null,
@@ -85,24 +83,24 @@ public class RestfulMemoryApi implements MemoryApi {
   @Override
   public void getMemories(String userId, Date fromDate, Date toDate,
                           MemoryListListener listener) {
-
+    listener.onApiError(new MyDeticException("Not Implemented"));
   }
 
   @Override
   public void getMemory(String userId, Date memoryDate,
                         SingleMemoryListener listener) {
-
+    listener.onApiError(new MyDeticException("Not Implemented"));
   }
 
   @Override
   public void putMemory(String userId, MemoryData memory,
                         SingleMemoryListener listener) {
-
+    listener.onApiError(new MyDeticException("Not Implemented"));
   }
 
   @Override
   public void deleteMemory(String userId, Date memoryDate,
                            SingleMemoryListener listener) {
-
+    listener.onApiError(new MyDeticException("Not Implemented"));
   }
 }

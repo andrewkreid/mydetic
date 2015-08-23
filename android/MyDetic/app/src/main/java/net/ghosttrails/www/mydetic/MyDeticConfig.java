@@ -25,8 +25,8 @@ public class MyDeticConfig {
   /** key for password encryption. TODO: move this to a config file */
   private static String secretKey = "16utS1WskaJqTtSRxE6hYA==:CKw5QpwyayYsXIs0TMas2Yv2k2dXXeAgTa0ijWoQyTw=";
 
-  /** config format version. Can be used to help handle non backwards-compatible
-   *  config file format changes.
+  /** config format version. Can be used to help handle non backwards-compatible config file format
+   *  changes.
    */
   private static int CONFIG_VERSION = 1;
 

@@ -29,7 +29,6 @@ public class HomeActivity extends Activity {
   private MyDeticApplication app;
   private RecyclerView mRecyclerView;
   private RecyclerView.Adapter mAdapter;
-  private RecyclerView.LayoutManager mLayoutManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +44,10 @@ public class HomeActivity extends Activity {
     mRecyclerView.setHasFixedSize(true);
 
     // use a linear layout manager
-    mLayoutManager = new LinearLayoutManager(this);
+    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
     mRecyclerView.setLayoutManager(mLayoutManager);
 
-    // specify an adapter (see also next example)
+    // specify an adapter.
     mAdapter = new MemoryCardviewAdaptor(app, new CustomItemClickListener() {
       @Override
       public void onItemClick(View v, int position, Date memoryDate) {
@@ -65,23 +64,7 @@ public class HomeActivity extends Activity {
     });
     mRecyclerView.setAdapter(mAdapter);
 
-    app.getApi().getMemories(app.getUserId(), new MemoryApi.MemoryListListener() {
-      @Override
-      public void onApiResponse(MemoryDataList memories) {
-        MemoryDataList appMemories = app.getMemories();
-        appMemories.clear();
-        try {
-          appMemories.mergeFrom(memories);
-        } catch (MyDeticException e) {
-          AppUtils.smallToast(getApplicationContext(), e.getMessage());
-        }
-      }
-
-      @Override
-      public void onApiError(MyDeticException e) {
-        AppUtils.smallToast(getApplicationContext(), e.getMessage());
-      }
-    });
+    app.reloadMemories();
   }
 
   @Override
@@ -111,6 +94,22 @@ public class HomeActivity extends Activity {
         Intent intent = new Intent(this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         startActivity(intent);
+        return true;
+      case R.id.action_reload:
+        app.refreshSettingsFromConfig();
+        app.reloadMemories(new MemoryApi.MemoryListListener() {
+          @Override
+          public void onApiResponse(MemoryDataList memories) {
+            mAdapter.notifyDataSetChanged();
+            mRecyclerView.invalidate();
+          }
+
+          @Override
+          public void onApiError(MyDeticException exception) {
+            mAdapter.notifyDataSetChanged();
+            mRecyclerView.invalidate();
+          }
+        });
         return true;
       default:
         return super.onOptionsItemSelected(item);
