@@ -31,6 +31,8 @@ sudo yum install httpd mod_ssl mod_wsgi-python27
 openssl genrsa -out ca.key 2048
 ```
 
+Hint: Set the common name to a wildcard on the EC2 domain for your region (eg `*.ap-southeast-2.compute.amazonaws.com`). 
+
 #### Generate CSR
 ```
 openssl req -new -key ca.key -out ca.csr
