@@ -2,13 +2,11 @@ package net.ghosttrails.www.mydetic.api;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
@@ -119,8 +117,39 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void putMemory(String userId, MemoryData memory, SingleMemoryListener listener) {
-    listener.onApiError(new MyDeticException("Not Implemented"));
+  public void putMemory(String userId, MemoryData memory, final SingleMemoryListener listener) {
+    String url = String.format("%s/memories/%s?user_id=%s", getApiUrl(),
+        Utils.isoFormat(memory.getMemoryDate()), userId);
+    BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
+        config.getUserPassword(),
+        Request.Method.PUT, url, null,
+        new Response.Listener<JSONObject>() {
+          @Override
+          public void onResponse(JSONObject response) {
+            try {
+              listener.onApiResponse(MemoryData.fromJSON(response));
+            } catch (MyDeticException e) {
+              listener.onApiError(e);
+            }
+          }
+        }, new Response.ErrorListener() {
+
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        if (error.networkResponse != null) {
+          if (error.networkResponse.statusCode == 404) {
+            // TODO: If the response to the PUT was 404, then try a POST to create a new memory.
+
+          } else {
+            listener.onApiError(new MyDeticException(String.format("Got %d when saving Memory",
+                error.networkResponse.statusCode), error));
+          }
+        } else {
+          listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
+        }
+      }
+    });
+    requestQueue.add(jsObjRequest);
   }
 
   @Override

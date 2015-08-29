@@ -81,6 +81,18 @@ public class MemoryData {
     }
   }
 
+  public JSONObject toJSON() throws MyDeticException {
+    JSONObject jsonObject = new JSONObject();
+    try {
+      jsonObject.put("user_id", userId);
+      jsonObject.put("memory_date", Utils.isoFormat(memoryDate));
+      jsonObject.put("memory_text", memoryText);
+      return jsonObject;
+    } catch (JSONException e) {
+      throw new MyDeticException("Error converting MemoryData to JSON", e);
+    }
+  }
+
   /**
    * Deep copy
    */
