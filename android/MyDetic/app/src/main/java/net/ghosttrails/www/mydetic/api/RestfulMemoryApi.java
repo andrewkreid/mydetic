@@ -43,9 +43,9 @@ public class RestfulMemoryApi implements MemoryApi {
     StringBuilder builder = new StringBuilder();
     builder.append(config.getApiUrl());
     Uri configUri = Uri.parse(config.getApiUrl());
-    Log.i("MyDetic", String.format("getPath() = %s", configUri.getPath()));
+
+    // Append API_PATH unless the user seems to have specified something themselves.
     if ((configUri.getPath() == null) || (configUri.getPath().length() <= 1)) {
-      // There is no path, or the path is just "/", use the default API_PATH
       if (!config.getApiUrl().endsWith("/")) {
         builder.append("/");
       }
@@ -57,7 +57,19 @@ public class RestfulMemoryApi implements MemoryApi {
   @Override
   public void getMemories(String userId,
                           final MemoryListListener listener) {
+    getMemories(userId, null, null, listener);
+  }
+
+  @Override
+  public void getMemories(String userId, Date fromDate, Date toDate,
+                          final MemoryListListener listener) {
     String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
+    if (fromDate != null) {
+      url = String.format("%s&start_date=%s", url, Utils.isoFormat(fromDate));
+    }
+    if (toDate != null) {
+      url = String.format("%s&end_date=%s", url, Utils.isoFormat(toDate));
+    }
     BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
         config.getUserPassword(),
         Request.Method.GET, url, null,
@@ -81,26 +93,38 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemories(String userId, Date fromDate, Date toDate,
-                          MemoryListListener listener) {
+  public void getMemory(String userId, Date memoryDate, final SingleMemoryListener listener) {
+    String url = String.format("%s/memories/%s?user_id=%s", getApiUrl(),
+        Utils.isoFormat(memoryDate), userId);
+    BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
+        config.getUserPassword(),
+        Request.Method.GET, url, null,
+        new Response.Listener<JSONObject>() {
+          @Override
+          public void onResponse(JSONObject response) {
+            try {
+              listener.onApiResponse(MemoryData.fromJSON(response));
+            } catch (MyDeticException e) {
+              listener.onApiError(e);
+            }
+          }
+        }, new Response.ErrorListener() {
+
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
+      }
+    });
+    requestQueue.add(jsObjRequest);
+  }
+
+  @Override
+  public void putMemory(String userId, MemoryData memory, SingleMemoryListener listener) {
     listener.onApiError(new MyDeticException("Not Implemented"));
   }
 
   @Override
-  public void getMemory(String userId, Date memoryDate,
-                        SingleMemoryListener listener) {
-    listener.onApiError(new MyDeticException("Not Implemented"));
-  }
-
-  @Override
-  public void putMemory(String userId, MemoryData memory,
-                        SingleMemoryListener listener) {
-    listener.onApiError(new MyDeticException("Not Implemented"));
-  }
-
-  @Override
-  public void deleteMemory(String userId, Date memoryDate,
-                           SingleMemoryListener listener) {
+  public void deleteMemory(String userId, Date memoryDate, SingleMemoryListener listener) {
     listener.onApiError(new MyDeticException("Not Implemented"));
   }
 }
