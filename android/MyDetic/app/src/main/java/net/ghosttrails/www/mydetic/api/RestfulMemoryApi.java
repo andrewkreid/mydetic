@@ -84,7 +84,7 @@ public class RestfulMemoryApi implements MemoryApi {
 
       @Override
       public void onErrorResponse(VolleyError error) {
-        listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
+        listener.onApiError(new MyDeticException(formatVolleyError(error), error));
       }
     });
     requestQueue.add(jsObjRequest);
@@ -110,50 +110,95 @@ public class RestfulMemoryApi implements MemoryApi {
 
       @Override
       public void onErrorResponse(VolleyError error) {
-        listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
+        listener.onApiError(new MyDeticException(formatVolleyError(error), error));
       }
     });
     requestQueue.add(jsObjRequest);
   }
 
   @Override
-  public void putMemory(String userId, MemoryData memory, final SingleMemoryListener listener) {
+  public void putMemory(final String userId, final MemoryData memory, final SingleMemoryListener listener) {
     String url = String.format("%s/memories/%s?user_id=%s", getApiUrl(),
         Utils.isoFormat(memory.getMemoryDate()), userId);
-    BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
-        config.getUserPassword(),
-        Request.Method.PUT, url, null,
-        new Response.Listener<JSONObject>() {
-          @Override
-          public void onResponse(JSONObject response) {
-            try {
-              listener.onApiResponse(MemoryData.fromJSON(response));
-            } catch (MyDeticException e) {
-              listener.onApiError(e);
+    BasicAuthJsonObjectRequest jsObjRequest = null;
+    try {
+      jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
+          config.getUserPassword(),
+          Request.Method.PUT, url, memory.toJSON(),
+          new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+              try {
+                listener.onApiResponse(MemoryData.fromJSON(response));
+              } catch (MyDeticException e) {
+                listener.onApiError(e);
+              }
             }
-          }
-        }, new Response.ErrorListener() {
+          }, new Response.ErrorListener() {
 
-      @Override
-      public void onErrorResponse(VolleyError error) {
-        if (error.networkResponse != null) {
-          if (error.networkResponse.statusCode == 404) {
-            // TODO: If the response to the PUT was 404, then try a POST to create a new memory.
-
+        @Override
+        public void onErrorResponse(VolleyError error) {
+          if (error.networkResponse != null) {
+            if (error.networkResponse.statusCode == 404) {
+              // TODO: If the response to the PUT was 404, then try a POST to create a new memory.
+              createMemory(userId, memory, listener);
+            } else {
+              listener.onApiError(new MyDeticException(String.format("Got %d when saving Memory",
+                  error.networkResponse.statusCode), error));
+            }
           } else {
-            listener.onApiError(new MyDeticException(String.format("Got %d when saving Memory",
-                error.networkResponse.statusCode), error));
+            listener.onApiError(new MyDeticException(formatVolleyError(error), error));
           }
-        } else {
-          listener.onApiError(new MyDeticException("Network Error: " + error.getMessage(), error));
         }
-      }
-    });
+      });
+    } catch (MyDeticException e) {
+      // Error before making REST call.
+      listener.onApiError(e);
+    }
     requestQueue.add(jsObjRequest);
   }
 
   @Override
-  public void deleteMemory(String userId, Date memoryDate, SingleMemoryListener listener) {
+  public void deleteMemory(String userId, Date memoryDate, final SingleMemoryListener listener) {
     listener.onApiError(new MyDeticException("Not Implemented"));
+  }
+
+  private void createMemory(final String userId, final MemoryData memory, final SingleMemoryListener listener) {
+
+    String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
+    BasicAuthJsonObjectRequest jsObjRequest = null;
+    try {
+      jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
+          config.getUserPassword(),
+          Request.Method.POST, url, memory.toJSON(),
+          new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+              try {
+                listener.onApiResponse(MemoryData.fromJSON(response));
+              } catch (MyDeticException e) {
+                listener.onApiError(e);
+              }
+            }
+          }, new Response.ErrorListener() {
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+          listener.onApiError(new MyDeticException(formatVolleyError(error), error));
+        }
+      });
+    } catch (MyDeticException e) {
+      // Error before making REST call.
+      listener.onApiError(e);
+    }
+    requestQueue.add(jsObjRequest);
+  }
+
+  private String formatVolleyError(VolleyError v) {
+    if (v.networkResponse != null) {
+      return String.format("Network Error: %d", v.networkResponse.statusCode);
+    } else {
+      return "Network Error:<unknown>";
+    }
   }
 }
