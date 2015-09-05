@@ -54,7 +54,7 @@ public class HomeActivity extends Activity {
         // Clicking on a Memory card takes you to the detail activity for that date.
         Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
-        if (app.getCachedMemory(memoryDate) != null) {
+        if (app.getMemories().hasDate(memoryDate)) {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
         } else {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
