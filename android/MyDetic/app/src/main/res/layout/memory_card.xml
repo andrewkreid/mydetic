@@ -5,7 +5,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="130dp"
     android:layout_gravity="center"
     android:layout_marginBottom="5dp"
     android:layout_marginTop="5dp"
@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             style="@android:style/TextAppearance.Large"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/memory_card_title"
             android:text="Date"/>
 
         <TextView
@@ -35,7 +35,10 @@
             android:layout_below="@+id/memory_card_view_title"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@color/memory_card_text"
+            android:maxLines="2"
+            android:ellipsize="end"/>
     </RelativeLayout>
 
 

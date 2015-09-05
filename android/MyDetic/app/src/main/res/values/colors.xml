@@ -6,4 +6,6 @@
     <color name="text_primary">#D9FFFFFF</color>
     <color name="text_secondary">#D9000000</color>
     <color name="faint_background">#EFEBE9</color>
+    <color name="memory_card_title">#000000</color>
+    <color name="memory_card_text">#9D9D9D</color>
 </resources>
