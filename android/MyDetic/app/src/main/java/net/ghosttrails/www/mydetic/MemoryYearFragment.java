@@ -1,25 +1,15 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
+import android.app.ListFragment;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.TextView;
-
-import net.ghosttrails.www.mydetic.api.Utils;
-import net.ghosttrails.www.mydetic.dummy.DummyContent;
+import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +19,7 @@ import java.util.Set;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class MemoryYearFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class MemoryYearFragment extends ListFragment {
 
   private MemoryAppInterface mApp;
 
@@ -41,12 +31,6 @@ public class MemoryYearFragment extends Fragment implements AbsListView.OnItemCl
    * The fragment's ListView/GridView.
    */
   private AbsListView mListView;
-
-  /**
-   * The Adapter which will be used to populate the ListView/GridView with
-   * Views.
-   */
-  private ListAdapter mAdapter;
 
   public static MemoryYearFragment newInstance(MemoryAppInterface appInterface) {
     MemoryYearFragment fragment = new MemoryYearFragment();
@@ -67,23 +51,8 @@ public class MemoryYearFragment extends Fragment implements AbsListView.OnItemCl
 
     mYearsWithMemories = buildYearList();
 
-    mAdapter = new ArrayAdapter<Integer>(getActivity(),
-        android.R.layout.simple_list_item_1, android.R.id.text1, mYearsWithMemories);
-  }
-
-  @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_memoryyear, container, false);
-
-    // Set the adapter
-    mListView = (AbsListView) view.findViewById(android.R.id.list);
-    ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-
-    // Set OnItemClickListener so we can be notified on item clicks
-    mListView.setOnItemClickListener(this);
-
-    return view;
+    setListAdapter(new ArrayAdapter<Integer>(getActivity(),
+        android.R.layout.simple_list_item_1, android.R.id.text1, mYearsWithMemories));
   }
 
   @Override
@@ -120,24 +89,11 @@ public class MemoryYearFragment extends Fragment implements AbsListView.OnItemCl
   }
 
   @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  public void onListItemClick(ListView l, View v, int position, long id) {
     if (null != mListener) {
       // Notify the active callbacks interface (the activity, if the
       // fragment is attached to one) that an item has been selected.
       mListener.onYearSelected(mYearsWithMemories.get(position));
-    }
-  }
-
-  /**
-   * The default content for this Fragment has a TextView that is shown when
-   * the list is empty. If you would like to change the text, call this method
-   * to supply the text it should use.
-   */
-  public void setEmptyText(CharSequence emptyText) {
-    View emptyView = mListView.getEmptyView();
-
-    if (emptyView instanceof TextView) {
-      ((TextView) emptyView).setText(emptyText);
     }
   }
 
@@ -152,7 +108,7 @@ public class MemoryYearFragment extends Fragment implements AbsListView.OnItemCl
    * >Communicating with Other Fragments</a> for more information.
    */
   public interface OnFragmentInteractionListener {
-    public void onYearSelected(int year);
+     void onYearSelected(int year);
   }
 
 }

@@ -37,9 +37,9 @@ import java.util.List;
 
 
 public class MemoryListActivity extends Activity
-    implements AdapterView.OnItemClickListener,
-    MemoryYearFragment.OnFragmentInteractionListener,
-    MemoryMonthFragment.OnFragmentInteractionListener {
+    implements MemoryYearFragment.OnFragmentInteractionListener,
+    MemoryMonthFragment.OnFragmentInteractionListener,
+    MemoryDayFragment.OnFragmentInteractionListener {
 
   private MemoryAppInterface app;
 
@@ -72,13 +72,6 @@ public class MemoryListActivity extends Activity
       getFragmentManager().beginTransaction()
           .add(R.id.fragment_container, yearFragment).commit();
     }
-    /*
-    final ListView listView = (ListView) findViewById(R.id.listview);
-    listView.setOnItemClickListener(this);
-
-    final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this, app.getMemories());
-    listView.setAdapter(adapter);
-    */
   }
 
   @Override
@@ -102,35 +95,11 @@ public class MemoryListActivity extends Activity
     }
   }
 
-  /**
-   * Callback method to be invoked when an item in this AdapterView has
-   * been clicked.
-   * <p/>
-   * Implementers can call getItemAtPosition(position) if they need
-   * to access the data associated with the selected item.
-   *
-   * @param parent   The AdapterView where the click happened.
-   * @param view     The view within the AdapterView that was clicked (this
-   *                 will be a view provided by the adapter)
-   * @param position The position of the view in the adapter.
-   * @param id       The row id of the item that was clicked.
-   */
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    MemoriesAdapter adapter = (MemoriesAdapter) parent.getAdapter();
-    Date d = (Date) adapter.getItem(position);
-    Intent intent = new Intent(this, MemoryDetailActivity.class);
-    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));
-    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
-    startActivity(intent);
-  }
-
   @Override
   public void onYearSelected(int year) {
     Log.i("MemoryListActivity", String.format("Selected year %d", year));
-    // If the frag is not available, we're in the one-pane layout and must swap frags...
 
-    // Create fragment and give it an argument for the selected article
+    // Create fragment.
     MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(app, year);
     FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
@@ -146,105 +115,27 @@ public class MemoryListActivity extends Activity
   @Override
   public void onYearMonthSelected(int year, int month) {
     Log.i("MemoryListActivity", String.format("Selected year %d and month %d", year, month));
+    // Create fragment.
+    MemoryDayFragment newFragment = MemoryDayFragment.newInstance(app, year, month);
+    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+    // Replace whatever is in the fragment_container view with this fragment,
+    // and add the transaction to the back stack so the user can navigate back
+    transaction.replace(R.id.fragment_container, newFragment);
+    transaction.addToBackStack(null);
+
+    // Commit the transaction
+    transaction.commit();
   }
 
-  private class MemoriesAdapter extends BaseAdapter {
-
-    private Context context;
-    private MemoryDataList memories;
-    private SparseArray<Date> positionMap;
-
-    public MemoriesAdapter(Context context, MemoryDataList memories) {
-      this.memories = memories;
-      this.context = context;
-      this.positionMap = new SparseArray<Date>();
-      int idx = 0;
-      for (Date d : this.memories.getDates()) {
-        positionMap.put(idx, d);
-        idx++;
-      }
-    }
-
-    /**
-     * How many items are in the data set represented by this Adapter.
-     *
-     * @return Count of items.
-     */
-    @Override
-    public int getCount() {
-      return positionMap.size();
-    }
-
-    /**
-     * Get the data item associated with the specified position in the data set.
-     *
-     * @param position Position of the item whose data we want within the adapter's
-     *                 data set.
-     * @return The data at the specified position.
-     */
-    @Override
-    public Object getItem(int position) {
-      return positionMap.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-      return 0;
-    }
-
-    /**
-     * Get a View that displays the data at the specified position in the data set. You can either
-     * create a View manually or inflate it from an XML layout file. When the View is inflated, the
-     * parent View (GridView, ListView...) will apply default layout parameters unless you use
-     * {@link LayoutInflater#inflate(int, ViewGroup, boolean)}
-     * to specify a root view and to prevent attachment to the root.
-     *
-     * @param position    The position of the item within the adapter's data set of the item whose view
-     *                    we want.
-     * @param convertView The old view to reuse, if possible. Note: You should check that this view
-     *                    is non-null and of an appropriate type before using. If it is not possible to convert
-     *                    this view to display the correct data, this method can create a new view.
-     *                    Heterogeneous lists can specify their number of view types, so that this View is
-     *                    always of the right type (see {@link #getViewTypeCount()} and
-     *                    {@link #getItemViewType(int)}).
-     * @param parent      The parent that this view will eventually be attached to
-     * @return A View corresponding to the data at the specified position.
-     */
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-      // TODO: This is lazy. Replace with a custom layout for list items.
-
-      TwoLineListItem twoLineListItem;
-
-      if (convertView == null) {
-        LayoutInflater inflater = (LayoutInflater) context
-            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        twoLineListItem = (TwoLineListItem) inflater.inflate(
-            android.R.layout.simple_list_item_2, null);
-      } else {
-        twoLineListItem = (TwoLineListItem) convertView;
-      }
-
-      TextView text1 = twoLineListItem.getText1();
-      TextView text2 = twoLineListItem.getText2();
-
-      Date memoryDate = positionMap.get(position);
-      text1.setText(Utils.isoFormat(memoryDate));
-
-      // Use the first line of the memory text if we know it.
-      MemoryData memoryData = app.getCachedMemory(memoryDate);
-      if (memoryData != null) {
-        text2.setEllipsize(TextUtils.TruncateAt.END);
-        text2.setSingleLine();
-        text2.setText(memoryData.getMemoryText());
-      } else {
-        text2.setText("");
-      }
-
-      return twoLineListItem;
-    }
-
+  @Override
+  public void onDateSelected(Date d) {
+    Log.i("MemoryListActivity", String.format("Selected date %s", Utils.isoFormat(d)));
+    Intent intent = new Intent(this, MemoryDetailActivity.class);
+    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));
+    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
+    startActivity(intent);
+    // TODO: Refresh list fragments on returning to the activity.
   }
 
 }
