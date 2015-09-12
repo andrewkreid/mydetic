@@ -37,6 +37,7 @@ public class SampleSetPopulator {
 
     ArrayList<MemoryData> memories = new ArrayList<>();
 
+    addMemory(memories, userId, 2014, 1, 1, "New Years Day 2014");
     addMemory(memories, userId, 2015, 4, 28, "Today was a good day");
     addMemory(memories, userId, 2015, 4, 29, "Dreamt about cheese.");
     addMemory(memories, userId, 2015, 4, 30,
@@ -52,7 +53,7 @@ public class SampleSetPopulator {
             " account of it with the aftermath of our swim, in which I, the " +
             "torturer’s apprentice Severian, had so nearly drowned.");
 
-    // Some text that's lon enough to need to be scrollable.
+    // Some text that's long enough to need to be scrollable.
     addMemory(memories, userId, 2015, 5, 6,
         "Four score and seven years ago our fathers brought forth on this " +
             "continent a new nation, conceived in liberty, and dedicated to " +

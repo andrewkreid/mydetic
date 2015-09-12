@@ -1,6 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,23 +37,48 @@ import java.util.List;
 
 
 public class MemoryListActivity extends Activity
-    implements AdapterView.OnItemClickListener {
+    implements AdapterView.OnItemClickListener,
+    MemoryYearFragment.OnFragmentInteractionListener,
+    MemoryMonthFragment.OnFragmentInteractionListener {
 
-  private ProgressDialog progressDialog;
-  private MyDeticApplication app;
+  private MemoryAppInterface app;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
 
-    app = (MyDeticApplication) getApplicationContext();
+    app = (MemoryAppInterface) getApplicationContext();
 
+    // Check that the activity is using the layout version with
+    // the fragment_container FrameLayout
+    if (findViewById(R.id.fragment_container) != null) {
+
+      // However, if we're being restored from a previous state,
+      // then we don't need to do anything and should return or else
+      // we could end up with overlapping fragments.
+      if (savedInstanceState != null) {
+        return;
+      }
+
+      // Create a new Fragment to be placed in the activity layout
+      MemoryYearFragment yearFragment = MemoryYearFragment.newInstance(app);
+
+      // In case this activity was started with special instructions from an
+      // Intent, pass the Intent's extras to the fragment as arguments
+      yearFragment.setArguments(getIntent().getExtras());
+
+      // Add the fragment to the 'fragment_container' FrameLayout
+      getFragmentManager().beginTransaction()
+          .add(R.id.fragment_container, yearFragment).commit();
+    }
+    /*
     final ListView listView = (ListView) findViewById(R.id.listview);
     listView.setOnItemClickListener(this);
 
     final MemoriesAdapter adapter = new MemoriesAdapter(MemoryListActivity.this, app.getMemories());
     listView.setAdapter(adapter);
+    */
   }
 
   @Override
@@ -96,6 +123,29 @@ public class MemoryListActivity extends Activity
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
     startActivity(intent);
+  }
+
+  @Override
+  public void onYearSelected(int year) {
+    Log.i("MemoryListActivity", String.format("Selected year %d", year));
+    // If the frag is not available, we're in the one-pane layout and must swap frags...
+
+    // Create fragment and give it an argument for the selected article
+    MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(app, year);
+    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+    // Replace whatever is in the fragment_container view with this fragment,
+    // and add the transaction to the back stack so the user can navigate back
+    transaction.replace(R.id.fragment_container, newFragment);
+    transaction.addToBackStack(null);
+
+    // Commit the transaction
+    transaction.commit();
+  }
+
+  @Override
+  public void onYearMonthSelected(int year, int month) {
+    Log.i("MemoryListActivity", String.format("Selected year %d and month %d", year, month));
   }
 
   private class MemoriesAdapter extends BaseAdapter {
