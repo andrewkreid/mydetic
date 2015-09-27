@@ -23,14 +23,15 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="top|start"
-        android:inputType="textMultiLine"
+        android:inputType="textMultiLine|textCapSentences"
         android:lines="20"
         android:minLines="5"
         android:scrollHorizontally="false"
         android:scrollbars="vertical"
         android:singleLine="false"
         android:layout_below="@+id/memory_title"
-        android:layout_above="@+id/linearLayout"/>
+        android:layout_above="@+id/linearLayout"
+        android:textColor="@color/text_secondary"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -59,6 +60,15 @@
             android:onClick="refreshClicked"/>
     </LinearLayout>
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/memory_detail_progress_bar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
 
 </RelativeLayout>

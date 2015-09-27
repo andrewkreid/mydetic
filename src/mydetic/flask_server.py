@@ -27,6 +27,7 @@ from mydetic.passwordstore import FilePasswordStore
 
 auth = HTTPBasicAuth()
 
+
 @auth.verify_password
 def verify_pw(username, password):
     """
@@ -292,6 +293,7 @@ DEFAULT_CONFIG = {
     }
 }
 
+
 # Initialize the API configuration from the command-line and/or
 # env vars
 def init_config():
@@ -345,14 +347,15 @@ ds = None
 config = None
 password_store = None
 
+
 def create_app():
     global ds
     global config
     global password_store
 
     try:
-        app = Flask(__name__, static_url_path="")
-        api = Api(app)
+        the_app = Flask(__name__, static_url_path="")
+        api = Api(the_app)
         password_store = None
 
         config = init_config()
@@ -360,8 +363,8 @@ def create_app():
         # A stand alone route for testing
         @app.route('/')
         def index():
-            ### Some code here ###
-            return jsonify({'status': 200, 'success':True})
+            # Some code here
+            return jsonify({'status': 200, 'success': True})
 
         # Set up password store for HTTP Basic auth
         if config['auth_config']['method'] == "HTTP Basic":
@@ -374,9 +377,7 @@ def create_app():
 
         ds = S3DataStore(s3_config=config["s3_config"])
 
-        server_config = config['server_config']
-
-        return app
+        return the_app
     except:
         traceback.print_exc(file=sys.stderr)
     return None

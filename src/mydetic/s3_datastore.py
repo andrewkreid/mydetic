@@ -8,7 +8,7 @@ import boto
 from boto.s3.key import Key
 from boto.s3.connection import Location
 from datastore import DataStore
-from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, MyDeticMemoryRevisionMismatch
 from memorydata import MemoryData
 import re
 
@@ -123,14 +123,19 @@ class S3DataStore(DataStore):
         """
         :param memory: updated MemoryData object. NOTE: only text is changed.
         :return: No return value
-        :raises: MyDeticNoMemoryFound is memory doesn't already exist
+        :raises: MyDeticNoMemoryFound is memory doesn't already exist, MyDeticMemoryRevisionMismatch if the existing
+                 memory in the data store has a different revision number to the one being saved.
         """
         self.create_bucket_if_required()
         k = self._bucket.get_key(self.generate_memory_key_name(memory.user_id, memory.memory_date))
         if k is None:
             raise MyDeticNoMemoryFound(memory.user_id, memory.memory_date)
         old_memory = self.get_memory(memory.user_id, memory.memory_date)
+        if old_memory.revision != memory.revision:
+            raise MyDeticMemoryRevisionMismatch(memory.user_id, memory.memory_date, old_memory.revision,
+                                                memory.revision)
         old_memory.memory_text = memory.memory_text
+        old_memory.revision += 1
         old_memory.touch()
         k.set_contents_from_string(old_memory.as_json_str())
 

@@ -11,7 +11,7 @@ diary entries rather than build a service that will scale to many users.
 
 ## Development Status
 
-Pre-Alpha. Early development. Almost nothing works.
+Pre-Alpha. Early development. REST API backed by S3 works. Android app in development.
 
 ## Motivation
 
@@ -33,8 +33,8 @@ but I'm going to write another for the following reasons:
 
 * Store entries in Amazon S3 to start, but abstract the DAO for other data stores 
 (thanks to [nMustaki](https://github.com/nMustaki) for contributing an SQLite store).
-* Provide a REST API for manipulating the store, based on Flask-RESTful. (under construction)
-* Write an Android app that uses the REST API. (not started)
+* Provide a REST API for manipulating the store, based on Flask-RESTful. (working)
+* Write an Android app that uses the REST API. (in progress)
 
 ## REST API
 
@@ -92,7 +92,7 @@ at a time.
         "2015-12-19",
         "2015-12-20"
     ],
-    "uid": "mreynolds"
+    "user_id": "mreynolds"
 }
 ```
 
@@ -103,7 +103,7 @@ at a time.
 * **Sample Call:**
 
 ```
-curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?uid=mreynolds
+curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories?user_id=mreynolds
 ```
 
 ### POST /mydetic/api/v1.0/memories
@@ -192,7 +192,7 @@ Returns a single memory for a particular date.
 * **Sample Call:**
 
 ```
-curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?uid=mreynolds
+curl -v http://127.0.0.1:5000/mydetic/api/v1.0/memories/2014-11-12?user_id=mreynolds
 ```
 
 ### PUT /mydetic/api/v1.0/memories/YYY-MM-DD

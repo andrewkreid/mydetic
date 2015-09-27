@@ -1,28 +1,39 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
+import net.ghosttrails.www.mydetic.api.RestfulMemoryApi;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
+import org.json.JSONException;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
 /**
  * Singleton to store global application state
  */
-public class MyDeticApplication extends Application {
+public class MyDeticApplication extends Application implements MemoryAppInterface {
+
+  /** Name of the file used to store the application config */
+  public static String CONFIG_FILENAME = "mydetic_config.json";
 
   private String userId;
   private MemoryApi api;
   private MemoryDataList memories;
+  private MyDeticConfig config;
 
   /** cache of memories we've downloaded already */
   private HashMap<Date, MemoryData> memoryCache;
@@ -39,24 +50,11 @@ public class MyDeticApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    // Init the api and memory list
-    // TODO: userId from settings.
-    userId = "mreynolds";
-    InRamMemoryApi ramApi = new InRamMemoryApi();
 
-    try {
-      SampleSetPopulator.populateTestSet(ramApi, userId, true);
-    } catch (MyDeticException e) {
-      Log.e("MyDeticApplication", "Same Populate Failed", e);
-    }
-    ramApi.setSimulatedDelayMs(1000);
-    ramApi.setSimulatedFailureRate(10);
-    api = ramApi;
+    this.config = getConfig();
 
-    memories = new MemoryDataList();
-    memories.setUserID(userId);
-
-    this.memoryCache = new HashMap<Date, MemoryData>();
+    refreshSettingsFromConfig();
+    reloadMemories();
   }
 
   public String getUserId() {
@@ -84,6 +82,34 @@ public class MyDeticApplication extends Application {
     this.memories = memories;
   }
 
+  /** Update the API and user params from the config (eg when it has changed).
+   *  Clear existing memory data in RAM.
+   *
+   */
+  public void refreshSettingsFromConfig() {
+    // Init the api and memory list
+    // TODO: userId and API from settings.
+    userId = config.getUserName();
+    if (config.getActiveDataStore().equals(MyDeticConfig.DS_INRAM)) {
+      InRamMemoryApi ramApi = new InRamMemoryApi();
+      ramApi.setSimulatedDelayMs(1000);
+      ramApi.setSimulatedFailureRate(0);
+      api = ramApi;
+      try {
+        SampleSetPopulator.populateTestSet(ramApi, userId, true);
+      } catch (MyDeticException e) {
+        Log.e("MyDeticApplication", "Same Populate Failed", e);
+      }
+    } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_RESTAPI)) {
+      api = new RestfulMemoryApi(getApplicationContext(), config);
+    }
+
+    memories = new MemoryDataList();
+    memories.setUserID(userId);
+
+    this.memoryCache = new HashMap<Date, MemoryData>();
+  }
+
   /**
    * Fetch a memory from the cache if one exists. As the app loads memories,
    * they are stored in this cache to avoid unnecesary network calls.
@@ -97,5 +123,60 @@ public class MyDeticApplication extends Application {
   public void setCachedMemory(MemoryData memoryData) {
     memoryCache.put(memoryData.getMemoryDate(), memoryData);
     memories.setDate(memoryData.getMemoryDate());
+  }
+
+  public MyDeticConfig getConfig() {
+    // Lazy initialisation
+    if (config == null) {
+      config = new MyDeticConfig();
+      try {
+        config.loadFromFile(this, CONFIG_FILENAME);
+      } catch (FileNotFoundException e) {
+        // Not a problem, just the first time the app has been used so there's
+        // no config yet.
+      } catch (IOException e) {
+        AppUtils.smallToast(getApplicationContext(), "Error loading configuration");
+      } catch (JSONException e) {
+        AppUtils.smallToast(getApplicationContext(), "Invalid configuration format");
+      }
+    }
+    return config;
+  }
+
+  public void reloadMemories() {
+    reloadMemories(new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList memories) {
+        // empty callback
+      }
+
+      @Override
+      public void onApiError(MyDeticException exception) {
+        // empty callback
+      }
+    });
+  }
+
+  public void reloadMemories(final MemoryApi.MemoryListListener externalListener) {
+    api.getMemories(userId, new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList newMemories) {
+        memories.clear();
+        try {
+          memories.mergeFrom(newMemories);
+        } catch (MyDeticException e) {
+          AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        }
+        externalListener.onApiResponse(memories);
+      }
+
+      @Override
+      public void onApiError(MyDeticException e) {
+        AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        Log.e("MyDetic", e.getMessage());
+        externalListener.onApiError(e);
+      }
+    });
+
   }
 }

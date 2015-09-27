@@ -1,13 +1,10 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -18,20 +15,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class MemoryDetailActivity extends ActionBarActivity
+public class MemoryDetailActivity extends Activity
   implements DatePickerDialog.OnDateSetListener {
 
   public static final String MEMORY_DETAIL_DATE =
@@ -57,18 +54,17 @@ public class MemoryDetailActivity extends ActionBarActivity
   private MemoryDetailMode editMode;
   private boolean hasLoadedMemory;
 
-  private ProgressDialog progressDialog;
+  private ProgressBar progressBar;
+  private MyDeticApplication app;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_detail);
 
-    progressDialog = new ProgressDialog(MemoryDetailActivity.this);
-    progressDialog.setTitle("Processing...");
-    progressDialog.setMessage("Please wait.");
-    progressDialog.setCancelable(false);
-    progressDialog.setIndeterminate(true);
+    app = (MyDeticApplication) getApplicationContext();
+
+    progressBar = (ProgressBar)this.findViewById(R.id.memory_detail_progress_bar);
 
     // Will be set to true the first time the memory is loaded. This is so we
     // don't accidentally overwrite a memory that didn't load with a new one.
@@ -122,10 +118,12 @@ public class MemoryDetailActivity extends ActionBarActivity
 
     if (editMode == MemoryDetailMode.MODE_EXISTING) {
       // Load the memory.
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
       memoryData = app.getCachedMemory(memoryDate);
       if (memoryData == null) {
-        new FetchMemoryTask().execute(memoryDate);
+        setButtonsEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+        app.getApi().getMemory(app.getUserId(), memoryDate,
+            new FetchMemoryListener());
       } else {
         updateUIFromData();
       }
@@ -201,19 +199,24 @@ public class MemoryDetailActivity extends ActionBarActivity
   public void saveClicked(View view) {
     hideKeyboard();
     if (memoryData == null) {
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
       memoryData = new MemoryData(app.getUserId(),
           memoryEditText.getText().toString(), memoryDate);
     } else {
       memoryData.setMemoryText(memoryEditText.getText().toString());
     }
-    new SaveMemoryTask().execute(memoryData);
+    setButtonsEnabled(false);
+    progressBar.setVisibility(View.VISIBLE);
+    app.getApi().putMemory(app.getUserId(), memoryData,
+        new SaveMemoryListener());
   }
 
   public void refreshClicked(View view) {
     // TODO: warn about overwriting changes (also when closing activity).
     if (memoryDate != null) {
-      new FetchMemoryTask().execute(memoryDate);
+      setButtonsEnabled(false);
+      progressBar.setVisibility(View.VISIBLE);
+      app.getApi().getMemory(app.getUserId(), memoryDate,
+          new FetchMemoryListener());
     }
   }
 
@@ -226,6 +229,11 @@ public class MemoryDetailActivity extends ActionBarActivity
     }
   }
 
+  private void setButtonsEnabled(boolean isEnabled) {
+    saveButton.setEnabled(isEnabled);
+    refreshButton.setEnabled(isEnabled);
+  }
+
   @Override
   /**
    * Called when the user selects a date from the date picker in MODE_NEW.
@@ -233,14 +241,14 @@ public class MemoryDetailActivity extends ActionBarActivity
    */
   public void onDateSet(DatePicker datePicker, int year, int month, int day) {
     memoryDate = new GregorianCalendar(year, month, day).getTime();
-    MyDeticApplication app = (MyDeticApplication) getApplicationContext();
     if (app.getMemories().hasDate(memoryDate)) {
       // There is already a memory on this date. Switch to edit mode and load
       // it.
       editMode = MemoryDetailMode.MODE_EXISTING;
       memoryData = app.getCachedMemory(memoryDate);
       if (memoryData == null) {
-        new FetchMemoryTask().execute(memoryDate);
+        app.getApi().getMemory(app.getUserId(), memoryDate,
+            new FetchMemoryListener());
       } else {
         updateUIFromData();
       }
@@ -249,91 +257,49 @@ public class MemoryDetailActivity extends ActionBarActivity
     }
   }
 
-  private class SaveMemoryTask extends AsyncTask<MemoryData, Void, Boolean> {
-
+  private class SaveMemoryListener implements MemoryApi.SingleMemoryListener {
     @Override
-    protected void onPreExecute() {
-      progressDialog.show();
+    public void onApiResponse(MemoryData memory) {
+      setButtonsEnabled(true);
+      progressBar.setVisibility(View.GONE);
+      // Once we've saved, we're in edit mode.
+      editMode = MemoryDetailMode.MODE_EXISTING;
+      hasLoadedMemory = true;
+      app.setCachedMemory(memory);
+      updateUIFromData();
     }
 
     @Override
-    protected void onPostExecute(Boolean saveSuccessfull) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-      if (saveSuccessfull) {
-        // Once we've saved, we're in edit mode.
+    public void onApiError(MyDeticException exception) {
+      setButtonsEnabled(true);
+      progressBar.setVisibility(View.GONE);
+      AppUtils.smallToast(getApplicationContext(), exception.getMessage());
+    }
+  }
+
+  private class FetchMemoryListener implements MemoryApi.SingleMemoryListener {
+
+    @Override
+    public void onApiResponse(MemoryData memory) {
+      setButtonsEnabled(true);
+      progressBar.setVisibility(View.GONE);
+      if (memory != null) {
+        MemoryDetailActivity.this.memoryData = memory;
+        app.setCachedMemory(memory);
         editMode = MemoryDetailMode.MODE_EXISTING;
         hasLoadedMemory = true;
-        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-        // TODO: Add to application memory list.
       }
       updateUIFromData();
     }
 
     @Override
-    protected Boolean doInBackground(MemoryData... memoryDatas) {
-      MemoryData memoryData = memoryDatas[0];
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-      try {
-        app.getApi().putMemory(app.getUserId(), memoryData);
-        app.setCachedMemory(memoryData);
-      } catch (MyDeticWriteFailedException e) {
-        // TODO: Decide what to do about read/write errors globally.
-        Log.e("MemoryDetailActivity", "Failed to save memory", e);
-        return false;
-      }
-      return true;
+    public void onApiError(MyDeticException exception) {
+      setButtonsEnabled(true);
+      progressBar.setVisibility(View.GONE);
+      // TODO: We need to distinguish between a failed load and a date that
+      // TODO: has no memory yet, so that we don't overwrite an existing one.
+      AppUtils.smallToast(getApplicationContext(), exception.getMessage());
     }
   }
-
-  /**
-   * Background task to fetch MemoryData objects from the API.
-   */
-  private class FetchMemoryTask extends AsyncTask<Date, Void, MemoryData> {
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog.show();
-    }
-
-    @Override
-    protected void onPostExecute(MemoryData memoryData) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-      if (memoryData == null) {
-        // Couldn't be fetched
-        // TODO: propagate error info back here somehow for nicer messages.
-        Context context = getApplicationContext();
-        CharSequence text = "Failed to fetch memory";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
-        // TODO: We need to distinguish between a failed load and a date that
-        // TODO: has no memory yet, so that we don't overwrite an existing one.
-      } else {
-        MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-        MemoryDetailActivity.this.memoryData = memoryData;
-        app.setCachedMemory(memoryData);
-        hasLoadedMemory = true;
-      }
-      updateUIFromData();
-    }
-
-    @Override
-    protected MemoryData doInBackground(Date... params) {
-      Date memoryDate = params[0];
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-      try {
-        return app.getApi().getMemory(app.getUserId(), memoryDate);
-      } catch (MyDeticException e) {
-        Log.e("MemoryDetailActivity", e.getMessage());
-      }
-      return null;
-    }
-  }
-
 
 }

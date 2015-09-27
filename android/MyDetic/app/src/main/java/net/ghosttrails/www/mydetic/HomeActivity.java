@@ -1,10 +1,14 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,19 +17,54 @@ import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
+import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import java.util.Date;
 
-public class HomeActivity extends ActionBarActivity {
+
+public class HomeActivity extends Activity {
 
   private ProgressDialog progressDialog;
+  private MyDeticApplication app;
+  private RecyclerView mRecyclerView;
+  private RecyclerView.Adapter mAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
 
-    new FetchMemoryListTask().execute();
+    app = (MyDeticApplication) getApplicationContext();
+
+    mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
+
+    // use this setting to improve performance if you know that changes
+    // in content do not change the layout size of the RecyclerView
+    mRecyclerView.setHasFixedSize(true);
+
+    // use a linear layout manager
+    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+    mRecyclerView.setLayoutManager(mLayoutManager);
+
+    // specify an adapter.
+    mAdapter = new MemoryCardviewAdaptor(app, new CustomItemClickListener() {
+      @Override
+      public void onItemClick(View v, int position, Date memoryDate) {
+        // Clicking on a Memory card takes you to the detail activity for that date.
+        Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
+        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
+        if (app.getMemories().hasDate(memoryDate)) {
+          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
+        } else {
+          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
+        }
+        startActivity(intent);
+      }
+    });
+    mRecyclerView.setAdapter(mAdapter);
+
+    app.reloadMemories();
   }
 
   @Override
@@ -46,58 +85,48 @@ public class HomeActivity extends ActionBarActivity {
 
     switch (id) {
       case R.id.action_settings:
-        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(new Intent(this, SettingsActivity.class));
+        return true;
+      case R.id.action_list:
+        startActivity(new Intent(this, MemoryListActivity.class));
+        return true;
+      case R.id.action_new:
+        Intent intent = new Intent(this, MemoryDetailActivity.class);
+        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         startActivity(intent);
+        return true;
+      case R.id.action_reload:
+        app.refreshSettingsFromConfig();
+        app.reloadMemories(new MemoryApi.MemoryListListener() {
+          @Override
+          public void onApiResponse(MemoryDataList memories) {
+            mAdapter.notifyDataSetChanged();
+            mRecyclerView.invalidate();
+          }
+
+          @Override
+          public void onApiError(MyDeticException exception) {
+            mAdapter.notifyDataSetChanged();
+            mRecyclerView.invalidate();
+          }
+        });
         return true;
       default:
         return super.onOptionsItemSelected(item);
     }
   }
 
-  public void memoryListClicked(View view) {
-    Intent intent = new Intent(this, MemoryListActivity.class);
-    startActivity(intent);
+  @Override
+  protected void onResume() {
+    super.onResume();
+    mRecyclerView.invalidate();
   }
 
-  public void memoryNewClicked(View view) {
-    Intent intent = new Intent(this, MemoryDetailActivity.class);
-    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
-    startActivity(intent);
+  @Override
+  protected void onRestart() {
+    super.onRestart();
+    mAdapter.notifyDataSetChanged();
+    mRecyclerView.invalidate();
   }
 
-  private class FetchMemoryListTask extends AsyncTask<Void, Void, MemoryDataList> {
-
-    @Override
-    protected MemoryDataList doInBackground(Void... voids) {
-      // refetch the memories from the API.
-      MyDeticApplication app = (MyDeticApplication) getApplicationContext();
-      MemoryDataList memories = app.getMemories();
-      memories.clear();
-      try {
-        memories.mergeFrom(app.getApi().getMemories(app.getUserId()));
-      } catch (MyDeticException e) {
-        // something went wrong fetching memories initially
-        // TODO: what's the right thing to do here.
-        e.printStackTrace();
-      }
-      return memories;
-    }
-
-    @Override
-    protected void onPostExecute(MemoryDataList memories) {
-      if ((progressDialog != null) && progressDialog.isShowing()) {
-        progressDialog.dismiss();
-      }
-    }
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog = new ProgressDialog(HomeActivity.this);
-      progressDialog.setTitle("Processing...");
-      progressDialog.setMessage("Please wait.");
-      progressDialog.setCancelable(false);
-      progressDialog.setIndeterminate(true);
-      progressDialog.show();
-    }
-  }
 }

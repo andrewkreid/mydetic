@@ -13,6 +13,7 @@ class MemoryData(object):
     _memory_date = None
     _created_at = None
     _modified_at = None
+    _revision = 1
 
     def __init__(self, user_id, memory_date, memory_text='', created_at=None, modified_at=None):
         self._user_id = user_id
@@ -66,6 +67,20 @@ class MemoryData(object):
     def modified_at(self):
         return self._modified_at
 
+    @property
+    def revision(self):
+        """
+        The revision is an integer that the API will increment each time it saves the memory. It is used to check
+        whether an update would overwrite another change which has been saved to the datastore since the memory was
+        first read. Only the API should modify this value.
+        :return:
+        """
+        return self._revision
+
+    @revision.setter
+    def revision(self, new_rev):
+        self._revision = new_rev
+
     def touch(self):
         """
         Update modified_at to current UTC time
@@ -80,19 +95,26 @@ class MemoryData(object):
             'memory_date': self._memory_date.isoformat(),
             'memory_text': self._memory_text,
             'created_at': self._created_at.isoformat(),
-            'modified_at': self._modified_at.isoformat()
+            'modified_at': self._modified_at.isoformat(),
+            'revision': self._revision
         }
 
     @staticmethod
     def from_dict(memory_dict):
         if not MemoryData.validate_memory_dict(memory_dict):
             raise MyDeticInvalidMemoryString(json.dumps(memory_dict))
-        return MemoryData(
+        retval = MemoryData(
             user_id=memory_dict['user_id'],
             memory_text=memory_dict['memory_text'],
             memory_date=dateutil.parser.parse(memory_dict['memory_date']).date(),
             created_at=dateutil.parser.parse(memory_dict['created_at']),
             modified_at=dateutil.parser.parse(memory_dict['modified_at']))
+        # revision added later, so don't require it
+        if 'revision' in memory_dict:
+            retval.revision = memory_dict['revision']
+        else:
+            retval.revision = 1
+        return retval
 
     @staticmethod
     def from_json_str(memory_json):

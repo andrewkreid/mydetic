@@ -6,8 +6,10 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Utility class to populate some memories
@@ -26,29 +28,23 @@ public class SampleSetPopulator {
   /**
    * Create a sample set of memories for testing.
    */
-  public static void populateTestSet(MemoryApi api, String userId,
+  public static void populateTestSet(InRamMemoryApi api, String userId,
                                      boolean removeExisting) throws
       MyDeticReadFailedException, MyDeticWriteFailedException {
     if (removeExisting) {
-      MemoryDataList memories = api.getMemories(userId);
-      for (Date d : memories.getDates()) {
-        try {
-          api.deleteMemory(userId, d);
-        } catch (MyDeticNoMemoryFoundException e) {
-          Log.e("MyDetic",
-              "SampleSetPopulator.populateTestSet threw " +
-                  "MyDeticNoMemoryFoundException");
-        }
-      }
+      api.clearMemories(userId);
     }
 
-    addMemory(api, userId, 2015, 4, 28, "Today was a good day");
-    addMemory(api, userId, 2015, 4, 29, "Dreamt about cheese.");
-    addMemory(api, userId, 2015, 4, 30,
+    ArrayList<MemoryData> memories = new ArrayList<>();
+
+    addMemory(memories, userId, 2014, 1, 1, "New Years Day 2014");
+    addMemory(memories, userId, 2015, 4, 28, "Today was a good day");
+    addMemory(memories, userId, 2015, 4, 29, "Dreamt about cheese.");
+    addMemory(memories, userId, 2015, 4, 30,
         "Accidentally shaved off my hipster beard");
-    addMemory(api, userId, 2015, 5, 3, "I don't like cabbage with vegemite.");
-    addMemory(api, userId, 2015, 5, 4, "Winter is coming.");
-    addMemory(api, userId, 2015, 5, 5,
+    addMemory(memories, userId, 2015, 5, 3, "I don't like cabbage with vegemite.");
+    addMemory(memories, userId, 2015, 5, 4, "Winter is coming.");
+    addMemory(memories, userId, 2015, 5, 5,
         "It is possible I already had some presentiment of my future. The " +
             "locked and rusted gate that stood before us, with wisps of " +
             "river fog threading its spikes like the mountain paths, remains " +
@@ -57,8 +53,8 @@ public class SampleSetPopulator {
             " account of it with the aftermath of our swim, in which I, the " +
             "torturer’s apprentice Severian, had so nearly drowned.");
 
-    // Some text that's lon enough to need to be scrollable.
-    addMemory(api, userId, 2015, 5, 6,
+    // Some text that's long enough to need to be scrollable.
+    addMemory(memories, userId, 2015, 5, 6,
         "Four score and seven years ago our fathers brought forth on this " +
             "continent a new nation, conceived in liberty, and dedicated to " +
             "the proposition that all men are created equal.\n\nNow we are " +
@@ -88,15 +84,16 @@ public class SampleSetPopulator {
             "the people, shall not perish from the earth.");
 
     for (int i = 7; i < 20; i++) {
-      addMemory(api, userId, 2015, 5, i, loremIpsumStr);
+      addMemory(memories, userId, 2015, 5, i, loremIpsumStr);
     }
+
+    api.populateMemories(userId, memories);
   }
 
-  public static void addMemory(MemoryApi api, String userId, int year,
-                               int month, int day, String memoryText) throws
-      MyDeticWriteFailedException {
+  public static void addMemory(List<MemoryData> list, String userId, int year,
+                               int month, int day, String memoryText) {
     Date date = new GregorianCalendar(year, month, day).getTime();
-    api.putMemory(userId, new MemoryData(userId, memoryText, date));
+    list.add(new MemoryData(userId, memoryText, date));
   }
 
 }

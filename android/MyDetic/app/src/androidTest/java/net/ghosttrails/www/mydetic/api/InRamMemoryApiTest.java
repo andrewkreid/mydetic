@@ -2,8 +2,8 @@ package net.ghosttrails.www.mydetic.api;
 
 import junit.framework.TestCase;
 
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
 import java.util.Date;
 
@@ -12,87 +12,196 @@ import java.util.Date;
  */
 public class InRamMemoryApiTest extends TestCase {
 
-    private InRamMemoryApi api;
-    String userId = "theUserID";
-    Date date = new Date(2014,5,3);
+  private static long BLOCKING_TIMEOUT_MS = 2000;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        this.api = new InRamMemoryApi();
+  private InRamMemoryApi api;
+  private String userId = "theUserID";
+  private Date date = new Date(2014, 5, 3);
+  private boolean isApiCallInFlight = false;
+
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    this.api = new InRamMemoryApi();
+    this.isApiCallInFlight = false;
+  }
+
+  private void waitForApiCall() {
+    // Wait for put to finish or time out
+    long startTime = System.currentTimeMillis();
+    while (isApiCallInFlight
+        && ((System.currentTimeMillis() - startTime) < BLOCKING_TIMEOUT_MS)) {
+      try {
+        Thread.sleep(100, 0);
+      } catch (InterruptedException e) {
+        return;
+      }
     }
+  }
 
-    public void testAddAndRetrieve() throws MyDeticReadFailedException {
-
-        assertEquals("Should have no memories", 0, api.getMemories(userId).getDates().size());
-
-        api.putMemory(userId, new MemoryData(userId, "a memory", date));
-        assertTrue(api.hasMemory(userId, date));
-
-        MemoryDataList list = api.getMemories(userId);
-        assertEquals("Should have one memory", 1, list.getDates().size());
-        assertTrue(list.hasDate(date));
-
-        try {
-            MemoryData md = api.getMemory(userId, date);
-            assertEquals(userId, md.getUserId());
-            assertEquals(date, md.getMemoryDate());
-            assertEquals("a memory", md.getMemoryText());
-        } catch(MyDeticNoMemoryFoundException nme) {
-            fail(nme.getMessage());
-        }
-
-        try {
-            MemoryData md = api.getMemory("different user", date);
-            fail("Should have thrown MyDeticNoMemoryFoundException");
-        } catch(MyDeticNoMemoryFoundException nme) {
-            // expected.
-        }
+  /**
+   * Helper to add a memory and block on results.
+   *
+   * @param userId
+   * @param memory
+   */
+  private void blockingMemoryPut(String userId,
+                                 MemoryData memory) throws Exception {
+    if (isApiCallInFlight) {
+      throw new Exception("blockingMemoryPut called when isApiCallInFlight is true");
     }
+    isApiCallInFlight = true;
+    api.putMemory(userId, memory, new MemoryApi.SingleMemoryListener() {
+      @Override
+      public void onApiResponse(MemoryData memory) {
+        isApiCallInFlight = false;
+      }
 
-    public void testUpdate() throws MyDeticNoMemoryFoundException, MyDeticReadFailedException {
-        api.putMemory(userId, new MemoryData(userId, "a memory", date));
-        MemoryData md = api.getMemory(userId, date);
-        assertEquals("a memory", md.getMemoryText());
+      @Override
+      public void onApiError(MyDeticException exception) {
+        isApiCallInFlight = false;
+      }
+    });
+    waitForApiCall();
+  }
 
-        api.putMemory(userId, new MemoryData(userId, "another memory", date));
-        md = api.getMemory(userId, date);
-        assertEquals("another memory", md.getMemoryText());
+  private MemoryData blockingMemoryGet(String userId,
+                                       Date memoryDate) throws Exception {
+    if (isApiCallInFlight) {
+      throw new Exception("blockingMemoryGet called when isApiCallInFlight is true");
     }
+    isApiCallInFlight = true;
+    final MemoryData[] retval = {null};
+    api.getMemory(userId, memoryDate, new MemoryApi.SingleMemoryListener() {
+      @Override
+      public void onApiResponse(MemoryData memory) {
+        retval[0] = memory;
+        isApiCallInFlight = false;
+      }
 
-    public void testRetrieveRange() throws MyDeticReadFailedException {
+      @Override
+      public void onApiError(MyDeticException exception) {
+        isApiCallInFlight = false;
+      }
+    });
 
-        api.putMemory(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-04", new Date(2014, 5, 4)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-05", new Date(2014, 5, 5)));
+    waitForApiCall();
+    return retval[0];
+  }
 
-        assertEquals(5, api.getMemories(userId).getDates().size());
-        assertEquals(5, api.getMemories(userId, null, null).getDates().size());
-        assertEquals(4, api.getMemories(userId, new Date(2014, 5, 2), null).getDates().size());
-        assertEquals(5, api.getMemories(userId, new Date(2014, 5, 1), null).getDates().size());
-        assertEquals(5, api.getMemories(userId, null, new Date(2014, 5, 5)).getDates().size());
-        assertEquals(4, api.getMemories(userId, null, new Date(2014, 5, 4)).getDates().size());
-        assertEquals(3, api.getMemories(userId, new Date(2014, 5, 2), new Date(2014, 5, 4)).getDates().size());
-        assertEquals(1, api.getMemories(userId, new Date(2014, 5, 3), new Date(2014, 5, 3)).getDates().size());
+  private MemoryData blockingMemoryDelete(String userId,
+                                          Date memoryDate) throws Exception {
+    if (isApiCallInFlight) {
+      throw new Exception("blockingMemoryGet called when isApiCallInFlight is true");
     }
+    isApiCallInFlight = true;
+    final MemoryData[] retval = {null};
+    api.deleteMemory(userId, memoryDate, new MemoryApi.SingleMemoryListener() {
+      @Override
+      public void onApiResponse(MemoryData memory) {
+        retval[0] = memory;
+        isApiCallInFlight = false;
+      }
 
-    public void testDelete() throws MyDeticNoMemoryFoundException, MyDeticReadFailedException {
-        api.putMemory(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
-        api.putMemory(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
+      @Override
+      public void onApiError(MyDeticException exception) {
+        isApiCallInFlight = false;
+      }
+    });
 
-        assertEquals(3, api.getMemories(userId).getDates().size());
-        api.deleteMemory(userId, new Date(2014, 5, 1));
-        assertEquals(2, api.getMemories(userId).getDates().size());
-        assertFalse(api.hasMemory(userId, new Date(2014, 5, 1)));
+    waitForApiCall();
+    return retval[0];
+  }
 
-        try {
-            api.deleteMemory(userId, new Date(2014, 5, 1));
-            fail("Should have thrown exception");
-        } catch(MyDeticNoMemoryFoundException nme) {
-            // Should have thrown exception
-        }
+
+  private MemoryDataList blockingMemoriesGet(String userId) throws Exception {
+    return blockingMemoriesGet(userId, null, null);
+  }
+
+  private MemoryDataList blockingMemoriesGet(String userId,
+                                             Date fromDate,
+                                             Date toDate) throws Exception {
+    if (isApiCallInFlight) {
+      throw new Exception("blockingMemoriesGet called when isApiCallInFlight is true");
     }
+    isApiCallInFlight = true;
+    final MemoryDataList[] retval = {null};
+    api.getMemories(userId, fromDate, toDate, new MemoryApi.MemoryListListener() {
+      @Override
+      public void onApiResponse(MemoryDataList memories) {
+        retval[0] = memories;
+        isApiCallInFlight = false;
+      }
+
+      @Override
+      public void onApiError(MyDeticException exception) {
+        isApiCallInFlight = false;
+      }
+    });
+
+    waitForApiCall();
+    return retval[0];
+  }
+
+
+  public void testAddAndRetrieve() throws Exception {
+
+    assertEquals("Should have no memories", 0, blockingMemoriesGet(userId).getDates().size());
+
+    blockingMemoryPut(userId, new MemoryData(userId, "a memory", date));
+    assertTrue(blockingMemoryGet(userId, date) != null);
+
+    MemoryDataList list = blockingMemoriesGet(userId);
+    assertEquals("Should have one memory", 1, list.getDates().size());
+    assertTrue(list.hasDate(date));
+
+    MemoryData md = blockingMemoryGet(userId, date);
+    assertNotNull(md);
+    assertEquals(userId, md.getUserId());
+    assertEquals(date, md.getMemoryDate());
+    assertEquals("a memory", md.getMemoryText());
+
+    assertNull(blockingMemoryGet("different user", date));
+  }
+
+  public void testUpdate() throws Exception {
+    blockingMemoryPut(userId, new MemoryData(userId, "a memory", date));
+    MemoryData md = blockingMemoryGet(userId, date);
+    assertEquals("a memory", md.getMemoryText());
+
+    blockingMemoryPut(userId, new MemoryData(userId, "another memory", date));
+    md = blockingMemoryGet(userId, date);
+    assertEquals("another memory", md.getMemoryText());
+  }
+
+  public void testRetrieveRange() throws Exception {
+
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-04", new Date(2014, 5, 4)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-05", new Date(2014, 5, 5)));
+
+    assertEquals(5, blockingMemoriesGet(userId).getDates().size());
+    assertEquals(5, blockingMemoriesGet(userId, null, null).getDates().size());
+    assertEquals(4, blockingMemoriesGet(userId, new Date(2014, 5, 2), null).getDates().size());
+    assertEquals(5, blockingMemoriesGet(userId, new Date(2014, 5, 1), null).getDates().size());
+    assertEquals(5, blockingMemoriesGet(userId, null, new Date(2014, 5, 5)).getDates().size());
+    assertEquals(4, blockingMemoriesGet(userId, null, new Date(2014, 5, 4)).getDates().size());
+    assertEquals(3, blockingMemoriesGet(userId, new Date(2014, 5, 2), new Date(2014, 5, 4)).getDates().size());
+    assertEquals(1, blockingMemoriesGet(userId, new Date(2014, 5, 3), new Date(2014, 5, 3)).getDates().size());
+  }
+
+  public void testDelete() throws Exception {
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-01", new Date(2014, 5, 1)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-02", new Date(2014, 5, 2)));
+    blockingMemoryPut(userId, new MemoryData(userId, "2014-05-03", new Date(2014, 5, 3)));
+
+    assertEquals(3, blockingMemoriesGet(userId).getDates().size());
+    blockingMemoryDelete(userId, new Date(2014, 5, 1));
+    assertEquals(2, blockingMemoriesGet(userId).getDates().size());
+    assertNull(blockingMemoryGet(userId, new Date(2014, 5, 1)));
+
+    assertNull(blockingMemoryDelete(userId, new Date(2014, 5, 1)));
+  }
 }

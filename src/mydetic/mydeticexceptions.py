@@ -34,7 +34,7 @@ class MyDeticMemoryException(MyDeticException):
         self._msg = msg
 
     def __str__(self):
-        return "MyDeticMemoryException for %s on %s" % (self._user_id, self._date.isoformat())
+        return "MyDeticMemoryException for %s on %s: %s" % (self._user_id, self._date.isoformat(), self.msg)
 
 
 class MyDeticNoMemoryFound(MyDeticMemoryException):
@@ -58,6 +58,30 @@ class MyDeticMemoryAlreadyExists(MyDeticMemoryException):
 
     def __str__(self):
         return "A memory already exists for %s on %s" % (self._user_id, self._date.isoformat())
+
+
+class MyDeticMemoryRevisionMismatch(MyDeticMemoryException):
+    """
+    Exception raised when we try and update a memory with a revision number that is different
+    to that already in the data store.
+    """
+    def __init__(self, user_id, date, stored_revision, saving_revision, msg=""):
+        self._stored_revision = stored_revision
+        self._saving_revision = saving_revision
+        MyDeticMemoryException.__init__(self, user_id, date, msg)
+
+    def __str__(self):
+        return "A memory already exists for %s on %s" % (self._user_id, self._date.isoformat())
+
+    @property
+    def stored_revision(self):
+        """The revision number in the data store"""
+        return self._stored_revision
+
+    @property
+    def saving_revision(self):
+        """The revision number that was being saved"""
+        return self._saving_revision
 
 
 class MyDeticInvalidMemoryString(MyDeticException):

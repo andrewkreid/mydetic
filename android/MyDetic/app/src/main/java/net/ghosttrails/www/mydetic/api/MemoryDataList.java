@@ -2,7 +2,14 @@ package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -14,18 +21,27 @@ public class MemoryDataList {
   private String userId;
   private TreeMap<Date, Boolean> dates;
 
+  // A map of years -> months -> dates
+  private TreeMap<Integer, TreeMap<Integer, TreeMap<Date, Boolean>>> datesForYearMonth;
+
   public MemoryDataList() {
-    this.dates = new TreeMap<Date, Boolean>();
+    initMaps();
   }
 
   public MemoryDataList(String userId) {
     this.userId = userId;
-    this.dates = new TreeMap<Date, Boolean>();
+    initMaps();
   }
 
   public MemoryDataList(String userId, TreeMap<Date, Boolean> dates) {
     this.userId = userId;
+    initMaps();
     this.dates = dates;
+  }
+
+  private void initMaps() {
+    this.dates = new TreeMap<>();
+    this.datesForYearMonth = new TreeMap<Integer, TreeMap<Integer, TreeMap<Date, Boolean>>>();
   }
 
   public String getUserID() {
@@ -38,6 +54,17 @@ public class MemoryDataList {
 
   public void setDate(Date date) {
     dates.put(date, true);
+    Calendar cal = Utils.dateToCalendar(date);
+    int year = cal.get(Calendar.YEAR);
+    int month = cal.get(Calendar.MONTH);
+    if (!datesForYearMonth.containsKey(year)) {
+      datesForYearMonth.put(year, new TreeMap<Integer, TreeMap<Date, Boolean>>());
+    }
+    TreeMap<Integer, TreeMap<Date, Boolean>> monthMap = datesForYearMonth.get(year);
+    if (!monthMap.containsKey(month)) {
+      monthMap.put(month, new TreeMap<Date, Boolean>());
+    }
+    monthMap.get(month).put(date, true);
   }
 
   public boolean hasDate(Date date) {
@@ -49,6 +76,28 @@ public class MemoryDataList {
    */
   public Set<Date> getDates() {
     return this.dates.keySet();
+  }
+
+  public Set<Integer> getYears() {
+    return datesForYearMonth.keySet();
+  }
+
+  public Set<Integer> getMonthsForYear(int year) {
+    if (datesForYearMonth.containsKey(year)) {
+      return datesForYearMonth.get(year).keySet();
+    } else {
+      return new HashSet<Integer>();
+    }
+  }
+
+  public Set<Date> getDatesForMonth(int year, int month) {
+    if (datesForYearMonth.containsKey(year)) {
+      TreeMap<Integer, TreeMap<Date, Boolean>> monthMap = datesForYearMonth.get(year);
+      if (monthMap.containsKey(month)) {
+        return monthMap.get(month).keySet();
+      }
+    }
+    return new HashSet<Date>();
   }
 
   public void clear() {
@@ -66,8 +115,43 @@ public class MemoryDataList {
       throw new MyDeticException(
           "Tried to merge MemoryDataLists with different userIds");
     }
-    for (Date d : memories.getDates()) {
+    for (Date d: memories.getDates()) {
       this.setDate(d);
+    }
+  }
+
+  /**
+   * Build a MemoryDataList from the JSON wire format.
+   *
+   * {
+   *   "memories": [
+   *    "2015-12-18",
+   *    "2015-12-19",
+   *    "2015-12-20"
+   *   ],
+   *   "user_id": "mreynolds"
+   * }
+   *
+   * @param jsonObject JSON returned from the REST API
+   * @return a MemoryDataList object.
+   * @throws MyDeticException on format errors
+   */
+  static MemoryDataList fromJSON(JSONObject jsonObject) throws MyDeticException {
+    MemoryDataList memoryDataList = new MemoryDataList();
+
+    try {
+      String userId = jsonObject.getString("user_id");
+      memoryDataList.setUserID(userId);
+
+      JSONArray memoryArray = jsonObject.getJSONArray("memories");
+      for(int i = 0; i < memoryArray.length(); i++) {
+        String dateStr = memoryArray.getString(i);
+        memoryDataList.setDate(Utils.parseIsoDate(dateStr));
+      }
+
+      return memoryDataList;
+    } catch (JSONException | ParseException e) {
+      throw new MyDeticException("Format error in memory list JSON:" + e.toString());
     }
   }
 
@@ -83,4 +167,5 @@ public class MemoryDataList {
     }
     return retval;
   }
+
 }
