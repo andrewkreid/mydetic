@@ -21,7 +21,7 @@ from flask.ext.httpauth import HTTPBasicAuth
 from mydetic.memorydata import MemoryData
 from mydetic.s3_datastore import S3DataStore
 from mydetic.mydeticexceptions import MyDeticException, MyDeticNoMemoryFound, MyDeticMemoryAlreadyExists, \
-    MyDeticInvalidMemoryString
+    MyDeticInvalidMemoryString, MyDeticMemoryRevisionMismatch
 import errorcodes
 from mydetic.passwordstore import FilePasswordStore
 
@@ -244,8 +244,11 @@ class MemoryAPI(Resource):
             self.logger.info("Memory not found on update (%s)", date_str)
             return generate_error_json(mdnmf), 404
         except MyDeticInvalidMemoryString, mdims:
-            self.logger.info("Invalid memory string on add (%s)" % mdims.msg), 400
-            return generate_error_json(mdims)
+            self.logger.info("Invalid memory string on update (%s)" % mdims.msg), 400
+            return generate_error_json(mdims), 400
+        except MyDeticMemoryRevisionMismatch, mdmm:
+            self.logger.info("Revision mismatch on update (%s)" % mdmm.msg), 400
+            return generate_error_json(mdmm), 400
         except MyDeticException, mde:
             return generate_error_json(mde), 500
         except ValueError:
@@ -318,8 +321,8 @@ def init_config():
         logging_filename = args.logconfig
     else:
         # Look for environment variables
-        if 'MYDETIC_LOGCONFIG' in os.environ:
-            logging_filename = os.environ['MYDETIC_LOGCONFIG']
+        if 'MYDETIC_LOGGING_CONFIG' in os.environ:
+            logging_filename = os.environ['MYDETIC_LOGGING_CONFIG']
         if 'MYDETIC_CONFIG' in os.environ:
             config_filename = os.environ['MYDETIC_CONFIG']
 

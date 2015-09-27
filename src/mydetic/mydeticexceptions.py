@@ -71,7 +71,7 @@ class MyDeticMemoryRevisionMismatch(MyDeticMemoryException):
         MyDeticMemoryException.__init__(self, user_id, date, msg)
 
     def __str__(self):
-        return "A memory already exists for %s on %s" % (self._user_id, self._date.isoformat())
+        return "Revision mismatch for %s on %s" % (self._user_id, self._date.isoformat())
 
     @property
     def stored_revision(self):
