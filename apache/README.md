@@ -108,7 +108,7 @@ sudo cp mydetic-wsgi.conf /etc/httpd/conf.d/
 Edit ```/etc/httpd/conf.d/mydetic-wsgi.conf``` and replace ```YOUR_HOST_NAME_OR_IP``` with the
 exernal DNS name of the instance (from the AWS console).
 
-Notice that the ```MYDETIC_CONFIG``` and ```MYDETIC_LOGCONFIG``` environment variables i
+Notice that the ```MYDETIC_CONFIG``` and ```MYDETIC_LOGGING_CONFIG``` environment variables i
 refer to files that don't exist yet. We'll create these next.
 
 ### Create The MyDetic config file
