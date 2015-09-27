@@ -16,17 +16,24 @@ public class MemoryData {
   private String userId;
   private String memoryText;
   private Date memoryDate;
+  private int revision;
 
   public MemoryData() {
-    this.userId = null;
-    this.memoryDate = null;
-    this.memoryText = null;
+    this(null, null, null, 1);
   }
 
   public MemoryData(String userId, String memoryText, Date memoryDate) {
+    this(userId, memoryText, memoryDate, 1);
+  }
+
+  public MemoryData(String userId, String memoryText, Date memoryDate, int revision) {
     this.userId = userId;
     this.memoryText = memoryText;
-    this.memoryDate = (Date) memoryDate.clone();
+    this.memoryDate = null;
+    if (memoryDate != null) {
+      this.memoryDate = (Date) memoryDate.clone();
+    }
+    this.revision = revision;
   }
 
   public String getUserId() {
@@ -53,6 +60,14 @@ public class MemoryData {
     this.memoryDate = memoryDate;
   }
 
+  public int getRevision() {
+    return revision;
+  }
+
+  public void setRevision(int revision) {
+    this.revision = revision;
+  }
+
   /**
    * Build a MemoryData object from the JSON wire format.
    *
@@ -75,6 +90,9 @@ public class MemoryData {
       memoryData.setUserId(userId);
       memoryData.setMemoryDate(Utils.parseIsoDate(jsonObject.getString("memory_date")));
       memoryData.setMemoryText(jsonObject.getString("memory_text"));
+      if (jsonObject.has("revision")) {
+        memoryData.setRevision(jsonObject.getInt("revision"));
+      }
       return memoryData;
     } catch (JSONException | ParseException e) {
       throw new MyDeticException("Error parsing memory JSON", e);
@@ -87,6 +105,7 @@ public class MemoryData {
       jsonObject.put("user_id", userId);
       jsonObject.put("memory_date", Utils.isoFormat(memoryDate));
       jsonObject.put("memory_text", memoryText);
+      jsonObject.put("revision", revision);
       return jsonObject;
     } catch (JSONException e) {
       throw new MyDeticException("Error converting MemoryData to JSON", e);
@@ -98,6 +117,6 @@ public class MemoryData {
    */
   @Override
   protected Object clone() {
-    return new MemoryData(this.userId, this.memoryText, this.memoryDate);
+    return new MemoryData(this.userId, this.memoryText, this.memoryDate, this.revision);
   }
 }

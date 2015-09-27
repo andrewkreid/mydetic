@@ -11,6 +11,7 @@ import com.android.volley.VolleyError;
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -139,12 +140,15 @@ public class RestfulMemoryApi implements MemoryApi {
         @Override
         public void onErrorResponse(VolleyError error) {
           if (error.networkResponse != null) {
+            // TODO: Call extractLongErrorMessage in error responses for other calls too.
+            String errBody = new String(error.networkResponse.data);
             if (error.networkResponse.statusCode == 404) {
               // TODO: If the response to the PUT was 404, then try a POST to create a new memory.
               createMemory(userId, memory, listener);
             } else {
-              listener.onApiError(new MyDeticException(String.format("Got %d when saving Memory",
-                  error.networkResponse.statusCode), error));
+              listener.onApiError(
+                  new MyDeticException(String.format("Got %d when saving Memory (%s)",
+                  error.networkResponse.statusCode, extractLongErrorMessage(errBody)), error));
             }
           } else {
             listener.onApiError(new MyDeticException(formatVolleyError(error), error));
@@ -199,6 +203,21 @@ public class RestfulMemoryApi implements MemoryApi {
       return String.format("Network Error: %d", v.networkResponse.statusCode);
     } else {
       return "Network Error:<unknown>";
+    }
+  }
+
+  /**
+   * Try and parse a string as an API error JSON object. Return the longMessage string if available
+   * otherwise an empty string.
+   * @param errorMessage error response body
+   * @return
+   */
+  private String extractLongErrorMessage(String errorMessage) {
+    try {
+      JSONObject jObject = new JSONObject(errorMessage);
+      return jObject.getString("long_message");
+    } catch (JSONException e) {
+      return "";
     }
   }
 }

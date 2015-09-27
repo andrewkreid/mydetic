@@ -265,6 +265,7 @@ public class MemoryDetailActivity extends Activity
       // Once we've saved, we're in edit mode.
       editMode = MemoryDetailMode.MODE_EXISTING;
       hasLoadedMemory = true;
+      memoryData = memory;
       app.setCachedMemory(memory);
       updateUIFromData();
     }
