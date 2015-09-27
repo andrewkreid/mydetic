@@ -35,6 +35,7 @@ def verify_pw(username, password):
     :param password:
     :return: True if credentials are valid, False otherwise
     """
+    global password_store
     logger = logging.getLogger('verify_pw')
     if not password_store:
         logger.error("No password store specified")
@@ -342,10 +343,12 @@ def init_config():
 # The mydetic.datastore.DataStore to use
 ds = None
 config = None
+password_store = None
 
 def create_app():
     global ds
     global config
+    global password_store
 
     try:
         app = Flask(__name__, static_url_path="")
