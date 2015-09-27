@@ -15,9 +15,10 @@ class MemoryData(object):
     _modified_at = None
     _revision = 1
 
-    def __init__(self, user_id, memory_date, memory_text='', created_at=None, modified_at=None):
+    def __init__(self, user_id, memory_date, memory_text='', created_at=None, modified_at=None, revision=1):
         self._user_id = user_id
         self._memory_text = memory_text
+        self._revision = revision
         if not isinstance(memory_date, date):
             raise ValueError("memory_date must be a datetime.date")
 

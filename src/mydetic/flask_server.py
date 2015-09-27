@@ -92,7 +92,7 @@ def parse_memory_from_request():
     if not request.json:
         raise MyDeticInvalidMemoryString("POST request body was not JSON")
 
-    for arg in ['user_id', 'memory_date', 'memory_text']:
+    for arg in ['user_id', 'memory_date', 'memory_text', 'revision']:
         if arg not in request.json:
             raise MyDeticInvalidMemoryString("expected '%s' parameter" % arg)
 
@@ -103,8 +103,9 @@ def parse_memory_from_request():
 
     memory_text = request.json['memory_text']
     user_id = request.json['user_id']
+    revision = request.json['revision']
 
-    return MemoryData(user_id=user_id, memory_date=memory_date, memory_text=memory_text)
+    return MemoryData(user_id=user_id, memory_date=memory_date, memory_text=memory_text, revision=revision)
 
 
 class MemoryListAPI(Resource):
