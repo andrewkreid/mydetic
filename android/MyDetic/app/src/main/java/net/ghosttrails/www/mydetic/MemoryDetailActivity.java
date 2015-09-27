@@ -120,6 +120,8 @@ public class MemoryDetailActivity extends Activity
       // Load the memory.
       memoryData = app.getCachedMemory(memoryDate);
       if (memoryData == null) {
+        setButtonsEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
         app.getApi().getMemory(app.getUserId(), memoryDate,
             new FetchMemoryListener());
       } else {
@@ -259,7 +261,7 @@ public class MemoryDetailActivity extends Activity
     @Override
     public void onApiResponse(MemoryData memory) {
       setButtonsEnabled(true);
-      progressBar.setVisibility(View.INVISIBLE);
+      progressBar.setVisibility(View.GONE);
       // Once we've saved, we're in edit mode.
       editMode = MemoryDetailMode.MODE_EXISTING;
       hasLoadedMemory = true;
@@ -270,7 +272,7 @@ public class MemoryDetailActivity extends Activity
     @Override
     public void onApiError(MyDeticException exception) {
       setButtonsEnabled(true);
-      progressBar.setVisibility(View.INVISIBLE);
+      progressBar.setVisibility(View.GONE);
       AppUtils.smallToast(getApplicationContext(), exception.getMessage());
     }
   }
@@ -280,7 +282,7 @@ public class MemoryDetailActivity extends Activity
     @Override
     public void onApiResponse(MemoryData memory) {
       setButtonsEnabled(true);
-      progressBar.setVisibility(View.INVISIBLE);
+      progressBar.setVisibility(View.GONE);
       if (memory != null) {
         MemoryDetailActivity.this.memoryData = memory;
         app.setCachedMemory(memory);
@@ -293,7 +295,7 @@ public class MemoryDetailActivity extends Activity
     @Override
     public void onApiError(MyDeticException exception) {
       setButtonsEnabled(true);
-      progressBar.setVisibility(View.INVISIBLE);
+      progressBar.setVisibility(View.GONE);
       // TODO: We need to distinguish between a failed load and a date that
       // TODO: has no memory yet, so that we don't overwrite an existing one.
       AppUtils.smallToast(getApplicationContext(), exception.getMessage());
