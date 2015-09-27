@@ -2,7 +2,8 @@ from mydetic.memorydata import MemoryData
 from mydetic.datastore import ExceptionWrappedDataStore
 from mydetic.sqlite_datastore import SqliteDataStore
 from datetime import date
-from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, MyDeticDataStoreException
+from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, MyDeticDataStoreException, \
+    MyDeticMemoryRevisionMismatch
 import unittest
 import pytest
 
@@ -54,6 +55,7 @@ class SqliteDataStoreTestCase(unittest.TestCase):
 
         memory = store.get_memory(uid, mem_date)
         assert memory.memory_text == 'bar'
+        assert memory.revision == 1
 
         with pytest.raises(MyDeticNoMemoryFound):
             store.update_memory(MemoryData(user_id=uid, memory_date=date(2012, 1, 1)))
@@ -66,7 +68,13 @@ class SqliteDataStoreTestCase(unittest.TestCase):
         assert memory.memory_date == updated_memory.memory_date
         assert memory.created_at == updated_memory.created_at
         assert memory.user_id == updated_memory.user_id
+        assert updated_memory.revision == 2
         assert memory.modified_at != updated_memory.modified_at
+
+        # backdate the revision number. This should make the update fail.
+        memory.revision = 1
+        with pytest.raises(MyDeticMemoryRevisionMismatch):
+            store.update_memory(memory)
 
     def test_only_mydetic_exceptions_thrown_for_update(self):
         try:

@@ -3,9 +3,7 @@ import datetime
 import dateutil.parser
 import sqlite3
 from memorydata import MemoryData
-import errorcodes
-from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, \
-    MyDeticException, MyDeticDataStoreException
+from mydeticexceptions import MyDeticMemoryAlreadyExists, MyDeticNoMemoryFound, MyDeticMemoryRevisionMismatch
 
 
 # db model
@@ -35,6 +33,7 @@ class SqliteDataStore:
                     memory_text text NOT NULL,
                     created_at date NOT NULL,
                     modified_at date NOT NULL,
+                    revision integer NOT NULL,
                     PRIMARY KEY (user_id, memory_date)
                 )''')
 
@@ -84,8 +83,9 @@ class SqliteDataStore:
                 user_id,
                 memory_date,
                 modified_at,
-                created_at ,
-                memory_text
+                created_at,
+                memory_text,
+                revision
             FROM
                 memories
             WHERE
@@ -132,10 +132,11 @@ class SqliteDataStore:
                     memory_date,
                     modified_at,
                     created_at,
-                    memory_text
+                    memory_text,
+                    revision
                 )
                 VALUES
-                ( ?, ?, ?, ?, ?)
+                ( ?, ?, ?, ?, ?, ?)
         '''
         if self.has_memory(memory.user_id, memory.memory_date):
             raise MyDeticMemoryAlreadyExists(memory.user_id, memory.memory_date)
@@ -144,7 +145,8 @@ class SqliteDataStore:
             memory.memory_date,
             memory.modified_at,
             memory.created_at,
-            memory.memory_text
+            memory.memory_text,
+            memory.revision
         ]
         try:
             with self._conn:
@@ -156,18 +158,25 @@ class SqliteDataStore:
         """
         :param memory: updated MemoryData object. NOTE: only text is changed.
         :return: No return value
-        :raises: MyDeticNoMemoryFound is memory doesn't already exist
+        :raises: MyDeticNoMemoryFound is memory doesn't already exist. MyDeticMemoryRevisionMismatch if the existing
+                 memory in the data store has a different revision number to the one being saved.
         """
 
         if not self.has_memory(memory.user_id, memory.memory_date):
             raise MyDeticNoMemoryFound(memory.user_id, memory.memory_date)
-        args = [memory.memory_text, datetime.datetime.now(), memory.user_id, memory.memory_date]
+        old_memory = self.get_memory(memory.user_id, memory.memory_date)
+        if old_memory.revision != memory.revision:
+            raise MyDeticMemoryRevisionMismatch(memory.user_id, memory.memory_date, old_memory.revision,
+                                                memory.revision)
+        args = [memory.memory_text, datetime.datetime.now(), old_memory.revision + 1,
+                memory.user_id, memory.memory_date]
         query = '''
             UPDATE
                 memories
             SET
                 memory_text = ?,
-                modified_at = ?
+                modified_at = ?,
+                revision = ?
             WHERE
                 user_id=?
                 AND memory_date=?

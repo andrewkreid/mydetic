@@ -8,7 +8,7 @@ from mydetic.s3_datastore import S3DataStore
 from datetime import date
 from mydetic.memorydata import MemoryData
 from mydetic.mydeticexceptions import MyDeticMemoryAlreadyExists, \
-    MyDeticNoMemoryFound, MyDeticDataStoreException
+    MyDeticNoMemoryFound, MyDeticDataStoreException, MyDeticMemoryRevisionMismatch
 import pytest
 
 DEF_CONFIG = {
@@ -108,6 +108,7 @@ def test_update_memory():
 
     memory = s3store.get_memory(uid, mem_date)
     assert memory.memory_text == 'bar'
+    assert memory.revision == 1
 
     with pytest.raises(MyDeticNoMemoryFound):
         s3store.update_memory(MemoryData(user_id=uid, memory_date=date(2012, 1, 1)))
@@ -117,6 +118,14 @@ def test_update_memory():
 
     updated_memory = s3store.get_memory(uid, mem_date)
     assert memory.memory_text == updated_memory.memory_text
+
+    # Each save should update the revision count.
+    assert updated_memory.revision == 2
+
+    # backdate the revision number. This should make the update fail.
+    memory.revision = 1
+    with pytest.raises(MyDeticMemoryRevisionMismatch):
+        s3store.update_memory(memory)
 
     # TODO: test that only memory_text and modified_at get updated
 
