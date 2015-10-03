@@ -19,16 +19,13 @@ import java.util.Locale;
  * interface.
  */
 public class MemoryMonthFragment extends ListFragment {
-  private MemoryAppInterface mApp;
-
   private OnFragmentInteractionListener mListener;
 
   private int mYear;
   private List<Integer> mMonthsWithMemories;
 
-  public static MemoryMonthFragment newInstance(MemoryAppInterface appInterface, int year) {
+  public static MemoryMonthFragment newInstance(int year) {
     MemoryMonthFragment fragment = new MemoryMonthFragment();
-    fragment.mApp = appInterface;
     fragment.mYear = year;
     return fragment;
   }
@@ -43,9 +40,36 @@ public class MemoryMonthFragment extends ListFragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    // setRetainInstance(true);
 
+  }
+
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    try {
+      mListener = (OnFragmentInteractionListener) activity;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString()
+          + " must implement OnFragmentInteractionListener");
+    }
+  }
+
+  /**
+   * Configure things here because MyDeticListActivity restores its state in onCreate, and this
+   * method (unlike onCreate/onAttach) is called after that.
+   *
+   * @param savedInstanceState saved state
+   */
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    MemoryListFragmentDataProvider provider = (MemoryListFragmentDataProvider)getActivity();
+    mYear = provider.getMemoryListYear();
     mMonthsWithMemories = new ArrayList<>();
-    for(Integer i:mApp.getMemories().getMonthsForYear(mYear)) {
+
+    MemoryAppState appState = MemoryAppState.getInstance();
+    for(Integer i:appState.getMemories().getMonthsForYear(mYear)) {
       mMonthsWithMemories.add(i);
     }
     List<String> monthNames = new ArrayList<>();
@@ -61,20 +85,10 @@ public class MemoryMonthFragment extends ListFragment {
   }
 
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    try {
-      mListener = (OnFragmentInteractionListener) activity;
-    } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString()
-          + " must implement OnFragmentInteractionListener");
-    }
-  }
-
-  @Override
   public void onDetach() {
     super.onDetach();
     mListener = null;
+    mMonthsWithMemories = null;
   }
 
   @Override

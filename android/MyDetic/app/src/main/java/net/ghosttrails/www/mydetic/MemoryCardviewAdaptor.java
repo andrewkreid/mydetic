@@ -23,7 +23,6 @@ public class MemoryCardviewAdaptor extends
   // How many days into the past to show days for.
   static final int NUM_CARDS = 7;
 
-  private MemoryAppInterface app;
   private CustomItemClickListener listener;
 
   // Provide a reference to the views for each data item
@@ -57,8 +56,7 @@ public class MemoryCardviewAdaptor extends
   }
 
   // Provide a suitable constructor (depends on the kind of dataset)
-  public MemoryCardviewAdaptor(MemoryAppInterface app, CustomItemClickListener listener) {
-    this.app = app;
+  public MemoryCardviewAdaptor(CustomItemClickListener listener) {
     this.listener = listener;
   }
 
@@ -85,7 +83,8 @@ public class MemoryCardviewAdaptor extends
     // - get element from your dataset at this position
     // - replace the contents of the view with that element
     Date memoryDate = positionToDate(position);
-    MemoryData memory = app.getCachedMemory(memoryDate);
+    MemoryAppState appState = MemoryAppState.getInstance();
+    MemoryData memory = appState.getCachedMemory(memoryDate);
     if (memory != null) {
       holder.fillCard(memory);
     } else {

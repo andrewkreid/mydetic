@@ -26,7 +26,6 @@ import java.util.Date;
 public class HomeActivity extends Activity {
 
   private ProgressDialog progressDialog;
-  private MyDeticApplication app;
   private RecyclerView mRecyclerView;
   private RecyclerView.Adapter mAdapter;
 
@@ -35,7 +34,7 @@ public class HomeActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
 
-    app = (MyDeticApplication) getApplicationContext();
+    MemoryAppState appState = MemoryAppState.getInstance();
 
     mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
 
@@ -48,13 +47,13 @@ public class HomeActivity extends Activity {
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     // specify an adapter.
-    mAdapter = new MemoryCardviewAdaptor(app, new CustomItemClickListener() {
+    mAdapter = new MemoryCardviewAdaptor(new CustomItemClickListener() {
       @Override
       public void onItemClick(View v, int position, Date memoryDate) {
         // Clicking on a Memory card takes you to the detail activity for that date.
         Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
-        if (app.getMemories().hasDate(memoryDate)) {
+        if (MemoryAppState.getInstance().getMemories().hasDate(memoryDate)) {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
         } else {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
@@ -64,7 +63,7 @@ public class HomeActivity extends Activity {
     });
     mRecyclerView.setAdapter(mAdapter);
 
-    app.reloadMemories();
+    appState.reloadMemories(this);
   }
 
   @Override
@@ -81,6 +80,7 @@ public class HomeActivity extends Activity {
     // as you specify a parent activity in AndroidManifest.xml.
     // TODO: Think about menu layout. Should settings be available from all
     // TODO: activities? Should Home be on the menu?
+    MemoryAppState appState = MemoryAppState.getInstance();
     int id = item.getItemId();
 
     switch (id) {
@@ -96,8 +96,8 @@ public class HomeActivity extends Activity {
         startActivity(intent);
         return true;
       case R.id.action_reload:
-        app.refreshSettingsFromConfig();
-        app.reloadMemories(new MemoryApi.MemoryListListener() {
+        appState.refreshSettingsFromConfig(this);
+        appState.reloadMemories(this, new MemoryApi.MemoryListListener() {
           @Override
           public void onApiResponse(MemoryDataList memories) {
             mAdapter.notifyDataSetChanged();

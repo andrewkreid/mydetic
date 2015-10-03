@@ -12,12 +12,15 @@ import java.util.Date;
 public interface MemoryAppInterface {
 
   public MemoryApi getApi();
+  public void setApi(MemoryApi api);
 
   public MemoryDataList getMemories();
+  public void setMemories(MemoryDataList memories);
 
   public MemoryData getCachedMemory(Date d);
-
   public void setCachedMemory(MemoryData memoryData);
 
   public MyDeticConfig getConfig();
+  public void setConfig(MyDeticConfig config);
+
 }

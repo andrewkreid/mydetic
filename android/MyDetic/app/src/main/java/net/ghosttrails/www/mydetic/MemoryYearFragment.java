@@ -21,8 +21,6 @@ import java.util.Set;
  */
 public class MemoryYearFragment extends ListFragment {
 
-  private MemoryAppInterface mApp;
-
   private OnFragmentInteractionListener mListener;
 
   private List<Integer> mYearsWithMemories;
@@ -32,10 +30,8 @@ public class MemoryYearFragment extends ListFragment {
    */
   private AbsListView mListView;
 
-  public static MemoryYearFragment newInstance(MemoryAppInterface appInterface) {
-    MemoryYearFragment fragment = new MemoryYearFragment();
-    fragment.mApp = appInterface;
-    return fragment;
+  public static MemoryYearFragment newInstance() {
+    return new MemoryYearFragment();
   }
 
   /**
@@ -78,8 +74,9 @@ public class MemoryYearFragment extends ListFragment {
    */
   List<Integer> buildYearList() {
     ArrayList<Integer> retVal = new ArrayList<>();
-    if (mApp != null) {
-      Set<Integer> uniqueYears = mApp.getMemories().getYears();
+    MemoryAppState appState = MemoryAppState.getInstance();
+    if (appState != null) {
+      Set<Integer> uniqueYears = appState.getMemories().getYears();
       for (Integer year : uniqueYears) {
         retVal.add(year);
       }

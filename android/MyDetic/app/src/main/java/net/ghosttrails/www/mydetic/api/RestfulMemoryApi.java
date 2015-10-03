@@ -28,7 +28,7 @@ public class RestfulMemoryApi implements MemoryApi {
   private MyDeticConfig config;
 
   public RestfulMemoryApi(Context ctx, MyDeticConfig config) {
-    requestQueue = RequestQueueSingleton.getInstance(ctx).getRequestQueue();
+    requestQueue = RequestQueueSingleton.getInstance(ctx.getApplicationContext()).getRequestQueue();
     this.config = config;
   }
 
@@ -210,7 +210,7 @@ public class RestfulMemoryApi implements MemoryApi {
    * Try and parse a string as an API error JSON object. Return the longMessage string if available
    * otherwise an empty string.
    * @param errorMessage error response body
-   * @return
+   * @return the extracted error message, or an empty string.
    */
   private String extractLongErrorMessage(String errorMessage) {
     try {

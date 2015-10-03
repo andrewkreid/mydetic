@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
+import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
@@ -39,16 +40,16 @@ import java.util.List;
 public class MemoryListActivity extends Activity
     implements MemoryYearFragment.OnFragmentInteractionListener,
     MemoryMonthFragment.OnFragmentInteractionListener,
-    MemoryDayFragment.OnFragmentInteractionListener {
+    MemoryDayFragment.OnFragmentInteractionListener,
+    MemoryListFragmentDataProvider {
 
-  private MemoryAppInterface app;
+  private int year;
+  private int month;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
-
-    app = (MemoryAppInterface) getApplicationContext();
 
     // Check that the activity is using the layout version with
     // the fragment_container FrameLayout
@@ -58,11 +59,13 @@ public class MemoryListActivity extends Activity
       // then we don't need to do anything and should return or else
       // we could end up with overlapping fragments.
       if (savedInstanceState != null) {
+        year = savedInstanceState.getInt("year", 2015);
+        month = savedInstanceState.getInt("month", 1);
         return;
       }
 
       // Create a new Fragment to be placed in the activity layout
-      MemoryYearFragment yearFragment = MemoryYearFragment.newInstance(app);
+      MemoryYearFragment yearFragment = MemoryYearFragment.newInstance();
 
       // In case this activity was started with special instructions from an
       // Intent, pass the Intent's extras to the fragment as arguments
@@ -96,11 +99,20 @@ public class MemoryListActivity extends Activity
   }
 
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putInt("year", year);
+    outState.putInt("month", month);
+  }
+
+  @Override
   public void onYearSelected(int year) {
     Log.i("MemoryListActivity", String.format("Selected year %d", year));
 
+    this.year = year;
+
     // Create fragment.
-    MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(app, year);
+    MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(year);
     FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
     // Replace whatever is in the fragment_container view with this fragment,
@@ -114,9 +126,12 @@ public class MemoryListActivity extends Activity
 
   @Override
   public void onYearMonthSelected(int year, int month) {
+    this.year = year;
+    this.month = month;
+
     Log.i("MemoryListActivity", String.format("Selected year %d and month %d", year, month));
     // Create fragment.
-    MemoryDayFragment newFragment = MemoryDayFragment.newInstance(app, year, month);
+    MemoryDayFragment newFragment = MemoryDayFragment.newInstance(year, month);
     FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
     // Replace whatever is in the fragment_container view with this fragment,
@@ -138,4 +153,18 @@ public class MemoryListActivity extends Activity
     // TODO: Refresh list fragments on returning to the activity.
   }
 
+  @Override
+  public MemoryAppInterface getAppInterface() {
+    return (MemoryAppInterface) getApplicationContext();
+  }
+
+  @Override
+  public int getMemoryListYear() {
+    return year;
+  }
+
+  @Override
+  public int getMemoryListMonth() {
+    return month;
+  }
 }

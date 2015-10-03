@@ -55,14 +55,11 @@ public class MemoryDetailActivity extends Activity
   private boolean hasLoadedMemory;
 
   private ProgressBar progressBar;
-  private MyDeticApplication app;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_detail);
-
-    app = (MyDeticApplication) getApplicationContext();
 
     progressBar = (ProgressBar)this.findViewById(R.id.memory_detail_progress_bar);
 
@@ -118,11 +115,12 @@ public class MemoryDetailActivity extends Activity
 
     if (editMode == MemoryDetailMode.MODE_EXISTING) {
       // Load the memory.
-      memoryData = app.getCachedMemory(memoryDate);
+      MemoryAppState appState = MemoryAppState.getInstance();
+      memoryData = appState.getCachedMemory(memoryDate);
       if (memoryData == null) {
         setButtonsEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
-        app.getApi().getMemory(app.getUserId(), memoryDate,
+        appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
             new FetchMemoryListener());
       } else {
         updateUIFromData();
@@ -198,24 +196,26 @@ public class MemoryDetailActivity extends Activity
    */
   public void saveClicked(View view) {
     hideKeyboard();
+    MemoryAppState appState = MemoryAppState.getInstance();
     if (memoryData == null) {
-      memoryData = new MemoryData(app.getUserId(),
+      memoryData = new MemoryData(appState.getConfig().getUserName(),
           memoryEditText.getText().toString(), memoryDate);
     } else {
       memoryData.setMemoryText(memoryEditText.getText().toString());
     }
     setButtonsEnabled(false);
     progressBar.setVisibility(View.VISIBLE);
-    app.getApi().putMemory(app.getUserId(), memoryData,
+    appState.getApi().putMemory(appState.getConfig().getUserName(), memoryData,
         new SaveMemoryListener());
   }
 
   public void refreshClicked(View view) {
     // TODO: warn about overwriting changes (also when closing activity).
+    MemoryAppState appState = MemoryAppState.getInstance();
     if (memoryDate != null) {
       setButtonsEnabled(false);
       progressBar.setVisibility(View.VISIBLE);
-      app.getApi().getMemory(app.getUserId(), memoryDate,
+      appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
           new FetchMemoryListener());
     }
   }
@@ -241,13 +241,14 @@ public class MemoryDetailActivity extends Activity
    */
   public void onDateSet(DatePicker datePicker, int year, int month, int day) {
     memoryDate = new GregorianCalendar(year, month, day).getTime();
-    if (app.getMemories().hasDate(memoryDate)) {
+    MemoryAppState appState = MemoryAppState.getInstance();
+    if (appState.getMemories().hasDate(memoryDate)) {
       // There is already a memory on this date. Switch to edit mode and load
       // it.
       editMode = MemoryDetailMode.MODE_EXISTING;
-      memoryData = app.getCachedMemory(memoryDate);
+      memoryData = appState.getCachedMemory(memoryDate);
       if (memoryData == null) {
-        app.getApi().getMemory(app.getUserId(), memoryDate,
+        appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
             new FetchMemoryListener());
       } else {
         updateUIFromData();
@@ -260,13 +261,14 @@ public class MemoryDetailActivity extends Activity
   private class SaveMemoryListener implements MemoryApi.SingleMemoryListener {
     @Override
     public void onApiResponse(MemoryData memory) {
+      MemoryAppState appState = MemoryAppState.getInstance();
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
       // Once we've saved, we're in edit mode.
       editMode = MemoryDetailMode.MODE_EXISTING;
       hasLoadedMemory = true;
       memoryData = memory;
-      app.setCachedMemory(memory);
+      appState.setCachedMemory(memory);
       updateUIFromData();
     }
 
@@ -285,8 +287,9 @@ public class MemoryDetailActivity extends Activity
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
       if (memory != null) {
+        MemoryAppState appState = MemoryAppState.getInstance();
         MemoryDetailActivity.this.memoryData = memory;
-        app.setCachedMemory(memory);
+        appState.setCachedMemory(memory);
         editMode = MemoryDetailMode.MODE_EXISTING;
         hasLoadedMemory = true;
       }

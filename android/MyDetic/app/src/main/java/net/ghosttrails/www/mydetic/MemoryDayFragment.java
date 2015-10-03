@@ -29,17 +29,14 @@ import java.util.List;
  */
 
 public class MemoryDayFragment extends ListFragment {
-  private MemoryAppInterface mApp;
-
   private OnFragmentInteractionListener mListener;
 
   private int mYear;
   private int mMonth;
   private List<Date> mDatesWithMemories;
 
-  public static MemoryDayFragment newInstance(MemoryAppInterface appInterface, int year, int month) {
+  public static MemoryDayFragment newInstance(int year, int month) {
     MemoryDayFragment fragment = new MemoryDayFragment();
-    fragment.mApp = appInterface;
     fragment.mYear = year;
     fragment.mMonth = month;
     return fragment;
@@ -56,16 +53,6 @@ public class MemoryDayFragment extends ListFragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mDatesWithMemories = new ArrayList<>();
-    for(Date d:mApp.getMemories().getDatesForMonth(mYear, mMonth)) {
-      mDatesWithMemories.add(d);
-    }
-    List<String> dateNames = new ArrayList<>();
-    for(Date d:mDatesWithMemories) {
-      dateNames.add(Utils.isoFormat(d));
-    }
-
-    setListAdapter(new MemoriesAdapter(getActivity(), mDatesWithMemories));
     //setListAdapter(new ArrayAdapter<String>(getActivity(),
     //    android.R.layout.simple_list_item_1, android.R.id.text1, dateNames));
   }
@@ -79,6 +66,30 @@ public class MemoryDayFragment extends ListFragment {
       throw new ClassCastException(activity.toString()
           + " must implement OnFragmentInteractionListener");
     }
+  }
+
+  /**
+   * Configure things here because MyDeticListActivity restores its state in onCreate, and this
+   * method (unlike onCreate/onAttach) is called after that.
+   *
+   * @param savedInstanceState saved state
+   */
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+
+    MemoryListFragmentDataProvider provider = (MemoryListFragmentDataProvider)getActivity();
+    mYear = provider.getMemoryListYear();
+    mMonth = provider.getMemoryListMonth();
+
+    mDatesWithMemories = new ArrayList<>();
+    MemoryAppState appState = MemoryAppState.getInstance();
+
+    for(Date d:appState.getMemories().getDatesForMonth(mYear, mMonth)) {
+      mDatesWithMemories.add(d);
+    }
+
+    setListAdapter(new MemoriesAdapter(getActivity(), mDatesWithMemories));
   }
 
   @Override
@@ -158,7 +169,8 @@ public class MemoryDayFragment extends ListFragment {
       text1.setText(Utils.isoFormat(memoryDate));
 
       // Use the first line of the memory text if we know it.
-      MemoryData memoryData = mApp.getCachedMemory(memoryDate);
+      MemoryAppState appState = MemoryAppState.getInstance();
+      MemoryData memoryData = appState.getCachedMemory(memoryDate);
       if (memoryData != null) {
         text2.setEllipsize(TextUtils.TruncateAt.END);
         text2.setSingleLine();
