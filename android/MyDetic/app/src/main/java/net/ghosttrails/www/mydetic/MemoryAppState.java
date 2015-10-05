@@ -10,6 +10,7 @@ import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.RestfulMemoryApi;
 import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
+import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBContract;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
@@ -29,7 +30,7 @@ public class MemoryAppState implements MemoryAppInterface {
   private MyDeticSQLDBHelper cacheDbHelper;
   private SQLiteDatabase dbHandle;
 
-  /** cache of memories we've downloaded already */
+  /** in-RAM cache of memories we've downloaded already */
   private HashMap<Date, MemoryData> memoryCache;
 
   private MemoryAppState() {
@@ -61,11 +62,18 @@ public class MemoryAppState implements MemoryAppInterface {
    */
   @Override
   public MemoryData getCachedMemory(Date d) {
-    return memoryCache.get(d);
+    MemoryData memory = memoryCache.get(d);
+    if (memory == null) {
+      // Try the DB cache.
+      memory = MyDeticSQLDBContract.getMemory(dbHandle, config.getUserName(),
+          config.getActiveDataStore(), d);
+    }
+    return memory;
   }
 
   @Override
   public void setCachedMemory(MemoryData memoryData) {
+    MyDeticSQLDBContract.putMemory(dbHandle, memoryData);
     memoryCache.put(memoryData.getMemoryDate(), memoryData);
     memories.setDate(memoryData.getMemoryDate());
   }
@@ -88,6 +96,22 @@ public class MemoryAppState implements MemoryAppInterface {
   @Override
   public void setConfig(MyDeticConfig config) {
     this.config = config;
+  }
+
+  public MyDeticSQLDBHelper getCacheDbHelper() {
+    return cacheDbHelper;
+  }
+
+  public void setCacheDbHelper(MyDeticSQLDBHelper cacheDbHelper) {
+    this.cacheDbHelper = cacheDbHelper;
+  }
+
+  public SQLiteDatabase getDbHandle() {
+    return dbHandle;
+  }
+
+  public void setDbHandle(SQLiteDatabase dbHandle) {
+    this.dbHandle = dbHandle;
   }
 
   public void reloadMemories(final Context context) {

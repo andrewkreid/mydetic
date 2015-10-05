@@ -3,6 +3,7 @@ package net.ghosttrails.www.mydetic;
 import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,9 +52,8 @@ public class MyDeticApplication extends Application {
 
     appState.setConfig(getConfig());
 
-    // TODO: get back to SQLite cache
-    // this.cacheDbHelper = new MyDeticSQLDBHelper(this);
-    // getDbHandle();
+    appState.setCacheDbHelper(new MyDeticSQLDBHelper(this));
+    getDbHandle(appState.getCacheDbHelper());
 
     appState.refreshSettingsFromConfig(this);
   }
@@ -74,12 +74,27 @@ public class MyDeticApplication extends Application {
     return config;
   }
 
+  /** AsyncTask to load/create the SQLite cache on a subthread */
+  class GetDBHandleTask extends AsyncTask<MyDeticSQLDBHelper, Void, SQLiteDatabase> {
+
+    @Override
+    protected void onPostExecute(SQLiteDatabase sqLiteDatabase) {
+      MemoryAppState appState = MemoryAppState.getInstance();
+      appState.setDbHandle(sqLiteDatabase);
+    }
+
+    @Override
+    protected SQLiteDatabase doInBackground(MyDeticSQLDBHelper... myDeticSQLDBHelpers) {
+      MyDeticSQLDBHelper helper = myDeticSQLDBHelpers[0];
+      return helper.getWritableDatabase();
+    }
+  }
 
   /**
-   * TODO
-   * Request
+   * Set up database on an Async thread as recommended
    */
-  private void getDbHandle() {
-
+  private void getDbHandle(MyDeticSQLDBHelper helper) {
+    GetDBHandleTask task = new GetDBHandleTask();
+    task.execute(helper);
   }
 }
