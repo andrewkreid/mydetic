@@ -63,7 +63,7 @@ public class MemoryAppState implements MemoryAppInterface {
   @Override
   public MemoryData getCachedMemory(Date d) {
     MemoryData memory = memoryCache.get(d);
-    if (memory == null) {
+    if ((memory == null) && (dbHandle != null)) {
       // Try the DB cache.
       memory = MyDeticSQLDBContract.getMemory(dbHandle, config.getUserName(),
           config.getActiveDataStore(), d);
@@ -72,8 +72,10 @@ public class MemoryAppState implements MemoryAppInterface {
   }
 
   @Override
-  public void setCachedMemory(MemoryData memoryData) {
-    MyDeticSQLDBContract.putMemory(dbHandle, memoryData);
+  public void setCachedMemory(MemoryData memoryData) throws MyDeticException {
+    if (dbHandle != null) {
+      MyDeticSQLDBContract.putMemory(dbHandle, config.getActiveDataStore(), memoryData);
+    }
     memoryCache.put(memoryData.getMemoryDate(), memoryData);
     memories.setDate(memoryData.getMemoryDate());
   }
@@ -169,7 +171,7 @@ public class MemoryAppState implements MemoryAppInterface {
       try {
         SampleSetPopulator.populateTestSet(ramApi, userId, true);
       } catch (MyDeticException e) {
-        Log.e("MyDeticApplication", "Same Populate Failed", e);
+        Log.e("MyDeticApplication", "Sample Populate Failed", e);
       }
     } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_RESTAPI)) {
       setApi(new RestfulMemoryApi(context, config));

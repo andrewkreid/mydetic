@@ -3,6 +3,7 @@ package net.ghosttrails.www.mydetic;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 import java.util.Date;
 
@@ -18,7 +19,7 @@ public interface MemoryAppInterface {
   public void setMemories(MemoryDataList memories);
 
   public MemoryData getCachedMemory(Date d);
-  public void setCachedMemory(MemoryData memoryData);
+  public void setCachedMemory(MemoryData memoryData) throws MyDeticException;
 
   public MyDeticConfig getConfig();
   public void setConfig(MyDeticConfig config);

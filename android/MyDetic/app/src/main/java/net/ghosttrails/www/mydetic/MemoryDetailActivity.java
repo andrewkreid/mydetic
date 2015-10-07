@@ -268,7 +268,12 @@ public class MemoryDetailActivity extends Activity
       editMode = MemoryDetailMode.MODE_EXISTING;
       hasLoadedMemory = true;
       memoryData = memory;
-      appState.setCachedMemory(memory);
+      try {
+        appState.setCachedMemory(memory);
+      } catch (MyDeticException e) {
+        Log.e("MemoryDetailsActivity", e.getMessage());
+        AppUtils.smallToast(getApplicationContext(), e.getMessage());
+      }
       updateUIFromData();
     }
 
@@ -289,7 +294,12 @@ public class MemoryDetailActivity extends Activity
       if (memory != null) {
         MemoryAppState appState = MemoryAppState.getInstance();
         MemoryDetailActivity.this.memoryData = memory;
-        appState.setCachedMemory(memory);
+        try {
+          appState.setCachedMemory(memory);
+        } catch (MyDeticException e) {
+          Log.e("MemoryDetailsActivity", e.getMessage());
+          AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        }
         editMode = MemoryDetailMode.MODE_EXISTING;
         hasLoadedMemory = true;
       }
