@@ -93,6 +93,14 @@ public class SettingsActivity extends Activity {
   }
 
   /**
+   * Tap handler for the "Clear Cache" button. Empties the SQLite cache DB
+   */
+  public void clearCacheClicked(View view) {
+    // TODO: Implement me.
+    AppUtils.smallToast(getApplicationContext(), "Not Implemented (yet).");
+  }
+
+  /**
    * Set the UI fields from the config object
    */
   private void loadConfig() {
