@@ -114,11 +114,9 @@ public class SettingsActivity extends Activity {
         config.saveToFile(getApplicationContext(),
             MyDeticApplication.CONFIG_FILENAME);
       } catch (IOException e) {
-        AppUtils.smallToast(getApplicationContext(),
-            "Error loading configuration");
+        AppUtils.smallToast(getApplicationContext(), "Error loading configuration");
       } catch (JSONException e) {
-        AppUtils.smallToast(getApplicationContext(),
-            "Invalid configuration format");
+        AppUtils.smallToast(getApplicationContext(), "Invalid configuration format");
       }
     }
   }

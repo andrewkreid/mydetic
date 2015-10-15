@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
@@ -23,16 +24,22 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import java.util.Date;
 
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends Activity
+    implements SecurityPinFragment.OnFragmentInteractionListener {
 
   private ProgressDialog progressDialog;
   private RecyclerView mRecyclerView;
   private RecyclerView.Adapter mAdapter;
+  private SecurityPinFragment pinFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
+
+    // Disable screenshots in activity switcher.
+    getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+        WindowManager.LayoutParams.FLAG_SECURE);
 
     MemoryAppState appState = MemoryAppState.getInstance();
 
@@ -120,6 +127,13 @@ public class HomeActivity extends Activity {
   protected void onResume() {
     super.onResume();
     mRecyclerView.invalidate();
+
+    // Add the PIN fragment
+    if (pinFragment == null) {
+      pinFragment = new SecurityPinFragment();
+    }
+    getFragmentManager().beginTransaction()
+        .replace(R.id.pin_fragment_container, pinFragment).commit();
   }
 
   @Override
@@ -129,4 +143,11 @@ public class HomeActivity extends Activity {
     mRecyclerView.invalidate();
   }
 
+  @Override
+  public void onDismissed() {
+    if (pinFragment != null) {
+      getFragmentManager().beginTransaction().remove(pinFragment).commit();
+    }
+    pinFragment = null;
+  }
 }

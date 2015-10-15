@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -50,6 +51,10 @@ public class MemoryListActivity extends Activity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
+
+    // Disable screenshots in activity switcher.
+    getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+        WindowManager.LayoutParams.FLAG_SECURE);
 
     // Check that the activity is using the layout version with
     // the fragment_container FrameLayout
@@ -112,6 +117,7 @@ public class MemoryListActivity extends Activity
     this.year = year;
 
     // Create fragment.
+    // TODO: Check if fragment already loaded?
     MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(year);
     FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
@@ -131,6 +137,7 @@ public class MemoryListActivity extends Activity
 
     Log.i("MemoryListActivity", String.format("Selected year %d and month %d", year, month));
     // Create fragment.
+    // TODO: Check if fragment already loaded?
     MemoryDayFragment newFragment = MemoryDayFragment.newInstance(year, month);
     FragmentTransaction transaction = getFragmentManager().beginTransaction();
 

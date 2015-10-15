@@ -14,4 +14,13 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:background="@color/faint_background"/>
+
+    <FrameLayout
+        android:id="@+id/pin_fragment_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+    </FrameLayout>
+
 </RelativeLayout>

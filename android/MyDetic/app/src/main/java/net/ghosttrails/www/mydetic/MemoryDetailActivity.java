@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -60,6 +61,10 @@ public class MemoryDetailActivity extends Activity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_detail);
+
+    // Disable screenshots in activity switcher.
+    getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+        WindowManager.LayoutParams.FLAG_SECURE);
 
     progressBar = (ProgressBar)this.findViewById(R.id.memory_detail_progress_bar);
 
