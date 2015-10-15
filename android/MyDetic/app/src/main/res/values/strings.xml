@@ -24,4 +24,16 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pin_1">1</string>
+    <string name="pin_2">2</string>
+    <string name="pin_3">3</string>
+    <string name="pin_4">4</string>
+    <string name="pin_5">5</string>
+    <string name="pin_6">6</string>
+    <string name="pin_7">7</string>
+    <string name="pin_8">8</string>
+    <string name="pin_9">9</string>
+    <string name="pin_0">0</string>
+    <string name="pin_star">*</string>
+    <string name="pin_clear">X</string>
 </resources>
