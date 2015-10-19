@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -38,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class MemoryListActivity extends Activity
+public class MemoryListActivity extends LockableActivity
     implements MemoryYearFragment.OnFragmentInteractionListener,
     MemoryMonthFragment.OnFragmentInteractionListener,
     MemoryDayFragment.OnFragmentInteractionListener,
@@ -51,6 +52,11 @@ public class MemoryListActivity extends Activity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
+
+    ActionBar actionBar = getActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
 
     // Disable screenshots in activity switcher.
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
@@ -95,12 +101,21 @@ public class MemoryListActivity extends Activity
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
     switch(item.getItemId()) {
+      case android.R.id.home:
+        setTransitioningToAppActivity(true);
+        return super.onOptionsItemSelected(item);
       case R.id.action_settings:
         startActivity(new Intent(this, SettingsActivity.class));
         return true;
       default:
         return super.onOptionsItemSelected(item);
     }
+  }
+
+  @Override
+  public void onBackPressed() {
+    setTransitioningToAppActivity(true);
+    super.onBackPressed();
   }
 
   @Override

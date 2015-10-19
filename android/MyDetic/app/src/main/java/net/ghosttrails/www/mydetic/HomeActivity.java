@@ -24,13 +24,11 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import java.util.Date;
 
 
-public class HomeActivity extends Activity
-    implements SecurityPinFragment.OnFragmentInteractionListener {
+public class HomeActivity extends LockableActivity {
 
   private ProgressDialog progressDialog;
   private RecyclerView mRecyclerView;
   private RecyclerView.Adapter mAdapter;
-  private SecurityPinFragment pinFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +63,7 @@ public class HomeActivity extends Activity
         } else {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         }
+        setTransitioningToAppActivity(true);
         startActivity(intent);
       }
     });
@@ -95,9 +94,11 @@ public class HomeActivity extends Activity
         startActivity(new Intent(this, SettingsActivity.class));
         return true;
       case R.id.action_list:
+        setTransitioningToAppActivity(true);
         startActivity(new Intent(this, MemoryListActivity.class));
         return true;
       case R.id.action_new:
+        setTransitioningToAppActivity(true);
         Intent intent = new Intent(this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         startActivity(intent);
@@ -127,13 +128,6 @@ public class HomeActivity extends Activity
   protected void onResume() {
     super.onResume();
     mRecyclerView.invalidate();
-
-    // Add the PIN fragment
-    if (pinFragment == null) {
-      pinFragment = new SecurityPinFragment();
-    }
-    getFragmentManager().beginTransaction()
-        .replace(R.id.pin_fragment_container, pinFragment).commit();
   }
 
   @Override
@@ -143,11 +137,4 @@ public class HomeActivity extends Activity
     mRecyclerView.invalidate();
   }
 
-  @Override
-  public void onDismissed() {
-    if (pinFragment != null) {
-      getFragmentManager().beginTransaction().remove(pinFragment).commit();
-    }
-    pinFragment = null;
-  }
 }

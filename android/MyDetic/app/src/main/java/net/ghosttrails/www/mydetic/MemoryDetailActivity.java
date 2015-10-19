@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class MemoryDetailActivity extends Activity
+public class MemoryDetailActivity extends LockableActivity
   implements DatePickerDialog.OnDateSetListener {
 
   public static final String MEMORY_DETAIL_DATE =
@@ -149,6 +149,9 @@ public class MemoryDetailActivity extends Activity
     int id = item.getItemId();
 
     switch (id) {
+      case android.R.id.home:
+        setTransitioningToAppActivity(true);
+        return super.onOptionsItemSelected(item);
       case R.id.action_settings:
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
