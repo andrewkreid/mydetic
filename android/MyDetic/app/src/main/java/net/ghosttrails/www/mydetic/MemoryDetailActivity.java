@@ -135,6 +135,13 @@ public class MemoryDetailActivity extends LockableActivity
   }
 
   @Override
+  public void onBackPressed() {
+    setTransitioningToAppActivity(true);
+    super.onBackPressed();
+    // TODO: It might not always be the case that going back from here stays in the app?
+  }
+
+  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_memory_detail, menu);

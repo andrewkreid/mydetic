@@ -171,6 +171,7 @@ public class MemoryListActivity extends LockableActivity
     Intent intent = new Intent(this, MemoryDetailActivity.class);
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
+    setTransitioningToAppActivity(true);
     startActivity(intent);
     // TODO: Refresh list fragments on returning to the activity.
   }

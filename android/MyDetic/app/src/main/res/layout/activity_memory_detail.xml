@@ -2,80 +2,86 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context="net.ghosttrails.www.mydetic.MemoryDetailActivity"
-                android:weightSum="1"
-                android:focusableInTouchMode="true">
+                tools:context="net.ghosttrails.www.mydetic.MemoryDetailActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/def_memory_date"
-        android:id="@+id/memory_title"
-        android:onClick="dateFieldClicked"/>
-
-    <EditText
-        android:id="@+id/memory_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="top|start"
-        android:inputType="textMultiLine|textCapSentences"
-        android:lines="20"
-        android:minLines="5"
-        android:scrollHorizontally="false"
-        android:scrollbars="vertical"
-        android:singleLine="false"
-        android:layout_below="@+id/memory_title"
-        android:layout_above="@+id/linearLayout"
-        android:textColor="@color/text_secondary"/>
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        style="?android:attr/buttonBarButtonStyle"
-        android:id="@+id/linearLayout">
+        android:layout_height="match_parent"
+        android:focusableInTouchMode="true"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:weightSum="1">
 
-        <Button
+        <TextView
+            android:id="@+id/memory_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/savebutton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/memory_save"
-            android:onClick="saveClicked"/>
+            android:onClick="dateFieldClicked"
+            android:text="@string/def_memory_date"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <Button
+        <EditText
+            android:id="@+id/memory_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/linearLayout"
+            android:layout_below="@+id/memory_title"
+            android:gravity="top|start"
+            android:inputType="textMultiLine|textCapSentences"
+            android:lines="20"
+            android:minLines="5"
+            android:scrollHorizontally="false"
+            android:scrollbars="vertical"
+            android:singleLine="false"
+            android:textColor="@color/text_secondary"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/memory_save"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="saveClicked"
+                android:text="@string/savebutton"/>
+
+            <Button
+                android:id="@+id/memory_refresh"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="refreshClicked"
+                android:text="@string/refreshbutton"/>
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/memory_detail_progress_bar"
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/refreshbutton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/memory_refresh"
-            android:onClick="refreshClicked"/>
-    </LinearLayout>
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:indeterminate="true"
+            android:visibility="gone"/>
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/memory_detail_progress_bar"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:indeterminate="true"
-        android:visibility="gone"/>
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/pin_fragment_container"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
     </FrameLayout>
 
 </RelativeLayout>
