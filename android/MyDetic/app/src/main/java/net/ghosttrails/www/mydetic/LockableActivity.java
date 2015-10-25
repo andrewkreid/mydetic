@@ -52,13 +52,4 @@ public class LockableActivity extends Activity
     return getSharedPreferences("MyDeticTransition", 0).getBoolean("IS_TRANSITIONING", false);
   }
 
-  @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    // Called when the device is rotated. Since the activity will be recreated, set the
-    // transition flag so we don't get the pin pad.
-    // Also need to set android:configChanges="orientation|screenSize" in the manifest for this
-    // to get called.
-    setTransitioningToAppActivity(true);
-    super.onConfigurationChanged(newConfig);
-  }
 }

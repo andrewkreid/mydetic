@@ -1,6 +1,8 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -44,9 +46,6 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_security_pin, container, false);
-
-    Button dismissButton = (Button) view.findViewById(R.id.pin_dismiss_button);
-    dismissButton.setOnClickListener(this);
 
     pinEntryIdx = 0;
     pinDigits = new Integer[4];
@@ -99,9 +98,6 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
   @Override
   public void onClick(View v) {
     switch(v.getId()) {
-      case R.id.pin_dismiss_button:
-        mListener.onDismissed();
-        break;
       case R.id.pin_button_0:
         typedANumber(0);
         break;
