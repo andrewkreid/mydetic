@@ -19,6 +19,15 @@ import java.io.OutputStream;
  */
 public class MyDeticConfig {
 
+  // JSON config key names.
+  public static final String KEY_CONFIG_VERSION = "configVersion";
+  public static final String KEY_ACTIVE_DATA_STORE = "activeDataStore";
+  public static final String KEY_API_URL = "apiUrl";
+  public static final String KEY_USER_NAME = "userName";
+  public static final String KEY_USER_PASSWORD = "userPassword";
+  public static final String KEY_IS_USING_SECURITY_PIN = "isUsingSecurityPin";
+  public static final String KEY_SECURITY_PIN = "securityPin";
+
   public static String DS_INRAM = "In RAM (testing)";
   public static String DS_RESTAPI = "REST API";
 
@@ -34,12 +43,16 @@ public class MyDeticConfig {
   private String apiUrl;
   private String userName;
   private String userPassword;
+  private boolean isUsingSecurityPin;
+  private String securityPin;
 
   public MyDeticConfig() {
     activeDataStore = DS_INRAM;
     apiUrl = "";
     userName = "";
     userPassword = "";
+    isUsingSecurityPin = false;
+    securityPin = "1234";
   }
 
   /**
@@ -93,28 +106,36 @@ public class MyDeticConfig {
    */
   private String serializeToJSON() throws JSONException {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("configVersion", CONFIG_VERSION);
-    jsonObject.put("activeDataStore", activeDataStore);
-    jsonObject.put("apiUrl", apiUrl);
-    jsonObject.put("userName", userName);
-    jsonObject.put("userPassword", bodgyEncrypt(userPassword));
+    jsonObject.put(KEY_CONFIG_VERSION, CONFIG_VERSION);
+    jsonObject.put(KEY_ACTIVE_DATA_STORE, activeDataStore);
+    jsonObject.put(KEY_API_URL, apiUrl);
+    jsonObject.put(KEY_USER_NAME, userName);
+    jsonObject.put(KEY_USER_PASSWORD, bodgyEncrypt(userPassword));
+    jsonObject.put(KEY_IS_USING_SECURITY_PIN, isUsingSecurityPin);
+    jsonObject.put(KEY_SECURITY_PIN, securityPin);
     return jsonObject.toString(2);
   }
 
   private void deserializeFromJSON(String jsonStr) throws JSONException {
     JSONObject jsonObject = new JSONObject(jsonStr);
-    int configVersion = jsonObject.getInt("configVersion");
+    int configVersion = jsonObject.getInt(KEY_CONFIG_VERSION);
     if (configVersion > CONFIG_VERSION) {
-      String errMsg = String.format("Config version of %d is larger than " +
-              "expected (%d)",
+      String errMsg = String.format("Config version of %d is larger than " + "expected (%d)",
           configVersion, CONFIG_VERSION);
       Log.e("MyDeticConfig", errMsg);
       throw new JSONException(errMsg);
     } else {
-      activeDataStore = jsonObject.getString("activeDataStore");
-      apiUrl = jsonObject.getString("apiUrl");
-      userName = jsonObject.getString("userName");
-      userPassword = bodgyDecrypt(jsonObject.getString("userPassword"));
+      activeDataStore = jsonObject.getString(KEY_ACTIVE_DATA_STORE);
+      apiUrl = jsonObject.getString(KEY_API_URL);
+      userName = jsonObject.getString(KEY_USER_NAME);
+      userPassword = bodgyDecrypt(jsonObject.getString(KEY_USER_PASSWORD));
+
+      if (jsonObject.has(KEY_IS_USING_SECURITY_PIN)) {
+        isUsingSecurityPin = jsonObject.getBoolean(KEY_IS_USING_SECURITY_PIN);
+      }
+      if (jsonObject.has(KEY_SECURITY_PIN)) {
+        securityPin = jsonObject.getString(KEY_SECURITY_PIN);
+      }
     }
   }
 
@@ -165,5 +186,21 @@ public class MyDeticConfig {
 
   public void setUserPassword(String userPassword) {
     this.userPassword = userPassword;
+  }
+
+  public boolean isUsingSecurityPin() {
+    return isUsingSecurityPin;
+  }
+
+  public void setIsUsingSecurityPin(boolean isUsingSecurityPin) {
+    this.isUsingSecurityPin = isUsingSecurityPin;
+  }
+
+  public String getSecurityPin() {
+    return securityPin;
+  }
+
+  public void setSecurityPin(String securityPin) {
+    this.securityPin = securityPin;
   }
 }

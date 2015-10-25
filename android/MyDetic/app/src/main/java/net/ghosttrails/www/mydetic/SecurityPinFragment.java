@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.Arrays;
 
 
 /**
@@ -19,8 +23,11 @@ import android.widget.Button;
 public class SecurityPinFragment extends Fragment implements View.OnClickListener {
 
   private OnFragmentInteractionListener mListener;
+  private TextView pinDigitViews[];
+  private Integer pinDigits[];
 
-  private Button dismissButton;
+  // Which pin digit is the next one typed.
+  private int pinEntryIdx;
 
   public SecurityPinFragment() {
     // Required empty public constructor
@@ -38,17 +45,38 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_security_pin, container, false);
 
-    dismissButton = (Button) view.findViewById(R.id.pin_dismiss_button);
+    Button dismissButton = (Button) view.findViewById(R.id.pin_dismiss_button);
     dismissButton.setOnClickListener(this);
 
-    return view;
-  }
+    pinEntryIdx = 0;
+    pinDigits = new Integer[4];
+    Arrays.fill(pinDigits, -1);
+    pinDigitViews = new TextView[4];
+    pinDigitViews[0] = (TextView) view.findViewById(R.id.pin_digit_1);
+    pinDigitViews[1] = (TextView) view.findViewById(R.id.pin_digit_2);
+    pinDigitViews[2] = (TextView) view.findViewById(R.id.pin_digit_3);
+    pinDigitViews[3] = (TextView) view.findViewById(R.id.pin_digit_4);
 
-  // TODO: Rename method, update argument and hook method into UI event
-  public void onDismissButtonPressed() {
-    if (mListener != null) {
-      mListener.onDismissed();
+    int[] numberButtonIds = {R.id.pin_button_0,
+        R.id.pin_button_1,
+        R.id.pin_button_2,
+        R.id.pin_button_3,
+        R.id.pin_button_4,
+        R.id.pin_button_5,
+        R.id.pin_button_6,
+        R.id.pin_button_7,
+        R.id.pin_button_8,
+        R.id.pin_button_9,
+        R.id.pin_button_clear,
+    };
+    for(int btnId: numberButtonIds) {
+      Button numberButton = (Button) view.findViewById(btnId);
+      numberButton.setOnClickListener(this);
     }
+
+    updateDigitDisplay();
+
+    return view;
   }
 
   @Override
@@ -74,6 +102,80 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
       case R.id.pin_dismiss_button:
         mListener.onDismissed();
         break;
+      case R.id.pin_button_0:
+        typedANumber(0);
+        break;
+      case R.id.pin_button_1:
+        typedANumber(1);
+        break;
+      case R.id.pin_button_2:
+        typedANumber(2);
+        break;
+      case R.id.pin_button_3:
+        typedANumber(3);
+        break;
+      case R.id.pin_button_4:
+        typedANumber(4);
+        break;
+      case R.id.pin_button_5:
+        typedANumber(5);
+        break;
+      case R.id.pin_button_6:
+        typedANumber(6);
+        break;
+      case R.id.pin_button_7:
+        typedANumber(7);
+        break;
+      case R.id.pin_button_8:
+        typedANumber(8);
+        break;
+      case R.id.pin_button_9:
+        typedANumber(9);
+        break;
+      case R.id.pin_button_clear:
+        if (pinEntryIdx >= 1) {
+          pinEntryIdx--;
+          pinDigits[pinEntryIdx] = -1;
+          updateDigitDisplay();
+        }
+    }
+  }
+
+  private void typedANumber(int digit) {
+    //Log.e("MyDeticPinPad", String.format("typedANumber IN (%d) to idx %d", digit, pinEntryIdx));
+    if (pinEntryIdx < 4) {
+      pinDigits[pinEntryIdx] = digit;
+      pinEntryIdx++;
+      updateDigitDisplay();
+    }
+
+    // On the last number? see if it's right.
+    if (pinEntryIdx == 4) {
+      MemoryAppState appState = MemoryAppState.getInstance();
+      MyDeticConfig config = appState.getConfig();
+      String enteredPin = String.format("%d%d%d%d", pinDigits[0], pinDigits[1], pinDigits[2],
+          pinDigits[3]);
+      if (enteredPin.equals(config.getSecurityPin())) {
+        mListener.onDismissed();
+      } else {
+        // Clear and reset.
+        Arrays.fill(pinDigits, -1);
+        pinEntryIdx = 0;
+        updateDigitDisplay();
+        // TODO : provide to option to unlock at the cost of clearing cache and resetting
+        // TODO : config password.
+      }
+    }
+    //Log.e("MyDeticPinPad", String.format("typedANumber OUT (%d) to idx %d", digit, pinEntryIdx));
+  }
+
+  private void updateDigitDisplay() {
+    for (int i = 0; i < 4; i++) {
+      if (pinDigits[i] != -1) {
+        pinDigitViews[i].setText("*");
+      } else {
+        pinDigitViews[i].setText("");
+      }
     }
   }
 
