@@ -8,10 +8,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/mydetic"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".HomeActivity"
-            android:label="@string/title_activity_home" >
+            android:label="@string/title_activity_home"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +22,8 @@
         <activity
             android:name=".MemoryListActivity"
             android:label="@string/title_activity_memory_list"
-            android:parentActivityName=".HomeActivity" >
+            android:parentActivityName=".HomeActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.ghosttrails.www.mydetic.HomeActivity" />
@@ -29,7 +31,8 @@
         <activity
             android:name=".MemoryDetailActivity"
             android:label="@string/title_activity_memory_detail"
-            android:parentActivityName=".MemoryListActivity" >
+            android:parentActivityName=".MemoryListActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.ghosttrails.www.mydetic.MemoryListActivity" />
