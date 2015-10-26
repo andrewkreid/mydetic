@@ -111,8 +111,7 @@ public class SettingsActivity extends Activity {
   private void saveConfig() {
     if (config != null) {
       try {
-        config.saveToFile(getApplicationContext(),
-            MyDeticApplication.CONFIG_FILENAME);
+        config.saveToFile(getApplicationContext(), MyDeticApplication.CONFIG_FILENAME);
       } catch (IOException e) {
         AppUtils.smallToast(getApplicationContext(), "Error loading configuration");
       } catch (JSONException e) {

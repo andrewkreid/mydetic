@@ -34,6 +34,7 @@ public class MemoryDayFragment extends ListFragment {
   private int mYear;
   private int mMonth;
   private List<Date> mDatesWithMemories;
+  private MemoriesAdapter mAdapter;
 
   public static MemoryDayFragment newInstance(int year, int month) {
     MemoryDayFragment fragment = new MemoryDayFragment();
@@ -68,6 +69,16 @@ public class MemoryDayFragment extends ListFragment {
     }
   }
 
+  @Override
+  public void onResume() {
+    super.onResume();
+    // Refresh the list on resume because we might be coming back from the memory detail view,
+    // so memory text might have been loaded or changed.
+    if (mAdapter != null) {
+      mAdapter.notifyDataSetChanged();
+    }
+  }
+
   /**
    * Configure things here because MyDeticListActivity restores its state in onCreate, and this
    * method (unlike onCreate/onAttach) is called after that.
@@ -88,8 +99,8 @@ public class MemoryDayFragment extends ListFragment {
     for(Date d:appState.getMemories().getDatesForMonth(mYear, mMonth)) {
       mDatesWithMemories.add(d);
     }
-
-    setListAdapter(new MemoriesAdapter(getActivity(), mDatesWithMemories));
+    mAdapter = new MemoriesAdapter(getActivity(), mDatesWithMemories);
+    setListAdapter(mAdapter);
   }
 
   @Override
