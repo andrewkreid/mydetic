@@ -1,42 +1,17 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.TwoLineListItem;
 
-import net.ghosttrails.www.mydetic.api.MemoryApi;
-import net.ghosttrails.www.mydetic.api.MemoryData;
-import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 
 public class MemoryListActivity extends LockableActivity
@@ -173,7 +148,6 @@ public class MemoryListActivity extends LockableActivity
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
     setTransitioningToAppActivity(true);
     startActivity(intent);
-    // TODO: Refresh list fragments on returning to the activity.
   }
 
   @Override

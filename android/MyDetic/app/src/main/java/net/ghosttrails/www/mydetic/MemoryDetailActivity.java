@@ -1,6 +1,5 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;

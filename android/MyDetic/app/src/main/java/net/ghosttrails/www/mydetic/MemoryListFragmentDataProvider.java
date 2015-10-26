@@ -1,7 +1,5 @@
 package net.ghosttrails.www.mydetic;
 
-import net.ghosttrails.www.mydetic.api.MemoryApi;
-
 /**
  * An interface required by Activities that contain MemoryYearFragment, MemoryMonthFragment or
  * MemoryDayFragment objects.

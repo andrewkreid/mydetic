@@ -1,12 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.res.Configuration;
-
-import java.util.List;
 
 /**
  * A Base class for activities that lock themselves with the security PIN fragment when resumed.

@@ -1,11 +1,6 @@
 package net.ghosttrails.www.mydetic.api;
 
-import com.android.volley.VolleyError;
-
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import java.util.Date;
 

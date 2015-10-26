@@ -1,29 +1,15 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Application;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
-import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
-import net.ghosttrails.www.mydetic.api.MemoryApi;
-import net.ghosttrails.www.mydetic.api.MemoryData;
-import net.ghosttrails.www.mydetic.api.MemoryDataList;
-import net.ghosttrails.www.mydetic.api.RestfulMemoryApi;
-import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
 import org.json.JSONException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * Singleton to store global application state

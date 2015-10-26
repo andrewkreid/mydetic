@@ -1,8 +1,5 @@
 package net.ghosttrails.www.mydetic.api;
 
-import android.util.Log;
-
-import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
