@@ -14,7 +14,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends LockableActivity {
 
   private MyDeticConfig config;
   private Spinner dataSourceSpinner;
