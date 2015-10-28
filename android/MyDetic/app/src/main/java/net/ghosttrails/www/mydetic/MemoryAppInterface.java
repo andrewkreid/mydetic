@@ -20,6 +20,7 @@ public interface MemoryAppInterface {
 
   public MemoryData getCachedMemory(Date d);
   public void setCachedMemory(MemoryData memoryData) throws MyDeticException;
+  public void clearMemoryCache();
 
   public MyDeticConfig getConfig();
   public void setConfig(MyDeticConfig config);

@@ -81,6 +81,14 @@ public class MemoryAppState implements MemoryAppInterface {
   }
 
   @Override
+  public void clearMemoryCache() {
+    memoryCache.clear();
+    if (dbHandle != null) {
+      MyDeticSQLDBContract.deleteMemories(dbHandle);
+    }
+  }
+
+  @Override
   public MyDeticConfig getConfig() {
     return config;
   }

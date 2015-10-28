@@ -153,6 +153,16 @@ public final class MyDeticSQLDBContract {
     }
   }
 
+  /**
+   * Delete all memories in the database.
+   *
+   * @param db a writable database handle.
+   */
+  public static void deleteMemories(SQLiteDatabase db) {
+    db.execSQL(MyDeticSQLDBContract.SQL_DELETE_MEMORIES);
+    db.execSQL(MyDeticSQLDBContract.SQL_CREATE_MEMORIES);
+  }
+
   private static String getSelectClause() {
     return String.format("%s = ? AND %s = ? AND %s = ?",
         MemoryTable.COLUMN_NAME_USER_ID,
