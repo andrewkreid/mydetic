@@ -57,7 +57,7 @@ public class HomeActivity extends LockableActivity {
         } else {
           intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         }
-        setTransitioningToAppActivity(true);
+        // setTransitioningToAppActivity(true);
         startActivity(intent);
       }
     });
@@ -88,11 +88,9 @@ public class HomeActivity extends LockableActivity {
         startActivity(new Intent(this, SettingsActivity.class));
         return true;
       case R.id.action_list:
-        setTransitioningToAppActivity(true);
         startActivity(new Intent(this, MemoryListActivity.class));
         return true;
       case R.id.action_new:
-        setTransitioningToAppActivity(true);
         Intent intent = new Intent(this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
         startActivity(intent);

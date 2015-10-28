@@ -135,7 +135,6 @@ public class MemoryDetailActivity extends LockableActivity
 
   @Override
   public void onBackPressed() {
-    setTransitioningToAppActivity(true);
     super.onBackPressed();
     // TODO: It might not always be the case that going back from here stays in the app?
   }
@@ -156,7 +155,6 @@ public class MemoryDetailActivity extends LockableActivity
 
     switch (id) {
       case android.R.id.home:
-        setTransitioningToAppActivity(true);
         return super.onOptionsItemSelected(item);
       case R.id.action_settings:
         Intent intent = new Intent(this, SettingsActivity.class);

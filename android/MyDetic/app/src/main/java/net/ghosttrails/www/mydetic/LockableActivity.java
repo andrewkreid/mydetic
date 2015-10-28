@@ -1,6 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
+import android.os.SystemClock;
 
 /**
  * A Base class for activities that lock themselves with the security PIN fragment when resumed.
@@ -8,13 +9,18 @@ import android.app.Activity;
 public class LockableActivity extends Activity
     implements SecurityPinFragment.OnFragmentInteractionListener {
 
+  // If we move from one LockableActivity to another in less than this amount, then
+  // the screen isn't locked.
+  public static long PIN_LOCK_DELAY_MS = 1000;
+
   private SecurityPinFragment pinFragment;
 
   @Override
   protected void onResume() {
     super.onResume();
 
-    if (!isTransitioningToAppActivity() || isPinLockDisplayed()) {
+    boolean resumedQuickly = (SystemClock.elapsedRealtime() - getTimePaused()) < PIN_LOCK_DELAY_MS;
+    if (!resumedQuickly || isPinLockDisplayed()) {
       // Add the PIN fragment
       if (pinFragment == null) {
         pinFragment = new SecurityPinFragment();
@@ -23,7 +29,12 @@ public class LockableActivity extends Activity
           .replace(R.id.pin_fragment_container, pinFragment).commit();
       setPinLockDisplayed(true);
     }
-    setTransitioningToAppActivity(false);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    setTimePaused();
   }
 
   @Override
@@ -45,16 +56,16 @@ public class LockableActivity extends Activity
   }
 
   /**
-   * Set a flag when moving from one MyDetic activity to another so that the PIN pad doesn't
-   * come up in onResume()
+   * Save a timestamp when a LockableActivity is paused. The pin pad won't be displayed if the
+   * next LockableActivity created is within PIN_LOCK_DELAY_MS.
    */
-  public void setTransitioningToAppActivity(boolean isTransitioning) {
+  public void setTimePaused() {
     getSharedPreferences("MyDeticTransition", 0).edit()
-        .putBoolean("IS_TRANSITIONING", isTransitioning).commit();
+        .putLong("PAUSE_TIME_MS", SystemClock.elapsedRealtime()).commit();
   }
 
-  public boolean isTransitioningToAppActivity() {
-    return getSharedPreferences("MyDeticTransition", 0).getBoolean("IS_TRANSITIONING", false);
+  public long getTimePaused() {
+    return getSharedPreferences("MyDeticTransition", 0).getLong("PAUSE_TIME_MS", 1L);
   }
 
 }

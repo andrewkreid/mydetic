@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,7 +78,6 @@ public class MemoryListActivity extends LockableActivity
     // as you specify a parent activity in AndroidManifest.xml.
     switch(item.getItemId()) {
       case android.R.id.home:
-        setTransitioningToAppActivity(true);
         return super.onOptionsItemSelected(item);
       case R.id.action_settings:
         startActivity(new Intent(this, SettingsActivity.class));
@@ -89,12 +89,11 @@ public class MemoryListActivity extends LockableActivity
 
   @Override
   public void onBackPressed() {
-    setTransitioningToAppActivity(true);
     super.onBackPressed();
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
+  protected void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putInt("year", year);
     outState.putInt("month", month);
@@ -146,7 +145,6 @@ public class MemoryListActivity extends LockableActivity
     Intent intent = new Intent(this, MemoryDetailActivity.class);
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
-    setTransitioningToAppActivity(true);
     startActivity(intent);
   }
 
