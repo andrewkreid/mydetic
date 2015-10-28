@@ -14,13 +14,14 @@ public class LockableActivity extends Activity
   protected void onResume() {
     super.onResume();
 
-    if (!isTransitioningToAppActivity()) {
+    if (!isTransitioningToAppActivity() || isPinLockDisplayed()) {
       // Add the PIN fragment
       if (pinFragment == null) {
         pinFragment = new SecurityPinFragment();
       }
       getFragmentManager().beginTransaction()
           .replace(R.id.pin_fragment_container, pinFragment).commit();
+      setPinLockDisplayed(true);
     }
     setTransitioningToAppActivity(false);
   }
@@ -30,7 +31,17 @@ public class LockableActivity extends Activity
     if (pinFragment != null) {
       getFragmentManager().beginTransaction().remove(pinFragment).commit();
     }
+    setPinLockDisplayed(false);
     pinFragment = null;
+  }
+
+  public void setPinLockDisplayed(boolean isDisplayed) {
+    getSharedPreferences("MyDeticTransition", 0).edit()
+        .putBoolean("IS_PIN_LOCK_DISPLAYED", isDisplayed).commit();
+  }
+
+  public boolean isPinLockDisplayed() {
+    return getSharedPreferences("MyDeticTransition", 0).getBoolean("IS_PIN_LOCK_DISPLAYED", false);
   }
 
   /**
