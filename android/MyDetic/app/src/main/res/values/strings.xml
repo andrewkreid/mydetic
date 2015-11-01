@@ -36,4 +36,6 @@
     <string name="pin_0">0</string>
     <string name="pin_star">*</string>
     <string name="pin_clear">X</string>
+    <string name="enable_pin_lock">Enable PIN Lock</string>
+    <string name="set_pin">Set PIN</string>
 </resources>

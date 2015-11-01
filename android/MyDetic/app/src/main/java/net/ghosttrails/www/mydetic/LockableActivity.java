@@ -19,8 +19,10 @@ public class LockableActivity extends Activity
   protected void onResume() {
     super.onResume();
 
+    MemoryAppState appState = MemoryAppState.getInstance();
+
     boolean resumedQuickly = (SystemClock.elapsedRealtime() - getTimePaused()) < PIN_LOCK_DELAY_MS;
-    if (!resumedQuickly || isPinLockDisplayed()) {
+    if (appState.getConfig().isUsingSecurityPin() && (!resumedQuickly || isPinLockDisplayed())) {
       // Add the PIN fragment
       if (pinFragment == null) {
         pinFragment = new SecurityPinFragment();

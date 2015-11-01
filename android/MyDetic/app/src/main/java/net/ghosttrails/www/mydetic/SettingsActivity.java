@@ -1,11 +1,11 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -22,6 +22,7 @@ public class SettingsActivity extends LockableActivity {
   private EditText apiUrlEditText;
   private EditText usernameEditText;
   private EditText passwordEditText;
+  private CheckBox pinEnabledCheckBox;
 
   /**
    * Focus loss listener that saves the config
@@ -49,6 +50,7 @@ public class SettingsActivity extends LockableActivity {
     apiUrlEditText = (EditText) findViewById(R.id.apiUrlEditText);
     usernameEditText = (EditText) findViewById(R.id.apiUserNameEditText);
     passwordEditText = (EditText) findViewById(R.id.passwordEditText);
+    pinEnabledCheckBox = (CheckBox) findViewById(R.id.enablePinLock);
 
     loadConfig();
 
@@ -57,6 +59,13 @@ public class SettingsActivity extends LockableActivity {
     apiUrlEditText.setOnFocusChangeListener(focusLossListener);
     usernameEditText.setOnFocusChangeListener(focusLossListener);
     passwordEditText.setOnFocusChangeListener(focusLossListener);
+    pinEnabledCheckBox.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        setConfigFromUI();
+        saveConfig();
+      }
+    });
 
     dataSourceSpinnerAdapter =
         new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
@@ -102,8 +111,7 @@ public class SettingsActivity extends LockableActivity {
    * Set the UI fields from the config object
    */
   private void loadConfig() {
-    MyDeticApplication app = (MyDeticApplication) getApplication();
-    this.config = app.getConfig();
+    this.config = MemoryAppState.getInstance().getConfig();
   }
 
   private void saveConfig() {
@@ -124,6 +132,7 @@ public class SettingsActivity extends LockableActivity {
       config.setUserName(usernameEditText.getText().toString());
       config.setUserPassword(passwordEditText.getText().toString());
       config.setActiveDataStore(dataSourceSpinner.getSelectedItem().toString());
+      config.setIsUsingSecurityPin(pinEnabledCheckBox.isChecked());
     }
   }
 
@@ -133,6 +142,7 @@ public class SettingsActivity extends LockableActivity {
     apiUrlEditText.setText(config.getApiUrl());
     usernameEditText.setText(config.getUserName());
     passwordEditText.setText(config.getUserPassword());
+    pinEnabledCheckBox.setChecked(config.isUsingSecurityPin());
   }
 
   @Override

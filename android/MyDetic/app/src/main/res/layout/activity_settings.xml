@@ -36,6 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:labelFor="@+id/apiUrlEditText"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/api_url_label"
             android:id="@+id/apiUrlTextView"
@@ -56,6 +57,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:labelFor="@+id/apiUserNameEditText"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/user_name_label"
             android:id="@+id/apiUserNameTextView"
@@ -75,6 +77,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:labelFor="@+id/passwordEditText"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/password_label"
             android:id="@+id/passwordTextView"
@@ -100,6 +103,26 @@
             android:layout_alignParentStart="true"
             android:onClick="clearCacheClicked"/>
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/clear_cache_button">
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable_pin_lock"
+                android:id="@+id/enablePinLock"
+                android:paddingRight="@dimen/activity_horizontal_margin"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/set_pin"
+                android:id="@+id/setPin"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
     <FrameLayout
@@ -108,6 +131,8 @@
         android:layout_height="fill_parent"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true">
+
+
     </FrameLayout>
 
 </RelativeLayout>
