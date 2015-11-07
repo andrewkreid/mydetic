@@ -1,10 +1,14 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,6 +27,7 @@ public class SettingsActivity extends LockableActivity {
   private EditText usernameEditText;
   private EditText passwordEditText;
   private CheckBox pinEnabledCheckBox;
+  private Button setPinButton;
 
   /**
    * Focus loss listener that saves the config
@@ -51,6 +56,7 @@ public class SettingsActivity extends LockableActivity {
     usernameEditText = (EditText) findViewById(R.id.apiUserNameEditText);
     passwordEditText = (EditText) findViewById(R.id.passwordEditText);
     pinEnabledCheckBox = (CheckBox) findViewById(R.id.enablePinLock);
+    setPinButton = (Button) findViewById(R.id.setPin);
 
     loadConfig();
 
@@ -73,6 +79,53 @@ public class SettingsActivity extends LockableActivity {
     dataSourceSpinnerAdapter.setDropDownViewResource(android.R.layout
         .simple_list_item_1);
     dataSourceSpinner.setAdapter(dataSourceSpinnerAdapter);
+
+
+    // add button listener
+    setPinButton.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View arg0) {
+
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(SettingsActivity.this);
+        View setPinView = li.inflate(R.layout.pin_entry_dlg, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+            SettingsActivity.this);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(setPinView);
+
+        final EditText userInput = (EditText) setPinView
+            .findViewById(R.id.enterPin);
+
+        // set dialog message
+        alertDialogBuilder
+            .setCancelable(false)
+            .setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                    // get user input and set it to result
+                    // edit text
+                    //result.setText(userInput.getText());
+                  }
+                })
+            .setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                  }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
+      }
+    });
 
     setUIFromConfig();
   }

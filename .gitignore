@@ -62,3 +62,5 @@ password*.json
 
 # Vim swap file
 .swp
+
+src/files.txt
