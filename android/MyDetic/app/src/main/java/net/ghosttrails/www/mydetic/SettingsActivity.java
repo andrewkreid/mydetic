@@ -2,7 +2,10 @@ package net.ghosttrails.www.mydetic;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +15,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.json.JSONException;
 
@@ -28,6 +32,9 @@ public class SettingsActivity extends LockableActivity {
   private EditText passwordEditText;
   private CheckBox pinEnabledCheckBox;
   private Button setPinButton;
+  private EditText enterPin1EditText;
+  private EditText enterPin2EditText;
+  private TextView pinMessageTextView;
 
   /**
    * Focus loss listener that saves the config
@@ -40,6 +47,34 @@ public class SettingsActivity extends LockableActivity {
       if (!hasFocus) {
         setConfigFromUI();
         saveConfig();
+      }
+    }
+  }
+
+  private class PinTextChangeListener implements TextWatcher {
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+      // Do nothing
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+      // Do nothing
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+      // Compare the PIN edit fields and update the message label.
+      String pin1Text = enterPin1EditText.getText().toString();
+      String pin2Text = enterPin2EditText.getText().toString();
+      pinMessageTextView.setTextColor(Color.RED);
+      if (!pin1Text.equals(pin2Text)) {
+        pinMessageTextView.setText("PINs don't match");
+      } else if (!isValidPIN(pin1Text) || !isValidPIN(pin2Text)) {
+        pinMessageTextView.setText("PIN not valid");
+      } else {
+        pinMessageTextView.setTextColor(Color.GREEN);
+        pinMessageTextView.setText("OK");
       }
     }
   }
@@ -57,6 +92,9 @@ public class SettingsActivity extends LockableActivity {
     passwordEditText = (EditText) findViewById(R.id.passwordEditText);
     pinEnabledCheckBox = (CheckBox) findViewById(R.id.enablePinLock);
     setPinButton = (Button) findViewById(R.id.setPin);
+    enterPin1EditText = (EditText) findViewById(R.id.enterPin1);
+    enterPin2EditText = (EditText) findViewById(R.id.enterPin2);
+    pinMessageTextView = (TextView) findViewById(R.id.pinMessage);
 
     loadConfig();
 
@@ -123,9 +161,12 @@ public class SettingsActivity extends LockableActivity {
 
         // show it
         alertDialog.show();
+        userInput.requestFocus();
 
       }
     });
+
+    enterPin1EditText.addTextChangedListener();
 
     setUIFromConfig();
   }
@@ -186,7 +227,34 @@ public class SettingsActivity extends LockableActivity {
       config.setUserPassword(passwordEditText.getText().toString());
       config.setActiveDataStore(dataSourceSpinner.getSelectedItem().toString());
       config.setIsUsingSecurityPin(pinEnabledCheckBox.isChecked());
+      if (pinEnabledCheckBox.isChecked()) {
+        // Only update the PIN if both text boxes match and are 4-digit numbers.
+        String candidatePin = enterPin1EditText.getText().toString();
+        if (candidatePin.equals(enterPin2EditText.getText().toString())
+            && isValidPIN(candidatePin)) {
+          config.setSecurityPin(candidatePin);
+        } else {
+
+        }
+      }
     }
+  }
+
+  /**
+   * Check that a PIN is valid. Has to be 4 digits.
+   * @param pin the pin to check
+   * @return true if valid, false otherwise.
+   */
+  private boolean isValidPIN(String pin) {
+    if (pin.length() != 4) {
+      return false;
+    }
+    for (int i = 0; i < 4; i++) {
+      if (!Character.isDigit(pin.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void setUIFromConfig() {
@@ -196,6 +264,8 @@ public class SettingsActivity extends LockableActivity {
     usernameEditText.setText(config.getUserName());
     passwordEditText.setText(config.getUserPassword());
     pinEnabledCheckBox.setChecked(config.isUsingSecurityPin());
+    enterPin1EditText.setEnabled(config.isUsingSecurityPin());
+    enterPin2EditText.setEnabled(config.isUsingSecurityPin());
   }
 
   @Override

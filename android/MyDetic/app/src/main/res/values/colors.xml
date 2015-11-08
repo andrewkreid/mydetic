@@ -10,4 +10,5 @@
     <color name="faint_background">#EFEBE9</color>
     <color name="memory_card_title">#212121</color>
     <color name="memory_card_text">#727272</color>
+    <color name="error_text">#FF3030</color>
 </resources>

@@ -38,4 +38,5 @@
     <string name="pin_clear">X</string>
     <string name="enable_pin_lock">Enable PIN Lock</string>
     <string name="set_pin">Set PIN</string>
+    <string name="enter_pin">Enter PIN :</string>
 </resources>
