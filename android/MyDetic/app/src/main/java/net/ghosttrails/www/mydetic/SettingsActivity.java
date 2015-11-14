@@ -184,6 +184,12 @@ public class SettingsActivity extends LockableActivity {
         if (candidatePin.equals(enterPin2EditText.getText().toString())
             && isValidPIN(candidatePin)) {
           config.setSecurityPin(candidatePin);
+        } else {
+          // If the current entered PINs don't match, then turn off the PIN lock to guard against
+          // using an old PIN the user may have forgotten.
+          config.setIsUsingSecurityPin(false);
+          pinEnabledCheckBox.setChecked(false);
+          config.setSecurityPin("");
         }
       }
     }
@@ -213,8 +219,8 @@ public class SettingsActivity extends LockableActivity {
     usernameEditText.setText(config.getUserName());
     passwordEditText.setText(config.getUserPassword());
     pinEnabledCheckBox.setChecked(config.isUsingSecurityPin());
-    enterPin1EditText.setEnabled(config.isUsingSecurityPin());
-    enterPin2EditText.setEnabled(config.isUsingSecurityPin());
+    enterPin1EditText.setText(config.getSecurityPin());
+    enterPin2EditText.setText(config.getSecurityPin());
   }
 
   @Override
