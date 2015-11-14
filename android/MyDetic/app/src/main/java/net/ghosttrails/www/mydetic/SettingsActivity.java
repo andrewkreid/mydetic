@@ -31,7 +31,6 @@ public class SettingsActivity extends LockableActivity {
   private EditText usernameEditText;
   private EditText passwordEditText;
   private CheckBox pinEnabledCheckBox;
-  private Button setPinButton;
   private EditText enterPin1EditText;
   private EditText enterPin2EditText;
   private TextView pinMessageTextView;
@@ -69,12 +68,12 @@ public class SettingsActivity extends LockableActivity {
       String pin2Text = enterPin2EditText.getText().toString();
       pinMessageTextView.setTextColor(Color.RED);
       if (!pin1Text.equals(pin2Text)) {
-        pinMessageTextView.setText("PINs don't match");
+        pinMessageTextView.setText(R.string.pins_dont_match);
       } else if (!isValidPIN(pin1Text) || !isValidPIN(pin2Text)) {
-        pinMessageTextView.setText("PIN not valid");
+        pinMessageTextView.setText(R.string.pin_not_valid);
       } else {
-        pinMessageTextView.setTextColor(Color.GREEN);
-        pinMessageTextView.setText("OK");
+        pinMessageTextView.setTextColor(Color.argb(255, 0, 128, 0));
+        pinMessageTextView.setText(R.string.ok);
       }
     }
   }
@@ -91,7 +90,6 @@ public class SettingsActivity extends LockableActivity {
     usernameEditText = (EditText) findViewById(R.id.apiUserNameEditText);
     passwordEditText = (EditText) findViewById(R.id.passwordEditText);
     pinEnabledCheckBox = (CheckBox) findViewById(R.id.enablePinLock);
-    setPinButton = (Button) findViewById(R.id.setPin);
     enterPin1EditText = (EditText) findViewById(R.id.enterPin1);
     enterPin2EditText = (EditText) findViewById(R.id.enterPin2);
     pinMessageTextView = (TextView) findViewById(R.id.pinMessage);
@@ -118,55 +116,8 @@ public class SettingsActivity extends LockableActivity {
         .simple_list_item_1);
     dataSourceSpinner.setAdapter(dataSourceSpinnerAdapter);
 
-
-    // add button listener
-    setPinButton.setOnClickListener(new View.OnClickListener() {
-
-      @Override
-      public void onClick(View arg0) {
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(SettingsActivity.this);
-        View setPinView = li.inflate(R.layout.pin_entry_dlg, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-            SettingsActivity.this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(setPinView);
-
-        final EditText userInput = (EditText) setPinView
-            .findViewById(R.id.enterPin);
-
-        // set dialog message
-        alertDialogBuilder
-            .setCancelable(false)
-            .setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                    // get user input and set it to result
-                    // edit text
-                    //result.setText(userInput.getText());
-                  }
-                })
-            .setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                    dialog.cancel();
-                  }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-        userInput.requestFocus();
-
-      }
-    });
-
-    enterPin1EditText.addTextChangedListener();
+    enterPin1EditText.addTextChangedListener(new PinTextChangeListener());
+    enterPin2EditText.addTextChangedListener(new PinTextChangeListener());
 
     setUIFromConfig();
   }
@@ -233,8 +184,6 @@ public class SettingsActivity extends LockableActivity {
         if (candidatePin.equals(enterPin2EditText.getText().toString())
             && isValidPIN(candidatePin)) {
           config.setSecurityPin(candidatePin);
-        } else {
-
         }
       }
     }

@@ -96,21 +96,11 @@
             android:inputType="textPassword"
             android:textColor="@color/text_secondary"/>
 
-        <Button
-            android:id="@+id/clear_cache_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/passwordEditText"
-            android:onClick="clearCacheClicked"
-            android:text="@string/clear_local_cache"/>
-
-
         <LinearLayout
             android:id="@+id/pinCheckLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/clear_cache_button"
+            android:layout_below="@+id/passwordEditText"
             android:paddingEnd="@dimen/activity_horizontal_margin">
 
             <CheckBox
@@ -166,6 +156,16 @@
             android:inputType="numberPassword"
             android:maxLength="4"
             android:textColor="@color/memory_card_text"/>
+
+        <Button
+            android:id="@+id/clear_cache_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/enterPin2"
+            android:onClick="clearCacheClicked"
+            android:text="@string/clear_local_cache"/>
+
 
     </RelativeLayout>
 

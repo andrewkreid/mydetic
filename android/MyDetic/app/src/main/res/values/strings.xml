@@ -39,4 +39,7 @@
     <string name="enable_pin_lock">Enable PIN Lock</string>
     <string name="set_pin">Set PIN</string>
     <string name="enter_pin">Enter PIN :</string>
+    <string name="pins_dont_match">PINs don\'t match</string>
+    <string name="pin_not_valid">PIN not valid</string>
+    <string name="ok">OK</string>
 </resources>
