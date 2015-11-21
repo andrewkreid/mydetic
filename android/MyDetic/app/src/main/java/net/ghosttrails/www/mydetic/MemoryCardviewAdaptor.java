@@ -10,6 +10,12 @@ import android.widget.TextView;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
+import org.joda.time.Months;
+import org.joda.time.Weeks;
+import org.joda.time.Years;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -30,26 +36,59 @@ public class MemoryCardviewAdaptor extends
   public static class ViewHolder extends RecyclerView.ViewHolder {
     public CardView mView;
     public TextView titleView;
+    public TextView descriptionView;
     public TextView memoryTextView;
-    public Date memoryDate;
+    public LocalDate memoryDate;
 
     public ViewHolder(CardView v) {
       super(v);
       mView = v;
       titleView = (TextView) mView.findViewById(R.id.memory_card_view_title);
       memoryTextView = (TextView) mView.findViewById(R.id.memory_card_text_view);
+      descriptionView = (TextView) mView.findViewById(R.id.memory_card_view_description);
     }
 
-    public void fillCard(Date d) {
+    public void fillCard(LocalDate d) {
       memoryDate = d;
-      titleView.setText(Utils.isoFormat(d));
+      titleView.setText(Utils.isoFormatWithDay(d));
       memoryTextView.setText("");
+      descriptionView.setText(descriptionForDate(memoryDate));
     }
 
     public void fillCard(MemoryData memory) {
       memoryDate = memory.getMemoryDate();
-      titleView.setText(Utils.isoFormat(memory.getMemoryDate()));
+      titleView.setText(Utils.isoFormatWithDay(memory.getMemoryDate()));
       memoryTextView.setText(memory.getMemoryText());
+      descriptionView.setText(descriptionForDate(memoryDate));
+    }
+
+    /**
+     * Return a text description for a date, relative to today. Returns things like
+     * "Today", "Yesterday", "Last Week", "2 Years Ago" etc.
+     * @param d The Date to get a description for.
+     * @return A description for the date, or an empty string if no description applies.
+     */
+    private String descriptionForDate(LocalDate d) {
+      LocalDate nowDate = LocalDate.now();
+      int dayDiff = Days.daysBetween(d, nowDate).getDays();
+      int monthDiff = Months.monthsBetween(d, nowDate).getMonths();
+      int yearDiff = Years.yearsBetween(d, nowDate).getYears();
+      int weekDiff = Weeks.weeksBetween(d, nowDate).getWeeks();
+      if (yearDiff > 1) {
+        return String.format("%d years ago", yearDiff);
+      } else if (monthDiff > 2) {
+        return String.format("%s months ago", monthDiff);
+      } else if (weekDiff > 1) {
+        return String.format("%s weeks ago", weekDiff);
+      } else {
+        if (dayDiff == 0) {
+          return "Today";
+        } else if (dayDiff == 1) {
+          return "Yesterday";
+        } else {
+          return "";
+        }
+      }
     }
 
   }
@@ -81,7 +120,7 @@ public class MemoryCardviewAdaptor extends
   public void onBindViewHolder(ViewHolder holder, int position) {
     // - get element from your dataset at this position
     // - replace the contents of the view with that element
-    Date memoryDate = positionToDate(position);
+    LocalDate memoryDate = positionToDate(position);
     MemoryAppState appState = MemoryAppState.getInstance();
     MemoryData memory = appState.getCachedMemory(memoryDate);
     if (memory != null) {
@@ -103,13 +142,8 @@ public class MemoryCardviewAdaptor extends
    *
    * @param position the list position.
    */
-  private Date positionToDate(int position) {
-    Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.HOUR_OF_DAY, 0);
-    cal.set(Calendar.MINUTE, 0);
-    cal.set(Calendar.SECOND, 0);
-    cal.set(Calendar.MILLISECOND, 0);
-    cal.add(Calendar.DAY_OF_MONTH, -position);
-    return cal.getTime();
+  private LocalDate positionToDate(int position) {
+    LocalDate today = LocalDate.now();
+    return today.minusDays(position);
   }
 }

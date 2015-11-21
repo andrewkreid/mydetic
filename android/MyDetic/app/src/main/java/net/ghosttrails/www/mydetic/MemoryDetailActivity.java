@@ -23,6 +23,8 @@ import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -36,7 +38,7 @@ public class MemoryDetailActivity extends LockableActivity
   public static final String MEMORY_DETAIL_EDITMODE =
       "net.ghosttrails.mydetic.MemoryDetailEditMode";
 
-  private Date memoryDate;
+  private LocalDate memoryDate;
   private MemoryData memoryData;
   private TextView dateTextView;
   private EditText memoryEditText;
@@ -76,7 +78,7 @@ public class MemoryDetailActivity extends LockableActivity
     if (memoryDateStr != null) {
       try {
         memoryDate = Utils.parseIsoDate(memoryDateStr);
-      } catch (ParseException e) {
+      } catch (IllegalArgumentException e) {
         // TODO: Do something here, but what?
         Log.e("MemoryDetailActivity", "Could not parse ["
             + memoryDateStr + "] as Date");
@@ -252,7 +254,7 @@ public class MemoryDetailActivity extends LockableActivity
    * Checks if a memory exists on that date.
    */
   public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-    memoryDate = new GregorianCalendar(year, month, day).getTime();
+    memoryDate = new LocalDate(year, month, day);
     MemoryAppState appState = MemoryAppState.getInstance();
     if (appState.getMemories().hasDate(memoryDate)) {
       // There is already a memory on this date. Switch to edit mode and load

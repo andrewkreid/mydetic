@@ -11,6 +11,7 @@ import com.android.volley.VolleyError;
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,7 +61,7 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemories(String userId, Date fromDate, Date toDate,
+  public void getMemories(String userId, LocalDate fromDate, LocalDate toDate,
                           final MemoryListListener listener) {
     String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
     if (fromDate != null) {
@@ -92,7 +93,7 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemory(String userId, Date memoryDate, final SingleMemoryListener listener) {
+  public void getMemory(String userId, LocalDate memoryDate, final SingleMemoryListener listener) {
     String url = String.format("%s/memories/%s?user_id=%s", getApiUrl(),
         Utils.isoFormat(memoryDate), userId);
     BasicAuthJsonObjectRequest jsObjRequest = new BasicAuthJsonObjectRequest(config.getUserName(),
@@ -163,7 +164,7 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void deleteMemory(String userId, Date memoryDate, final SingleMemoryListener listener) {
+  public void deleteMemory(String userId, LocalDate memoryDate, final SingleMemoryListener listener) {
     listener.onApiError(new MyDeticException("Not Implemented"));
   }
 

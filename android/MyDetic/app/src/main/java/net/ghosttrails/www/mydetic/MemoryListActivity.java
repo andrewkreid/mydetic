@@ -12,6 +12,8 @@ import android.view.WindowManager;
 
 import net.ghosttrails.www.mydetic.api.Utils;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 
@@ -140,7 +142,7 @@ public class MemoryListActivity extends LockableActivity
   }
 
   @Override
-  public void onDateSelected(Date d) {
+  public void onDateSelected(LocalDate d) {
     Log.i("MemoryListActivity", String.format("Selected date %s", Utils.isoFormat(d)));
     Intent intent = new Intent(this, MemoryDetailActivity.class);
     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(d));

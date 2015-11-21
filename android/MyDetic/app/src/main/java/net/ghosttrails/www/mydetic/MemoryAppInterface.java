@@ -5,6 +5,8 @@ import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 /**
@@ -18,7 +20,7 @@ public interface MemoryAppInterface {
   public MemoryDataList getMemories();
   public void setMemories(MemoryDataList memories);
 
-  public MemoryData getCachedMemory(Date d);
+  public MemoryData getCachedMemory(LocalDate d);
   public void setCachedMemory(MemoryData memoryData) throws MyDeticException;
   public void clearMemoryCache();
 

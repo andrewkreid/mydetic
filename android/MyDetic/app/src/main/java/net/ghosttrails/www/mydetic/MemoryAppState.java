@@ -14,6 +14,8 @@ import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBContract;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 import java.util.HashMap;
 
@@ -31,10 +33,10 @@ public class MemoryAppState implements MemoryAppInterface {
   private SQLiteDatabase dbHandle;
 
   /** in-RAM cache of memories we've downloaded already */
-  private HashMap<Date, MemoryData> memoryCache;
+  private HashMap<LocalDate, MemoryData> memoryCache;
 
   private MemoryAppState() {
-    this.memoryCache = new HashMap<Date, MemoryData>();
+    this.memoryCache = new HashMap<LocalDate, MemoryData>();
   }
 
   public synchronized static MemoryAppState getInstance() {
@@ -61,7 +63,7 @@ public class MemoryAppState implements MemoryAppInterface {
    * @return a MemoryData if one has been cached, null otherwise.
    */
   @Override
-  public MemoryData getCachedMemory(Date d) {
+  public MemoryData getCachedMemory(LocalDate d) {
     MemoryData memory = memoryCache.get(d);
     if ((memory == null) && (dbHandle != null)) {
       // Try the DB cache.

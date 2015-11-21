@@ -15,6 +15,8 @@ import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 
@@ -48,7 +50,7 @@ public class HomeActivity extends LockableActivity {
     // specify an adapter.
     mAdapter = new MemoryCardviewAdaptor(new CustomItemClickListener() {
       @Override
-      public void onItemClick(View v, int position, Date memoryDate) {
+      public void onItemClick(View v, int position, LocalDate memoryDate) {
         // Clicking on a Memory card takes you to the detail activity for that date.
         Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
         intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));

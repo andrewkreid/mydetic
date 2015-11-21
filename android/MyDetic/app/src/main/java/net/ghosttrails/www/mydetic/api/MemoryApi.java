@@ -2,6 +2,8 @@ package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 /**
@@ -45,7 +47,7 @@ public interface MemoryApi {
    *                 returned.
    * @param listener callback to receive the memory list.
    */
-  void getMemories(String userId, Date fromDate, Date toDate,
+  void getMemories(String userId, LocalDate fromDate, LocalDate toDate,
                    MemoryListListener listener);
 
   /**
@@ -53,7 +55,7 @@ public interface MemoryApi {
    * @param memoryDate the date to get the memory for.
    * @param listener   callback to receive the memory.
    */
-  void getMemory(String userId, Date memoryDate, SingleMemoryListener
+  void getMemory(String userId, LocalDate memoryDate, SingleMemoryListener
       listener);
 
   /**
@@ -71,6 +73,6 @@ public interface MemoryApi {
    * @param memoryDate The date of the memory to delete
    * @param listener   callback to receive the memory.
    */
-  void deleteMemory(String userId, Date memoryDate, SingleMemoryListener
+  void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryListener
       listener);
 }

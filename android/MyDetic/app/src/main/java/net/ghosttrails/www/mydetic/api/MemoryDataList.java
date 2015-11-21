@@ -2,6 +2,7 @@ package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,10 +20,10 @@ import java.util.TreeMap;
 public class MemoryDataList {
 
   private String userId;
-  private TreeMap<Date, Boolean> dates;
+  private TreeMap<LocalDate, Boolean> dates;
 
   // A map of years -> months -> dates
-  private TreeMap<Integer, TreeMap<Integer, TreeMap<Date, Boolean>>> datesForYearMonth;
+  private TreeMap<Integer, TreeMap<Integer, TreeMap<LocalDate, Boolean>>> datesForYearMonth;
 
   public MemoryDataList() {
     initMaps();
@@ -33,7 +34,7 @@ public class MemoryDataList {
     initMaps();
   }
 
-  public MemoryDataList(String userId, TreeMap<Date, Boolean> dates) {
+  public MemoryDataList(String userId, TreeMap<LocalDate, Boolean> dates) {
     this.userId = userId;
     initMaps();
     this.dates = dates;
@@ -41,7 +42,7 @@ public class MemoryDataList {
 
   private void initMaps() {
     this.dates = new TreeMap<>();
-    this.datesForYearMonth = new TreeMap<Integer, TreeMap<Integer, TreeMap<Date, Boolean>>>();
+    this.datesForYearMonth = new TreeMap<Integer, TreeMap<Integer, TreeMap<LocalDate, Boolean>>>();
   }
 
   public String getUserID() {
@@ -52,29 +53,28 @@ public class MemoryDataList {
     this.userId = userID;
   }
 
-  public void setDate(Date date) {
+  public void setDate(LocalDate date) {
     dates.put(date, true);
-    Calendar cal = Utils.dateToCalendar(date);
-    int year = cal.get(Calendar.YEAR);
-    int month = cal.get(Calendar.MONTH);
+    int year = date.getYear();
+    int month = date.getMonthOfYear();
     if (!datesForYearMonth.containsKey(year)) {
-      datesForYearMonth.put(year, new TreeMap<Integer, TreeMap<Date, Boolean>>());
+      datesForYearMonth.put(year, new TreeMap<Integer, TreeMap<LocalDate, Boolean>>());
     }
-    TreeMap<Integer, TreeMap<Date, Boolean>> monthMap = datesForYearMonth.get(year);
+    TreeMap<Integer, TreeMap<LocalDate, Boolean>> monthMap = datesForYearMonth.get(year);
     if (!monthMap.containsKey(month)) {
-      monthMap.put(month, new TreeMap<Date, Boolean>());
+      monthMap.put(month, new TreeMap<LocalDate, Boolean>());
     }
     monthMap.get(month).put(date, true);
   }
 
-  public boolean hasDate(Date date) {
+  public boolean hasDate(LocalDate date) {
     return dates.containsKey(date);
   }
 
   /**
    * @return Set of dates in ascending order
    */
-  public Set<Date> getDates() {
+  public Set<LocalDate> getDates() {
     return this.dates.keySet();
   }
 
@@ -90,14 +90,14 @@ public class MemoryDataList {
     }
   }
 
-  public Set<Date> getDatesForMonth(int year, int month) {
+  public Set<LocalDate> getDatesForMonth(int year, int month) {
     if (datesForYearMonth.containsKey(year)) {
-      TreeMap<Integer, TreeMap<Date, Boolean>> monthMap = datesForYearMonth.get(year);
+      TreeMap<Integer, TreeMap<LocalDate, Boolean>> monthMap = datesForYearMonth.get(year);
       if (monthMap.containsKey(month)) {
         return monthMap.get(month).keySet();
       }
     }
-    return new HashSet<Date>();
+    return new HashSet<LocalDate>();
   }
 
   public void clear() {
@@ -115,7 +115,7 @@ public class MemoryDataList {
       throw new MyDeticException(
           "Tried to merge MemoryDataLists with different userIds");
     }
-    for (Date d: memories.getDates()) {
+    for (LocalDate d: memories.getDates()) {
       this.setDate(d);
     }
   }
@@ -150,7 +150,7 @@ public class MemoryDataList {
       }
 
       return memoryDataList;
-    } catch (JSONException | ParseException e) {
+    } catch (JSONException | IllegalArgumentException e) {
       throw new MyDeticException("Format error in memory list JSON:" + e.toString());
     }
   }
@@ -162,7 +162,7 @@ public class MemoryDataList {
   protected Object clone() throws CloneNotSupportedException {
     MemoryDataList retval = (MemoryDataList)super.clone();
     retval.setUserID(this.userId);
-    for (Date d : this.getDates()) {
+    for (LocalDate d : this.getDates()) {
       retval.setDate(d);
     }
     return retval;

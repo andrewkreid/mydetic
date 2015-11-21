@@ -16,6 +16,8 @@ import android.widget.TwoLineListItem;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +34,7 @@ public class MemoryDayFragment extends ListFragment {
 
   private int mYear;
   private int mMonth;
-  private List<Date> mDatesWithMemories;
+  private List<LocalDate> mDatesWithMemories;
   private MemoriesAdapter mAdapter;
 
   public static MemoryDayFragment newInstance(int year, int month) {
@@ -95,7 +97,7 @@ public class MemoryDayFragment extends ListFragment {
     mDatesWithMemories = new ArrayList<>();
     MemoryAppState appState = MemoryAppState.getInstance();
 
-    for(Date d:appState.getMemories().getDatesForMonth(mYear, mMonth)) {
+    for(LocalDate d:appState.getMemories().getDatesForMonth(mYear, mMonth)) {
       mDatesWithMemories.add(d);
     }
     mAdapter = new MemoriesAdapter(getActivity(), mDatesWithMemories);
@@ -128,15 +130,15 @@ public class MemoryDayFragment extends ListFragment {
    * >Communicating with Other Fragments</a> for more information.
    */
   public interface OnFragmentInteractionListener {
-    void onDateSelected(Date d);
+    void onDateSelected(LocalDate d);
   }
 
   private class MemoriesAdapter extends BaseAdapter {
 
     private Context context;
-    private List<Date> mMemories;
+    private List<LocalDate> mMemories;
 
-    public MemoriesAdapter(Context context, List<Date> memories) {
+    public MemoriesAdapter(Context context, List<LocalDate> memories) {
       this.mMemories = memories;
       this.context = context;
     }
@@ -175,7 +177,7 @@ public class MemoryDayFragment extends ListFragment {
       TextView text1 = twoLineListItem.getText1();
       TextView text2 = twoLineListItem.getText2();
 
-      Date memoryDate = mMemories.get(position);
+      LocalDate memoryDate = mMemories.get(position);
       text1.setText(Utils.isoFormat(memoryDate));
 
       // Use the first line of the memory text if we know it.

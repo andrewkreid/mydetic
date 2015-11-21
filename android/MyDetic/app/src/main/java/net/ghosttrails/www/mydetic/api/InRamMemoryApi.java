@@ -7,6 +7,8 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,17 +41,16 @@ public class InRamMemoryApi implements MemoryApi {
     public MemoryListListener listListener;
     public SingleMemoryListener singleMemoryListener;
     public String userId;
-    public Date memoryDate;
-    public Date fromDate;
-    public Date toDate;
+    public LocalDate memoryDate;
+    public LocalDate fromDate;
+    public LocalDate toDate;
     public MemoryData memory;
   }
 
   /**
    * Class for fetching the memory list asynchronously.
    */
-  private class GetMemoriesTask extends AsyncTask<AsyncParams, Void,
-      AsyncResult> {
+  private class GetMemoriesTask extends AsyncTask<AsyncParams, Void, AsyncResult> {
 
     @Override
     protected AsyncResult doInBackground(AsyncParams... asyncParamses) {
@@ -64,14 +65,15 @@ public class InRamMemoryApi implements MemoryApi {
         return result;
       }
 
-      Map<Date, MemoryData> memoryMap = getListForUserId(params.userId);
+      Map<LocalDate, MemoryData> memoryMap = getListForUserId(params.userId);
       MemoryDataList retval = new MemoryDataList(params.userId);
-      for (Date d : memoryMap.keySet()) {
-        if ((params.fromDate != null) && (d.before(params.fromDate))) {
+      for (LocalDate d : memoryMap.keySet()) {
+
+        if ((params.fromDate != null) && (d.isBefore(params.fromDate))) {
           // before specified from date.
           continue;
         }
-        if ((params.toDate != null) && (d.after(params.toDate))) {
+        if ((params.toDate != null) && (d.isAfter(params.toDate))) {
           // after toDate, so we're done.
           break;
         }
@@ -117,7 +119,7 @@ public class InRamMemoryApi implements MemoryApi {
         result.exception = new MyDeticReadFailedException("simulated");
         return result;
       }
-      Map<Date, MemoryData> list = getListForUserId(params.userId);
+      Map<LocalDate, MemoryData> list = getListForUserId(params.userId);
       if (!list.containsKey(params.memoryDate)) {
         result.exception = new MyDeticNoMemoryFoundException(params.userId,
             params.memoryDate);
@@ -154,7 +156,7 @@ public class InRamMemoryApi implements MemoryApi {
         return result;
       }
 
-      Map<Date, MemoryData> list = getListForUserId(params.userId);
+      Map<LocalDate, MemoryData> list = getListForUserId(params.userId);
       list.put(params.memory.getMemoryDate(), (MemoryData) params.memory.clone());
       result.memory = list.get(params.memory.getMemoryDate());
 
@@ -189,7 +191,7 @@ public class InRamMemoryApi implements MemoryApi {
         return result;
       }
 
-      Map<Date, MemoryData> list = getListForUserId(params.userId);
+      Map<LocalDate, MemoryData> list = getListForUserId(params.userId);
       if (!list.containsKey(params.memoryDate)) {
         result.exception =
             new MyDeticNoMemoryFoundException(params.userId, params.memoryDate);
@@ -200,7 +202,7 @@ public class InRamMemoryApi implements MemoryApi {
     }
   }
 
-  private Map<String, Map<Date, MemoryData>> memoryLists;
+  private Map<String, Map<LocalDate, MemoryData>> memoryLists;
   private int simulatedDelayMs;
   private int simulatedFailureRate;
 
@@ -217,7 +219,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param simulatedDelayMs delay each call by this number of milliseconds.
    */
   public InRamMemoryApi(int simulatedDelayMs) {
-    memoryLists = new HashMap<String, Map<Date, MemoryData>>();
+    memoryLists = new HashMap<String, Map<LocalDate, MemoryData>>();
     this.simulatedDelayMs = simulatedDelayMs;
     this.simulatedFailureRate = 0;
     this.random = new Random(System.currentTimeMillis());
@@ -261,9 +263,9 @@ public class InRamMemoryApi implements MemoryApi {
    * @param userId the user id
    * @return the Map for userId. Create and return an empty one if required.
    */
-  private Map<Date, MemoryData> getListForUserId(String userId) {
+  private Map<LocalDate, MemoryData> getListForUserId(String userId) {
     if (!memoryLists.containsKey(userId)) {
-      memoryLists.put(userId, new TreeMap<Date, MemoryData>());
+      memoryLists.put(userId, new TreeMap<LocalDate, MemoryData>());
     }
     return memoryLists.get(userId);
   }
@@ -299,7 +301,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param listener callback for results.
    */
   @Override
-  public void getMemories(String userId, Date fromDate, Date toDate,
+  public void getMemories(String userId, LocalDate fromDate, LocalDate toDate,
                           MemoryListListener listener) {
     AsyncParams params = new AsyncParams();
     params.listListener = listener;
@@ -315,7 +317,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param listener callback for results.
    */
   @Override
-  public void getMemory(String userId, Date memoryDate,
+  public void getMemory(String userId, LocalDate memoryDate,
                         SingleMemoryListener listener) {
     AsyncParams params = new AsyncParams();
     params.singleMemoryListener = listener;
@@ -345,7 +347,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param memoryDate
    */
   @Override
-  public void deleteMemory(String userId, Date memoryDate,
+  public void deleteMemory(String userId, LocalDate memoryDate,
                            SingleMemoryListener listener) {
     AsyncParams params = new AsyncParams();
     params.singleMemoryListener = listener;
@@ -361,7 +363,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param memories
    */
   public void populateMemories(String userId, List<MemoryData> memories) {
-    Map<Date, MemoryData> list = getListForUserId(userId);
+    Map<LocalDate, MemoryData> list = getListForUserId(userId);
     for (MemoryData memory: memories) {
       list.put(memory.getMemoryDate(), (MemoryData)memory.clone());
     }
@@ -372,7 +374,7 @@ public class InRamMemoryApi implements MemoryApi {
    * @param userId
    */
   public void clearMemories(String userId) {
-    Map<Date, MemoryData> list = getListForUserId(userId);
+    Map<LocalDate, MemoryData> list = getListForUserId(userId);
     list.clear();
   }
 

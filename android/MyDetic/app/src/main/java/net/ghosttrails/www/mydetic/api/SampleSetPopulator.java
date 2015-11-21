@@ -3,6 +3,8 @@ package net.ghosttrails.www.mydetic.api;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -89,8 +91,8 @@ public class SampleSetPopulator {
 
   public static void addMemory(List<MemoryData> list, String userId, int year,
                                int month, int day, String memoryText) {
-    Date date = new GregorianCalendar(year, month, day).getTime();
-    list.add(new MemoryData(userId, memoryText, date));
+    LocalDate localDate = new LocalDate(year, month, day);
+    list.add(new MemoryData(userId, memoryText, localDate));
   }
 
 }

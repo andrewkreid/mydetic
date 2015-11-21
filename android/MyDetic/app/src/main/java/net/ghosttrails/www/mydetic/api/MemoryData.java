@@ -2,11 +2,11 @@ package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
-import java.util.Date;
 
 /**
  * Class that represents a single memory record
@@ -15,24 +15,21 @@ public class MemoryData {
 
   private String userId;
   private String memoryText;
-  private Date memoryDate;
+  private LocalDate memoryDate;
   private int revision;
 
   public MemoryData() {
     this(null, null, null, 1);
   }
 
-  public MemoryData(String userId, String memoryText, Date memoryDate) {
+  public MemoryData(String userId, String memoryText, LocalDate memoryDate) {
     this(userId, memoryText, memoryDate, 1);
   }
 
-  public MemoryData(String userId, String memoryText, Date memoryDate, int revision) {
+  public MemoryData(String userId, String memoryText, LocalDate memoryDate, int revision) {
     this.userId = userId;
     this.memoryText = memoryText;
-    this.memoryDate = null;
-    if (memoryDate != null) {
-      this.memoryDate = (Date) memoryDate.clone();
-    }
+    this.memoryDate = memoryDate;
     this.revision = revision;
   }
 
@@ -52,11 +49,11 @@ public class MemoryData {
     this.memoryText = memoryText;
   }
 
-  public Date getMemoryDate() {
+  public LocalDate getMemoryDate() {
     return memoryDate;
   }
 
-  public void setMemoryDate(Date memoryDate) {
+  public void setMemoryDate(LocalDate memoryDate) {
     this.memoryDate = memoryDate;
   }
 
@@ -79,7 +76,7 @@ public class MemoryData {
    *   "user_id": "mreynolds"
    * }
    *
-   * @param jsonObject
+   * @param jsonObject the JSON to parse.
    * @return a MemoryData object.
    * @throws MyDeticException on parse errors
    */
@@ -94,7 +91,7 @@ public class MemoryData {
         memoryData.setRevision(jsonObject.getInt("revision"));
       }
       return memoryData;
-    } catch (JSONException | ParseException e) {
+    } catch (JSONException | IllegalArgumentException e) {
       throw new MyDeticException("Error parsing memory JSON", e);
     }
   }
@@ -117,6 +114,11 @@ public class MemoryData {
    */
   @Override
   protected Object clone() {
+    try {
+      super.clone();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+    }
     return new MemoryData(this.userId, this.memoryText, this.memoryDate, this.revision);
   }
 }

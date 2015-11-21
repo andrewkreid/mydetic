@@ -9,6 +9,8 @@ import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
+import org.joda.time.LocalDate;
+
 import java.text.ParseException;
 import java.util.Date;
 
@@ -53,7 +55,7 @@ public final class MyDeticSQLDBContract {
   }
 
   public static MemoryData getMemory(SQLiteDatabase db, String userId,
-                                     String apiType, Date memoryDate) {
+                                     String apiType, LocalDate memoryDate) {
     // Define a projection that specifies which columns from the database
     // you will actually use after this query.
     String[] projection = {
@@ -96,7 +98,7 @@ public final class MyDeticSQLDBContract {
             Utils.parseIsoDate(
                 cursor.getString(
                     cursor.getColumnIndexOrThrow(MemoryTable.COLUMN_NAME_DATE))));
-      } catch (ParseException e) {
+      } catch (IllegalArgumentException e) {
         // cache entry saved with bad date.
         return null;
       }

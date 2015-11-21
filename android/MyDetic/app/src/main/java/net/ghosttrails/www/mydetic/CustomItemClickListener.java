@@ -2,6 +2,8 @@ package net.ghosttrails.www.mydetic;
 
 import android.view.View;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 /**
@@ -9,5 +11,5 @@ import java.util.Date;
  * on the individual memory cards.
  */
 public interface CustomItemClickListener {
-  public void onItemClick(View v, int position, Date memoryDate);
+  public void onItemClick(View v, int position, LocalDate memoryDate);
 }

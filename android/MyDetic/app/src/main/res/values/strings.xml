@@ -42,4 +42,6 @@
     <string name="pins_dont_match">PINs don\'t match</string>
     <string name="pin_not_valid">PIN not valid</string>
     <string name="ok">OK</string>
+    <string name="action_thisweek">This week</string>
+    <string name="action_thepast">The Past</string>
 </resources>
