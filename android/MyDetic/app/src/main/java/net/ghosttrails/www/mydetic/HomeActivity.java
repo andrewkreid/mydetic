@@ -22,7 +22,7 @@ public class HomeActivity extends LockableActivity {
 
   private ProgressDialog progressDialog;
   private RecyclerView mRecyclerView;
-  private RecyclerView.Adapter mAdapter;
+  private MemoryCardviewAdaptor mAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +61,7 @@ public class HomeActivity extends LockableActivity {
         startActivity(intent);
       }
     });
+    mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
     mRecyclerView.setAdapter(mAdapter);
 
     appState.reloadMemories(this);
@@ -110,6 +111,16 @@ public class HomeActivity extends LockableActivity {
             mRecyclerView.invalidate();
           }
         });
+        return true;
+      case R.id.action_thepast:
+        mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THE_PAST);
+        mAdapter.notifyDataSetChanged();
+        mRecyclerView.invalidate();
+        return true;
+      case R.id.action_thisweek:
+        mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
+        mAdapter.notifyDataSetChanged();
+        mRecyclerView.invalidate();
         return true;
       default:
         return super.onOptionsItemSelected(item);

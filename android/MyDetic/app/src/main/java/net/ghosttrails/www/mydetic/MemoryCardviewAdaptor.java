@@ -18,8 +18,6 @@ import org.joda.time.Months;
 import org.joda.time.Weeks;
 import org.joda.time.Years;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -30,6 +28,12 @@ public class MemoryCardviewAdaptor extends
 
   // How many days into the past to show days for.
   static final int NUM_CARDS = 7;
+
+  public enum CardHistoryType {
+    HISTORY_TYPE_THIS_WEEK,
+    HISTORY_TYPE_THE_PAST
+  };
+  private CardHistoryType cardHistoryType;
 
   private CustomItemClickListener listener;
 
@@ -99,6 +103,7 @@ public class MemoryCardviewAdaptor extends
   // Provide a suitable constructor (depends on the kind of dataset)
   public MemoryCardviewAdaptor(CustomItemClickListener listener) {
     this.listener = listener;
+    this.cardHistoryType = CardHistoryType.HISTORY_TYPE_THIS_WEEK;
   }
 
   // Create new views (invoked by the layout manager)
@@ -146,14 +151,48 @@ public class MemoryCardviewAdaptor extends
    * @param position the list position.
    */
   private LocalDate positionToDate(int position) {
+    switch (cardHistoryType) {
+      case HISTORY_TYPE_THIS_WEEK:
+        return positionToDateForThisWeek(position);
+      case HISTORY_TYPE_THE_PAST:
+        return positionToDateForThePast(position);
+      default:
+        Log.e("MemoryCardviewAdaptor", "unrecognised cardHistoryType");
+        return LocalDate.now();
+    }
+  }
+
+  private LocalDate positionToDateForThisWeek(int position) {
     try {
       DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getDefault());
       LocalDate today = LocalDate.now(tz);
       return today.minusDays(position);
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       Log.e("MemoryCardviewAdaptor", String.format("Error setting timezone (%s)", e.toString()));
       // Fall back to default TZ (UTC)
       return LocalDate.now().minusDays(position);
     }
+  }
+
+  private LocalDate positionToDateForThePast(int position) {
+    // TODO: implement me
+    // We want:
+    //           today
+    //           yesterday
+    //           1 week ago
+    //           1 month ago
+    //           1 year ago
+    //           2 years ago
+    //           5 years ago (or oldest)
+    return LocalDate.now();
+  }
+
+  public CardHistoryType getCardHistoryType() {
+    return cardHistoryType;
+  }
+
+  public void setCardHistoryType(
+      CardHistoryType cardHistoryType) {
+    this.cardHistoryType = cardHistoryType;
   }
 }
