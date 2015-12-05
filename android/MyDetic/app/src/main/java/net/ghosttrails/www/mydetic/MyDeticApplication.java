@@ -4,6 +4,7 @@ import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
+import net.danlew.android.joda.JodaTimeAndroid;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
 
 import org.json.JSONException;
@@ -33,6 +34,8 @@ public class MyDeticApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
+
+    JodaTimeAndroid.init(this);
 
     MemoryAppState appState = MemoryAppState.getInstance();
 

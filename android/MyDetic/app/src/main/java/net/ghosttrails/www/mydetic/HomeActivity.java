@@ -17,8 +17,6 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 import org.joda.time.LocalDate;
 
-import java.util.Date;
-
 
 public class HomeActivity extends LockableActivity {
 

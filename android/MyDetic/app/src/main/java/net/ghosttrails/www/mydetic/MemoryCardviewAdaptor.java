@@ -2,6 +2,7 @@ package net.ghosttrails.www.mydetic;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
@@ -18,6 +20,7 @@ import org.joda.time.Years;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Adaptor to display memory cards for the last NUM_CARDS days.
@@ -143,7 +146,14 @@ public class MemoryCardviewAdaptor extends
    * @param position the list position.
    */
   private LocalDate positionToDate(int position) {
-    LocalDate today = LocalDate.now();
-    return today.minusDays(position);
+    try {
+      DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getDefault());
+      LocalDate today = LocalDate.now(tz);
+      return today.minusDays(position);
+    } catch(IllegalArgumentException e) {
+      Log.e("MemoryCardviewAdaptor", String.format("Error setting timezone (%s)", e.toString()));
+      // Fall back to default TZ (UTC)
+      return LocalDate.now().minusDays(position);
+    }
   }
 }
