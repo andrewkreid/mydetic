@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.ghosttrails.www.mydetic.api.MemoryData;
+import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 
 import org.joda.time.DateTimeZone;
@@ -18,6 +19,8 @@ import org.joda.time.Months;
 import org.joda.time.Weeks;
 import org.joda.time.Years;
 
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -26,8 +29,8 @@ import java.util.TimeZone;
 public class MemoryCardviewAdaptor extends
     RecyclerView.Adapter<MemoryCardviewAdaptor.ViewHolder> {
 
-  // How many days into the past to show days for.
-  static final int NUM_CARDS = 7;
+  // How many days from the ideal point in the past (eg "1 year ago") we search for a memory.
+  static final int DAY_THRESH = 12;
 
   public enum CardHistoryType {
     HISTORY_TYPE_THIS_WEEK,
@@ -36,6 +39,9 @@ public class MemoryCardviewAdaptor extends
   private CardHistoryType cardHistoryType;
 
   private CustomItemClickListener listener;
+
+  // List of calculated "the past" memory dates.
+  private ArrayList<LocalDate> pastMemoryDates;
 
   // Provide a reference to the views for each data item
   // Complex data items may need more than one view per item, and
@@ -104,6 +110,7 @@ public class MemoryCardviewAdaptor extends
   public MemoryCardviewAdaptor(CustomItemClickListener listener) {
     this.listener = listener;
     this.cardHistoryType = CardHistoryType.HISTORY_TYPE_THIS_WEEK;
+    this.pastMemoryDates = new ArrayList<LocalDate>();
   }
 
   // Create new views (invoked by the layout manager)
@@ -141,7 +148,14 @@ public class MemoryCardviewAdaptor extends
   // Return the size of your dataset (invoked by the layout manager)
   @Override
   public int getItemCount() {
-    return NUM_CARDS;
+    switch (cardHistoryType) {
+      case HISTORY_TYPE_THIS_WEEK:
+        return 7; // previous week.
+      case HISTORY_TYPE_THE_PAST:
+        return pastMemoryDates.size();
+      default:
+        return 0;
+    }
   }
 
   /**
@@ -175,16 +189,7 @@ public class MemoryCardviewAdaptor extends
   }
 
   private LocalDate positionToDateForThePast(int position) {
-    // TODO: implement me
-    // We want:
-    //           today
-    //           yesterday
-    //           1 week ago
-    //           1 month ago
-    //           1 year ago
-    //           2 years ago
-    //           5 years ago (or oldest)
-    return LocalDate.now();
+    return pastMemoryDates.get(position);
   }
 
   public CardHistoryType getCardHistoryType() {
@@ -194,5 +199,58 @@ public class MemoryCardviewAdaptor extends
   public void setCardHistoryType(
       CardHistoryType cardHistoryType) {
     this.cardHistoryType = cardHistoryType;
+    if (this.cardHistoryType == CardHistoryType.HISTORY_TYPE_THE_PAST) {
+      recalculatePastMemoryDates();
+    }
+  }
+
+  /**
+   * Fill the pasMemoryDates array with the dates of existing memories from various points in the
+   * past.
+   *
+   * Ideally we want:  today
+   *                   yesterday
+   *                   1 week ago
+   *                   1 month ago
+   *                   1 year ago
+   *                   2 years ago
+   *                   5 years ago
+   *
+   * In each case, pick the nearest memory, but don't add a date more than once. Add today and
+   * yesterday even if there is no memory for those dates.
+   */
+  private void recalculatePastMemoryDates() {
+    pastMemoryDates.clear();
+
+    LocalDate today = positionToDateForThisWeek(0);
+    pastMemoryDates.add(today);
+    pastMemoryDates.add(today.minusDays(1));
+
+    findAndAddNearestMemoryDate(today.minusDays(7));
+    findAndAddNearestMemoryDate(today.minusMonths(1));
+    findAndAddNearestMemoryDate(today.minusYears(1));
+    findAndAddNearestMemoryDate(today.minusYears(2));
+    findAndAddNearestMemoryDate(today.minusYears(5));
+  }
+
+  private void findAndAddNearestMemoryDate(LocalDate date) {
+    Set<LocalDate> memoryDates = MemoryAppState.getInstance().getMemories().getDates();
+    LocalDate foundDate = null;
+    // search around the provided date up to DAY_THRESH days
+    for (int i = 0; i <= DAY_THRESH; i++) {
+      LocalDate candidateDate = date.minusDays(i);
+      if (memoryDates.contains(candidateDate)) {
+        foundDate = candidateDate;
+        break;
+      }
+      candidateDate = date.plusDays(i);
+      if (memoryDates.contains(candidateDate)) {
+        foundDate = candidateDate;
+        break;
+      }
+    }
+    if ((foundDate != null) && !pastMemoryDates.contains(foundDate)) {
+      pastMemoryDates.add(foundDate);
+    }
   }
 }
