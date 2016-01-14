@@ -8,9 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
@@ -98,6 +100,8 @@ public class MemoryCardviewAdaptor extends
           return "Today";
         } else if (dayDiff == 1) {
           return "Yesterday";
+        } else if (dayDiff == 7) {
+          return "1 week ago";
         } else {
           return "";
         }
@@ -214,6 +218,8 @@ public class MemoryCardviewAdaptor extends
    *                   1 month ago
    *                   1 year ago
    *                   2 years ago
+   *                   3 years ago
+   *                   4 years ago
    *                   5 years ago
    *
    * In each case, pick the nearest memory, but don't add a date more than once. Add today and
@@ -230,7 +236,33 @@ public class MemoryCardviewAdaptor extends
     findAndAddNearestMemoryDate(today.minusMonths(1));
     findAndAddNearestMemoryDate(today.minusYears(1));
     findAndAddNearestMemoryDate(today.minusYears(2));
+    findAndAddNearestMemoryDate(today.minusYears(3));
+    findAndAddNearestMemoryDate(today.minusYears(4));
     findAndAddNearestMemoryDate(today.minusYears(5));
+
+    // Download any uncached memories in the list
+    final MemoryAppState appState = MemoryAppState.getInstance();
+    for (LocalDate memoryDate: pastMemoryDates) {
+      if (appState.getCachedMemory(memoryDate) == null) {
+        appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
+            new MemoryApi.SingleMemoryListener() {
+              @Override
+              public void onApiResponse(MemoryData memory) {
+                try {
+                  appState.setCachedMemory(memory);
+                  notifyDataSetChanged();
+                } catch (MyDeticException e) {
+                  Log.e("MemoryCardAdaptor", e.getMessage());
+                }
+              }
+
+              @Override
+              public void onApiError(MyDeticException exception) {
+                Log.e("MemoryCardAdaptor", exception.getMessage());
+              }
+            });
+      }
+    }
   }
 
   private void findAndAddNearestMemoryDate(LocalDate date) {
