@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -70,13 +72,18 @@ public class MemoryMonthFragment extends ListFragment {
 
     MemoryAppState appState = MemoryAppState.getInstance();
     for(Integer i:appState.getMemories().getMonthsForYear(mYear)) {
+      // 1-based month indexes (1 == Jan, 12 == Dec)
       mMonthsWithMemories.add(i);
     }
     List<String> monthNames = new ArrayList<>();
     for(Integer month:mMonthsWithMemories) {
+      LocalDate dateForMonthFormat = new LocalDate(2016, month, 1);
+      String monthName = dateForMonthFormat.toString("MMMM");
+      /*
       Calendar cal = Calendar.getInstance();
       cal.set(Calendar.MONTH, month);
       String monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+      */
       monthNames.add(monthName);
     }
 
