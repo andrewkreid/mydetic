@@ -1,9 +1,15 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -20,6 +26,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 
 public class SettingsActivity extends LockableActivity {
@@ -34,6 +41,7 @@ public class SettingsActivity extends LockableActivity {
   private EditText enterPin1EditText;
   private EditText enterPin2EditText;
   private TextView pinMessageTextView;
+  private CheckBox reminderEnabledCheckBox;
 
   /**
    * Focus loss listener that saves the config
@@ -93,11 +101,11 @@ public class SettingsActivity extends LockableActivity {
     enterPin1EditText = (EditText) findViewById(R.id.enterPin1);
     enterPin2EditText = (EditText) findViewById(R.id.enterPin2);
     pinMessageTextView = (TextView) findViewById(R.id.pinMessage);
+    reminderEnabledCheckBox = (CheckBox) findViewById(R.id.enableReminderCheckBox);
 
     loadConfig();
 
-    PersistOnFocusLossListener focusLossListener = new
-        PersistOnFocusLossListener();
+    PersistOnFocusLossListener focusLossListener = new PersistOnFocusLossListener();
     apiUrlEditText.setOnFocusChangeListener(focusLossListener);
     usernameEditText.setOnFocusChangeListener(focusLossListener);
     passwordEditText.setOnFocusChangeListener(focusLossListener);
@@ -192,7 +200,54 @@ public class SettingsActivity extends LockableActivity {
           config.setSecurityPin("");
         }
       }
+      config.setIsReminderEnabled(reminderEnabledCheckBox.isChecked());
+      setOrRemoveReminder(reminderEnabledCheckBox.isChecked());
     }
+  }
+
+  /**
+   * Set or remove the daily reminder to enter your memories.
+   *
+   * @param shouldSet true if the reminder should be set, false otherwise.
+   */
+  private void setOrRemoveReminder(boolean shouldSet) {
+
+    Context context = getApplicationContext();
+
+    AlarmManager alarmMgr;
+    PendingIntent alarmIntent;
+
+    alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    Intent intent = new Intent(context, AlarmReceiver.class);
+    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+    if (shouldSet) {
+
+      NotificationCompat.Builder mBuilder =
+          new NotificationCompat.Builder(this)
+              .setSmallIcon(R.drawable.ic_history_white_24dp)
+              .setContentTitle("MyDetic reminder")
+              .setContentText("Enter your memory");
+      intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
+      intent.putExtra(AlarmReceiver.NOTIFICATION, mBuilder.build());
+
+      // Set the alarm to start at approximately 2:00 p.m.
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTimeInMillis(System.currentTimeMillis());
+      calendar.set(Calendar.HOUR_OF_DAY, 21);
+      calendar.set(Calendar.MINUTE, 5);
+
+      // With setInexactRepeating(), you have to use one of the AlarmManager interval
+      // constants--in this case, AlarmManager.INTERVAL_DAY.
+      alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+          AlarmManager.INTERVAL_DAY, alarmIntent);
+    } else {
+      // If the alarm has been set, cancel it.
+      if (alarmMgr!= null) {
+        alarmMgr.cancel(alarmIntent);
+      }
+    }
+
   }
 
   /**
@@ -221,6 +276,7 @@ public class SettingsActivity extends LockableActivity {
     pinEnabledCheckBox.setChecked(config.isUsingSecurityPin());
     enterPin1EditText.setText(config.getSecurityPin());
     enterPin2EditText.setText(config.getSecurityPin());
+    reminderEnabledCheckBox.setChecked(config.isReminderEnabled());
   }
 
   @Override

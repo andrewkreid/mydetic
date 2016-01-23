@@ -27,6 +27,7 @@ public class MyDeticConfig {
   public static final String KEY_USER_PASSWORD = "userPassword";
   public static final String KEY_IS_USING_SECURITY_PIN = "isUsingSecurityPin";
   public static final String KEY_SECURITY_PIN = "securityPin";
+  public static final String KEY_REMINDER_ENABLED = "reminderEnabled";
 
   public static String DS_INRAM = "In RAM (testing)";
   public static String DS_RESTAPI = "REST API";
@@ -45,6 +46,7 @@ public class MyDeticConfig {
   private String userPassword;
   private boolean isUsingSecurityPin;
   private String securityPin;
+  private boolean isReminderEnabled;
 
   public MyDeticConfig() {
     activeDataStore = DS_INRAM;
@@ -53,6 +55,7 @@ public class MyDeticConfig {
     userPassword = "";
     isUsingSecurityPin = false;
     securityPin = "1234";
+    isReminderEnabled = false;
   }
 
   /**
@@ -113,6 +116,7 @@ public class MyDeticConfig {
     jsonObject.put(KEY_USER_PASSWORD, bodgyEncrypt(userPassword));
     jsonObject.put(KEY_IS_USING_SECURITY_PIN, isUsingSecurityPin);
     jsonObject.put(KEY_SECURITY_PIN, securityPin);
+    jsonObject.put(KEY_REMINDER_ENABLED, isReminderEnabled);
     return jsonObject.toString(2);
   }
 
@@ -135,6 +139,9 @@ public class MyDeticConfig {
       }
       if (jsonObject.has(KEY_SECURITY_PIN)) {
         securityPin = jsonObject.getString(KEY_SECURITY_PIN);
+      }
+      if (jsonObject.has(KEY_REMINDER_ENABLED)) {
+        isReminderEnabled = jsonObject.getBoolean(KEY_REMINDER_ENABLED);
       }
     }
   }
@@ -202,5 +209,13 @@ public class MyDeticConfig {
 
   public void setSecurityPin(String securityPin) {
     this.securityPin = securityPin;
+  }
+
+  public boolean isReminderEnabled() {
+    return isReminderEnabled;
+  }
+
+  public void setIsReminderEnabled(boolean isReminderEnabled) {
+    this.isReminderEnabled = isReminderEnabled;
   }
 }

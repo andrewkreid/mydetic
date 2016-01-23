@@ -44,4 +44,5 @@
     <string name="ok">OK</string>
     <string name="action_thisweek">This week</string>
     <string name="action_thepast">The Past</string>
+    <string name="enable_reminder">Enable Reminder</string>
 </resources>
