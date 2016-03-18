@@ -43,6 +43,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.ghosttrails.www.mydetic.HomeActivity" />
         </activity>
+        <receiver android:name=".AlarmReceiver" />
     </application>
 
 </manifest>

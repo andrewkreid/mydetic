@@ -2,6 +2,7 @@ package net.ghosttrails.www.mydetic;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -219,19 +220,19 @@ public class SettingsActivity extends LockableActivity {
 
     alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     Intent intent = new Intent(context, AlarmReceiver.class);
-    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+    NotificationCompat.Builder mBuilder =
+        new NotificationCompat.Builder(this)
+            .setSmallIcon(R.drawable.mydetic_notification_white_24dp)
+            .setContentTitle("MyDetic reminder")
+            .setContentText("Enter your memory");
+    Notification notification = mBuilder.build();
+    intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
+    intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     if (shouldSet) {
 
-      NotificationCompat.Builder mBuilder =
-          new NotificationCompat.Builder(this)
-              .setSmallIcon(R.drawable.ic_history_white_24dp)
-              .setContentTitle("MyDetic reminder")
-              .setContentText("Enter your memory");
-      intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
-      intent.putExtra(AlarmReceiver.NOTIFICATION, mBuilder.build());
-
-      // Set the alarm to start at approximately 2:00 p.m.
+      // Set the alarm to start at approximately 2105
       Calendar calendar = Calendar.getInstance();
       calendar.setTimeInMillis(System.currentTimeMillis());
       calendar.set(Calendar.HOUR_OF_DAY, 21);
@@ -239,8 +240,10 @@ public class SettingsActivity extends LockableActivity {
 
       // With setInexactRepeating(), you have to use one of the AlarmManager interval
       // constants--in this case, AlarmManager.INTERVAL_DAY.
-      alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-          AlarmManager.INTERVAL_DAY, alarmIntent);
+      //alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+      //    AlarmManager.INTERVAL_DAY, alarmIntent);
+      long futureInMillis = SystemClock.elapsedRealtime() + 10000;
+      alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
     } else {
       // If the alarm has been set, cancel it.
       if (alarmMgr!= null) {
