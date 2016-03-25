@@ -240,10 +240,10 @@ public class SettingsActivity extends LockableActivity {
 
       // With setInexactRepeating(), you have to use one of the AlarmManager interval
       // constants--in this case, AlarmManager.INTERVAL_DAY.
-      //alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-      //    AlarmManager.INTERVAL_DAY, alarmIntent);
-      long futureInMillis = SystemClock.elapsedRealtime() + 10000;
-      alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
+      alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+          AlarmManager.INTERVAL_DAY, alarmIntent);
+     // long futureInMillis = SystemClock.elapsedRealtime() + 10000;
+     // alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
     } else {
       // If the alarm has been set, cancel it.
       if (alarmMgr!= null) {
