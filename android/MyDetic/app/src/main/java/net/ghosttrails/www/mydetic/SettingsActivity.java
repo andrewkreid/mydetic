@@ -214,64 +214,12 @@ public class SettingsActivity extends LockableActivity {
    * @param shouldSet true if the reminder should be set, false otherwise.
    */
   private void setOrRemoveReminder(boolean shouldSet) {
-
-    Context context = getApplicationContext();
-
-    AlarmManager alarmMgr;
-    PendingIntent alarmIntent;
-
-    // Tapping on the notification just goes to the home screen.
-    // TODO: Maybe go straight to MemoryDetailActivity for the current day?
-    Intent resultIntent = new Intent(this, HomeActivity.class);
-
-    // This StackBuilder stuff is supposed to make the back button behavior work as expected.
-    // Since we're intenting into the home screen I'm not sure it's necessary.
-    // See http://developer.android.com/guide/topics/ui/notifiers/notifications.html#NotificationResponse
-    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-    // Adds the back stack
-    stackBuilder.addParentStack(HomeActivity.class);
-    // Adds the Intent to the top of the stack
-    stackBuilder.addNextIntent(resultIntent);
-    // Gets a PendingIntent containing the entire back stack
-    PendingIntent resultPendingIntent =
-        stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-    alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    Intent intent = new Intent(context, AlarmReceiver.class);
-    NotificationCompat.Builder mBuilder =
-        new NotificationCompat.Builder(this)
-            .setSmallIcon(R.drawable.mydetic_notification_white_24dp)
-            .setContentTitle("MyDetic reminder")
-            .setContentText("Enter today's memory")
-            .setContentIntent(resultPendingIntent)
-            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.mydetic));
-
-    Notification notification = mBuilder.build();
-    intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
-    intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
     if (shouldSet) {
-
-      // Set the alarm to start at approximately 2105
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTimeInMillis(System.currentTimeMillis());
-      calendar.set(Calendar.HOUR_OF_DAY, 21);
-      calendar.set(Calendar.MINUTE, 5);
-
-      // With setInexactRepeating(), you have to use one of the AlarmManager interval
-      // constants--in this case, AlarmManager.INTERVAL_DAY.
-      alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-          AlarmManager.INTERVAL_DAY, alarmIntent);
-      //long futureInMillis = SystemClock.elapsedRealtime() + 10000;
-      //alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
+      AppUtils.setReminderNotification(this);
     } else {
       // If the alarm has been set, cancel it.
-      if (alarmMgr!= null) {
-        alarmMgr.cancel(alarmIntent);
-      }
+      AppUtils.cancelReminderNotification(this);
     }
-
   }
 
   /**
