@@ -18,39 +18,39 @@ import java.util.Map;
  */
 public class BasicAuthJsonObjectRequest extends JsonObjectRequest {
 
-  private String username;
-  private String password;
+    private String username;
+    private String password;
 
-  public BasicAuthJsonObjectRequest(String username, String password, int method, String url,
-                                    JSONObject jsonRequest,
-                                    Response.Listener<JSONObject> listener,
-                                    Response.ErrorListener errorListener) {
-    super(method, url, jsonRequest, listener, errorListener);
-    this.username = username;
-    this.password = password;
-  }
+    public BasicAuthJsonObjectRequest(String username, String password, int method, String url,
+                                      JSONObject jsonRequest,
+                                      Response.Listener<JSONObject> listener,
+                                      Response.ErrorListener errorListener) {
+        super(method, url, jsonRequest, listener, errorListener);
+        this.username = username;
+        this.password = password;
+    }
 
-  public BasicAuthJsonObjectRequest(String username, String password, String url,
-                                    JSONObject jsonRequest,
-                                    Response.Listener<JSONObject> listener,
-                                    Response.ErrorListener errorListener) {
-    super(url, jsonRequest, listener, errorListener);
-    this.username = username;
-    this.password = password;
-  }
+    public BasicAuthJsonObjectRequest(String username, String password, String url,
+                                      JSONObject jsonRequest,
+                                      Response.Listener<JSONObject> listener,
+                                      Response.ErrorListener errorListener) {
+        super(url, jsonRequest, listener, errorListener);
+        this.username = username;
+        this.password = password;
+    }
 
-  @Override
-  public Map<String, String> getHeaders() throws AuthFailureError {
-    return createBasicAuthHeader(username, password);
-  }
+    @Override
+    public Map<String, String> getHeaders() throws AuthFailureError {
+        return createBasicAuthHeader(username, password);
+    }
 
-  Map<String, String> createBasicAuthHeader(String username, String password) {
-    Map<String, String> headerMap = new HashMap<String, String>();
+    Map<String, String> createBasicAuthHeader(String username, String password) {
+        Map<String, String> headerMap = new HashMap<String, String>();
 
-    String credentials = username + ":" + password;
-    String encodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-    headerMap.put("Authorization", "Basic " + encodedCredentials);
+        String credentials = username + ":" + password;
+        String encodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        headerMap.put("Authorization", "Basic " + encodedCredentials);
 
-    return headerMap;
-  }
+        return headerMap;
+    }
 }

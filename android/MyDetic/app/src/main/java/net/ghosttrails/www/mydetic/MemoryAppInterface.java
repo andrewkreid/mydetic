@@ -14,17 +14,22 @@ import java.util.Date;
  */
 public interface MemoryAppInterface {
 
-  public MemoryApi getApi();
-  public void setApi(MemoryApi api);
+    public MemoryApi getApi();
 
-  public MemoryDataList getMemories();
-  public void setMemories(MemoryDataList memories);
+    public void setApi(MemoryApi api);
 
-  public MemoryData getCachedMemory(LocalDate d);
-  public void setCachedMemory(MemoryData memoryData) throws MyDeticException;
-  public void clearMemoryCache();
+    public MemoryDataList getMemories();
 
-  public MyDeticConfig getConfig();
-  public void setConfig(MyDeticConfig config);
+    public void setMemories(MemoryDataList memories);
+
+    public MemoryData getCachedMemory(LocalDate d);
+
+    public void setCachedMemory(MemoryData memoryData) throws MyDeticException;
+
+    public void clearMemoryCache();
+
+    public MyDeticConfig getConfig();
+
+    public void setConfig(MyDeticConfig config);
 
 }

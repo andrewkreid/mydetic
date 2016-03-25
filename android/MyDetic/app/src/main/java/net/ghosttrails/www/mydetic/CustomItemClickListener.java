@@ -11,5 +11,5 @@ import java.util.Date;
  * on the individual memory cards.
  */
 public interface CustomItemClickListener {
-  public void onItemClick(View v, int position, LocalDate memoryDate);
+    public void onItemClick(View v, int position, LocalDate memoryDate);
 }

@@ -12,19 +12,19 @@ import android.content.Intent;
  */
 public class AlarmReceiver extends BroadcastReceiver {
 
-  public static String NOTIFICATION_ID = "notification-id";
-  public static String NOTIFICATION = "notification";
+    public static String NOTIFICATION_ID = "notification-id";
+    public static String NOTIFICATION = "notification";
 
-  public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, Intent intent) {
 
-    NotificationManager notificationManager =
-        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-    Notification notification = intent.getParcelableExtra(NOTIFICATION);
-    int id = intent.getIntExtra(NOTIFICATION_ID, 0);
-    if (notification != null) {
-      notificationManager.notify(id, notification);
+        Notification notification = intent.getParcelableExtra(NOTIFICATION);
+        int id = intent.getIntExtra(NOTIFICATION_ID, 0);
+        if (notification != null) {
+            notificationManager.notify(id, notification);
+        }
     }
-  }
 
 }
