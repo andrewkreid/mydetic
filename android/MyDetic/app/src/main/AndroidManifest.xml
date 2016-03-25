@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ghosttrails.www.mydetic" >
 
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MyDeticApplication"
         android:allowBackup="true"
@@ -44,6 +47,13 @@
                 android:value="net.ghosttrails.www.mydetic.HomeActivity" />
         </activity>
         <receiver android:name=".AlarmReceiver" />
+
+        <receiver android:name=".BootWakeupReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
