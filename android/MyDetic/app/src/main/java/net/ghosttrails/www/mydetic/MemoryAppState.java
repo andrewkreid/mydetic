@@ -16,7 +16,6 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 import org.joda.time.LocalDate;
 
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -38,7 +37,7 @@ public class MemoryAppState implements MemoryAppInterface {
     private HashMap<LocalDate, MemoryData> memoryCache;
 
     private MemoryAppState() {
-        this.memoryCache = new HashMap<LocalDate, MemoryData>();
+        this.memoryCache = new HashMap<>();
     }
 
     public synchronized static MemoryAppState getInstance() {
@@ -119,10 +118,6 @@ public class MemoryAppState implements MemoryAppInterface {
 
     public void setCacheDbHelper(MyDeticSQLDBHelper cacheDbHelper) {
         this.cacheDbHelper = cacheDbHelper;
-    }
-
-    public SQLiteDatabase getDbHandle() {
-        return dbHandle;
     }
 
     public void setDbHandle(SQLiteDatabase dbHandle) {

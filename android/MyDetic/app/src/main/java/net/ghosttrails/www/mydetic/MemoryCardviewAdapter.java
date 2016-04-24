@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
-import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
@@ -22,14 +21,15 @@ import org.joda.time.Weeks;
 import org.joda.time.Years;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
 /**
  * Adaptor to display memory cards for the last NUM_CARDS days.
  */
-public class MemoryCardviewAdaptor extends
-        RecyclerView.Adapter<MemoryCardviewAdaptor.ViewHolder> {
+public class MemoryCardviewAdapter extends
+        RecyclerView.Adapter<MemoryCardviewAdapter.ViewHolder> {
 
     // How many days from the ideal point in the past (eg "1 year ago") we search for a memory.
     static final int DAY_THRESH = 12;
@@ -39,7 +39,6 @@ public class MemoryCardviewAdaptor extends
         HISTORY_TYPE_THE_PAST
     }
 
-    ;
     private CardHistoryType cardHistoryType;
 
     private CustomItemClickListener listener;
@@ -93,11 +92,11 @@ public class MemoryCardviewAdaptor extends
             int yearDiff = Years.yearsBetween(d, nowDate).getYears();
             int weekDiff = Weeks.weeksBetween(d, nowDate).getWeeks();
             if (yearDiff > 1) {
-                return String.format("%d years ago", yearDiff);
+                return String.format(Locale.getDefault(), "%d years ago", yearDiff);
             } else if (monthDiff > 2) {
-                return String.format("%s months ago", monthDiff);
+                return String.format(Locale.getDefault(), "%s months ago", monthDiff);
             } else if (weekDiff > 1) {
-                return String.format("%s weeks ago", weekDiff);
+                return String.format(Locale.getDefault(), "%s weeks ago", weekDiff);
             } else {
                 if (dayDiff == 0) {
                     return "Today";
@@ -114,15 +113,15 @@ public class MemoryCardviewAdaptor extends
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MemoryCardviewAdaptor(CustomItemClickListener listener) {
+    public MemoryCardviewAdapter(CustomItemClickListener listener) {
         this.listener = listener;
         this.cardHistoryType = CardHistoryType.HISTORY_TYPE_THIS_WEEK;
-        this.pastMemoryDates = new ArrayList<LocalDate>();
+        this.pastMemoryDates = new ArrayList<>();
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MemoryCardviewAdaptor.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MemoryCardviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         CardView v = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.memory_card, parent, false);
@@ -178,7 +177,7 @@ public class MemoryCardviewAdaptor extends
             case HISTORY_TYPE_THE_PAST:
                 return positionToDateForThePast(position);
             default:
-                Log.e("MemoryCardviewAdaptor", "unrecognised cardHistoryType");
+                Log.e("MemoryCardviewAdapter", "unrecognised cardHistoryType");
                 return LocalDate.now();
         }
     }
@@ -189,7 +188,7 @@ public class MemoryCardviewAdaptor extends
             LocalDate today = LocalDate.now(tz);
             return today.minusDays(position);
         } catch (IllegalArgumentException e) {
-            Log.e("MemoryCardviewAdaptor", String.format("Error setting timezone (%s)", e.toString()));
+            Log.e("MemoryCardviewAdapter", String.format("Error setting timezone (%s)", e.toString()));
             // Fall back to default TZ (UTC)
             return LocalDate.now().minusDays(position);
         }
@@ -197,10 +196,6 @@ public class MemoryCardviewAdaptor extends
 
     private LocalDate positionToDateForThePast(int position) {
         return pastMemoryDates.get(position);
-    }
-
-    public CardHistoryType getCardHistoryType() {
-        return cardHistoryType;
     }
 
     public void setCardHistoryType(

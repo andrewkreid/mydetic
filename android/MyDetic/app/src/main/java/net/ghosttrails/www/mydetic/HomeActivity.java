@@ -22,7 +22,7 @@ public class HomeActivity extends LockableActivity {
 
     private ProgressDialog progressDialog;
     private RecyclerView mRecyclerView;
-    private MemoryCardviewAdaptor mAdapter;
+    private MemoryCardviewAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,7 @@ public class HomeActivity extends LockableActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter.
-        mAdapter = new MemoryCardviewAdaptor(new CustomItemClickListener() {
+        mAdapter = new MemoryCardviewAdapter(new CustomItemClickListener() {
             @Override
             public void onItemClick(View v, int position, LocalDate memoryDate) {
                 // Clicking on a Memory card takes you to the detail activity for that date.
@@ -61,7 +61,7 @@ public class HomeActivity extends LockableActivity {
                 startActivity(intent);
             }
         });
-        mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
+        mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
         mRecyclerView.setAdapter(mAdapter);
 
         appState.reloadMemories(this);
@@ -113,12 +113,12 @@ public class HomeActivity extends LockableActivity {
                 });
                 return true;
             case R.id.action_thepast:
-                mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THE_PAST);
+                mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THE_PAST);
                 mAdapter.notifyDataSetChanged();
                 mRecyclerView.invalidate();
                 return true;
             case R.id.action_thisweek:
-                mAdapter.setCardHistoryType(MemoryCardviewAdaptor.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
+                mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
                 mAdapter.notifyDataSetChanged();
                 mRecyclerView.invalidate();
                 return true;

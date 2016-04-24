@@ -15,7 +15,7 @@ import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
+import java.util.Locale;
 
 /**
  * A MemoryApi implementation that calls the REST API over HTTP(S)
@@ -32,6 +32,11 @@ public class RestfulMemoryApi implements MemoryApi {
         requestQueue = RequestQueueSingleton.getInstance(ctx.getApplicationContext()).getRequestQueue();
         this.config = config;
     }
+
+    // values for the status column
+    public static final int STATUS_DEFAULT = 0;         // legacy code.
+    public static final int STATUS_PENDING_SAVE = 1;    // Saved to cache but not saved to API.
+    public static final int STATUS_SAVED = 2;           // Saved to API.
 
     /**
      * Builds the full URL for a REST request, combining the config URL and
@@ -148,7 +153,8 @@ public class RestfulMemoryApi implements MemoryApi {
                             createMemory(userId, memory, listener);
                         } else {
                             listener.onApiError(
-                                    new MyDeticException(String.format("Got %d when saving Memory (%s)",
+                                    new MyDeticException(String.format(Locale.getDefault(),
+                                            "Got %d when saving Memory (%s)",
                                             error.networkResponse.statusCode, extractLongErrorMessage(errBody)), error));
                         }
                     } else {
@@ -201,7 +207,7 @@ public class RestfulMemoryApi implements MemoryApi {
 
     private String formatVolleyError(VolleyError v) {
         if (v.networkResponse != null) {
-            return String.format("Network Error: %d", v.networkResponse.statusCode);
+            return String.format(Locale.getDefault(), "Network Error: %d", v.networkResponse.statusCode);
         } else {
             return "Network Error:<unknown>";
         }

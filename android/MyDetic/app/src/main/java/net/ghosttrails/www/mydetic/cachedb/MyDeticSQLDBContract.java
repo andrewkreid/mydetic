@@ -104,7 +104,7 @@ public final class MyDeticSQLDBContract {
                 return null;
             }
         }
-        if (cursor != null && !cursor.isClosed()) {
+        if (!cursor.isClosed()) {
             cursor.close();
         }
         return retval;
