@@ -51,7 +51,7 @@ public final class MyDeticSQLDBContract {
         public static final String COLUMN_NAME_MEMORY_TEXT = "memoryText";
         public static final String COLUMN_NAME_REVISION = "revision";
 
-        // Whether the entry is pending upload or not (TODO).
+        // Whether the entry is pending upload or not.
         public static final String COLUMN_NAME_STATUS = "status";
     }
 
@@ -131,7 +131,8 @@ public final class MyDeticSQLDBContract {
         // New value for one column
         ContentValues values = buildContentValues(apiType, memory);
 
-        String selectionArgs[] = {memory.getUserId(), Utils.isoFormat(memory.getMemoryDate()), apiType};
+        String selectionArgs[] =
+                {memory.getUserId(), Utils.isoFormat(memory.getMemoryDate()), apiType};
 
         int count = db.update(
                 MemoryTable.TABLE_NAME,
@@ -183,7 +184,7 @@ public final class MyDeticSQLDBContract {
         values.put(MemoryTable.COLUMN_NAME_API_TYPE, apiType);
         values.put(MemoryTable.COLUMN_NAME_MEMORY_TEXT, memory.getMemoryText());
         values.put(MemoryTable.COLUMN_NAME_REVISION, memory.getRevision());
-        values.put(MemoryTable.COLUMN_NAME_STATUS, ""); // TODO
+        values.put(MemoryTable.COLUMN_NAME_STATUS, memory.getCacheState());
         return values;
     }
 }

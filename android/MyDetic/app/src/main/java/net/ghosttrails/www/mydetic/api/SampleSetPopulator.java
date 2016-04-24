@@ -29,7 +29,7 @@ public class SampleSetPopulator {
      */
     public static void populateTestSet(InRamMemoryApi api, String userId,
                                        boolean removeExisting) throws
-            MyDeticReadFailedException, MyDeticWriteFailedException {
+            MyDeticReadFailedException, MyDeticWriteFailedException, CloneNotSupportedException {
         if (removeExisting) {
             api.clearMemories(userId);
         }

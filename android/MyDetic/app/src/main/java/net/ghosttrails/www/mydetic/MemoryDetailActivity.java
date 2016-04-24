@@ -217,6 +217,16 @@ public class MemoryDetailActivity extends LockableActivity
         } else {
             memoryData.setMemoryText(memoryEditText.getText().toString());
         }
+
+        // Cache the memory as pending so it still gets persisted even if there's no network etc.
+        memoryData.setCacheState(MemoryData.CACHESTATE_PENDING_SAVE);
+        try {
+            appState.setCachedMemory(memoryData);
+        } catch (MyDeticException e) {
+            Log.e("MemoryDetailsActivity", e.getMessage());
+            AppUtils.smallToast(getApplicationContext(), e.getMessage());
+        }
+
         setButtonsEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
         appState.getApi().putMemory(appState.getConfig().getUserName(), memoryData,

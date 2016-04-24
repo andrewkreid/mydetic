@@ -33,11 +33,6 @@ public class RestfulMemoryApi implements MemoryApi {
         this.config = config;
     }
 
-    // values for the status column
-    public static final int STATUS_DEFAULT = 0;         // legacy code.
-    public static final int STATUS_PENDING_SAVE = 1;    // Saved to cache but not saved to API.
-    public static final int STATUS_SAVED = 2;           // Saved to API.
-
     /**
      * Builds the full URL for a REST request, combining the config URL and
      * possibly API_URL (if the config is only a host name).
@@ -136,7 +131,9 @@ public class RestfulMemoryApi implements MemoryApi {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                listener.onApiResponse(MemoryData.fromJSON(response));
+                                MemoryData memoryData = MemoryData.fromJSON(response);
+                                memoryData.setCacheState(MemoryData.CACHESTATE_SAVED);
+                                listener.onApiResponse(memoryData);
                             } catch (MyDeticException e) {
                                 listener.onApiError(e);
                             }
@@ -186,7 +183,9 @@ public class RestfulMemoryApi implements MemoryApi {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                listener.onApiResponse(MemoryData.fromJSON(response));
+                                MemoryData memoryData = MemoryData.fromJSON(response);
+                                memoryData.setCacheState(MemoryData.CACHESTATE_SAVED);
+                                listener.onApiResponse(memoryData);
                             } catch (MyDeticException e) {
                                 listener.onApiError(e);
                             }

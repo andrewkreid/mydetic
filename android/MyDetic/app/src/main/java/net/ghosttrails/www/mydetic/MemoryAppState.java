@@ -78,7 +78,8 @@ public class MemoryAppState implements MemoryAppInterface {
     @Override
     public void setCachedMemory(MemoryData memoryData) throws MyDeticException {
         if (dbHandle != null) {
-            MyDeticSQLDBContract.putMemory(dbHandle, config.getActiveDataStore(), memoryData);
+            MyDeticSQLDBContract.putMemory(dbHandle,
+                    config.getActiveDataStore(), memoryData);
         }
         memoryCache.put(memoryData.getMemoryDate(), memoryData);
         memories.setDate(memoryData.getMemoryDate());
@@ -178,7 +179,7 @@ public class MemoryAppState implements MemoryAppInterface {
             setApi(ramApi);
             try {
                 SampleSetPopulator.populateTestSet(ramApi, userId, true);
-            } catch (MyDeticException e) {
+            } catch (MyDeticException | CloneNotSupportedException e) {
                 Log.e("MyDeticApplication", "Sample Populate Failed", e);
             }
         } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_RESTAPI)) {

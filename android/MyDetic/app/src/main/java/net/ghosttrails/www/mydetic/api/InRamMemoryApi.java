@@ -157,8 +157,13 @@ public class InRamMemoryApi implements MemoryApi {
             }
 
             Map<LocalDate, MemoryData> list = getListForUserId(params.userId);
-            list.put(params.memory.getMemoryDate(), (MemoryData) params.memory.clone());
+            try {
+                list.put(params.memory.getMemoryDate(), (MemoryData) params.memory.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
             result.memory = list.get(params.memory.getMemoryDate());
+            result.memory.setCacheState(MemoryData.CACHESTATE_SAVED);
 
             return result;
         }
@@ -362,7 +367,8 @@ public class InRamMemoryApi implements MemoryApi {
      * @param userId
      * @param memories
      */
-    public void populateMemories(String userId, List<MemoryData> memories) {
+    public void populateMemories(String userId, List<MemoryData> memories)
+            throws CloneNotSupportedException {
         Map<LocalDate, MemoryData> list = getListForUserId(userId);
         for (MemoryData memory : memories) {
             list.put(memory.getMemoryDate(), (MemoryData) memory.clone());
