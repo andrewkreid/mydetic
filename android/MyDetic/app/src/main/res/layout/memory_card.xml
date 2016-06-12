@@ -47,7 +47,7 @@
             android:layout_alignParentEnd="true"
             android:layout_height="wrap_content"
             android:textColor="@color/memory_card_text"
-            android:maxLines="2"
+            android:maxLines="3"
             android:ellipsize="end"/>
     </RelativeLayout>
 

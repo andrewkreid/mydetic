@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
+
+import static net.ghosttrails.www.mydetic.R.color.error_text;
 
 /**
  * Adaptor to display memory cards for the last NUM_CARDS days.
@@ -56,9 +59,14 @@ public class MemoryCardviewAdapter extends
         public TextView memoryTextView;
         public LocalDate memoryDate;
 
-        public ViewHolder(CardView v) {
+        private int mErrorColor;
+        private int mMemoryTextColor;
+
+        public ViewHolder(CardView v, int errorColor, int textColor) {
             super(v);
             mView = v;
+            mErrorColor = errorColor;
+            mMemoryTextColor = textColor;
             titleView = (TextView) mView.findViewById(R.id.memory_card_view_title);
             memoryTextView = (TextView) mView.findViewById(R.id.memory_card_text_view);
             descriptionView = (TextView) mView.findViewById(R.id.memory_card_view_description);
@@ -75,7 +83,13 @@ public class MemoryCardviewAdapter extends
             memoryDate = memory.getMemoryDate();
             titleView.setText(Utils.isoFormatWithDay(memory.getMemoryDate()));
             memoryTextView.setText(memory.getMemoryText());
-            descriptionView.setText(descriptionForDate(memoryDate));
+            if (memory.getCacheState() == MemoryData.CACHESTATE_PENDING_SAVE) {
+                descriptionView.setText(R.string.memory_unsaved);
+                descriptionView.setTextColor(mErrorColor);
+            } else {
+                descriptionView.setText(descriptionForDate(memoryDate));
+                descriptionView.setTextColor(mMemoryTextColor);
+            }
         }
 
         /**
@@ -105,7 +119,7 @@ public class MemoryCardviewAdapter extends
                 } else if (dayDiff == 7) {
                     return "1 week ago";
                 } else {
-                    return "";
+                    return String.format(Locale.getDefault(), "%d days ago", dayDiff);
                 }
             }
         }
@@ -125,7 +139,9 @@ public class MemoryCardviewAdapter extends
         // create a new view
         CardView v = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.memory_card, parent, false);
-        final ViewHolder mViewHolder = new ViewHolder(v);
+        int errorColor = parent.getContext().getResources().getColor(R.color.error_text);
+        int memoryTextColor = parent.getContext().getResources().getColor(R.color.memory_card_text);
+        final ViewHolder mViewHolder = new ViewHolder(v, errorColor, memoryTextColor);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

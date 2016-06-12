@@ -41,6 +41,7 @@ public class MemoryDetailActivity extends LockableActivity
     private LocalDate memoryDate;
     private MemoryData memoryData;
     private TextView dateTextView;
+    private TextView cacheStatusTextView;
     private EditText memoryEditText;
     private Button saveButton;
     private Button refreshButton;
@@ -54,8 +55,6 @@ public class MemoryDetailActivity extends LockableActivity
     }
 
     private MemoryDetailMode editMode;
-    private boolean hasLoadedMemory;
-
     private ProgressBar progressBar;
 
     @Override
@@ -68,10 +67,6 @@ public class MemoryDetailActivity extends LockableActivity
                 WindowManager.LayoutParams.FLAG_SECURE);
 
         progressBar = (ProgressBar) this.findViewById(R.id.memory_detail_progress_bar);
-
-        // Will be set to true the first time the memory is loaded. This is so we
-        // don't accidentally overwrite a memory that didn't load with a new one.
-        hasLoadedMemory = false;
 
         Intent intent = getIntent();
         String memoryDateStr = intent.getStringExtra(MEMORY_DETAIL_DATE);
@@ -92,7 +87,7 @@ public class MemoryDetailActivity extends LockableActivity
             editMode = MemoryDetailMode.MODE_NEW;
         }
 
-        memoryEditText = (EditText) this.findViewById(R.id.memory_text);
+        memoryEditText = (EditText) findViewById(R.id.memory_text);
         memoryEditText.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -112,11 +107,13 @@ public class MemoryDetailActivity extends LockableActivity
             }
         });
 
-        refreshButton = (Button) this.findViewById(R.id.memory_refresh);
-        saveButton = (Button) this.findViewById(R.id.memory_save);
+        cacheStatusTextView = (TextView) findViewById(R.id.cache_status_text);
+
+        refreshButton = (Button) findViewById(R.id.memory_refresh);
+        saveButton = (Button) findViewById(R.id.memory_save);
         saveButton.setEnabled(false);
 
-        dateTextView = (TextView) this.findViewById(R.id.memory_title);
+        dateTextView = (TextView) findViewById(R.id.memory_title);
         dateTextView.setText("Select Date...");
 
         if (editMode == MemoryDetailMode.MODE_EXISTING) {
@@ -191,15 +188,17 @@ public class MemoryDetailActivity extends LockableActivity
         if (memoryData != null) {
             memoryEditText.setText(memoryData.getMemoryText());
         }
-        // save is enabled unless there is no memory text OR if we're in edit mode
-        // and haven't loaded the memory yet.
-        if (editMode == MemoryDetailMode.MODE_EXISTING && !hasLoadedMemory) {
-            saveButton.setEnabled(false);
-        } else {
-            saveButton.setEnabled(memoryEditText.getText().length() > 0);
-        }
+        saveButton.setEnabled(memoryEditText.getText().length() > 0);
         // Refresh is disabled in MODE_NEW
         refreshButton.setEnabled(editMode == MemoryDetailMode.MODE_EXISTING);
+        // Alert the user if the Memory has not been saved to the API.
+        if (memoryData != null &&
+                memoryData.getCacheState() == MemoryData.CACHESTATE_PENDING_SAVE) {
+            cacheStatusTextView.setText(R.string.memory_unsaved);
+        } else {
+            cacheStatusTextView.setText("");
+        }
+
     }
 
     /**
@@ -290,9 +289,9 @@ public class MemoryDetailActivity extends LockableActivity
             progressBar.setVisibility(View.GONE);
             // Once we've saved, we're in edit mode.
             editMode = MemoryDetailMode.MODE_EXISTING;
-            hasLoadedMemory = true;
             memoryData = memory;
             try {
+                memoryData.setCacheState(MemoryData.CACHESTATE_SAVED);
                 appState.setCachedMemory(memory);
             } catch (MyDeticException e) {
                 Log.e("MemoryDetailsActivity", e.getMessage());
@@ -306,6 +305,7 @@ public class MemoryDetailActivity extends LockableActivity
             setButtonsEnabled(true);
             progressBar.setVisibility(View.GONE);
             AppUtils.smallToast(getApplicationContext(), exception.getMessage());
+            updateUIFromData();
         }
     }
 
@@ -325,7 +325,6 @@ public class MemoryDetailActivity extends LockableActivity
                     AppUtils.smallToast(getApplicationContext(), e.getMessage());
                 }
                 editMode = MemoryDetailMode.MODE_EXISTING;
-                hasLoadedMemory = true;
             }
             updateUIFromData();
         }
