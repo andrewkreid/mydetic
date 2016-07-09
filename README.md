@@ -9,6 +9,9 @@ Yet Another [OhLife](http://ohlife.com/shutdown) Clone.
 The intent is to make some code you can run yourself to store your own
 diary entries rather than build a service that will scale to many users.
 
+![screenie1](images/screenshot_list.png)
+![screenie1](images/screenshot_detail.png)
+
 ## Development Status
 
 REST API backed by S3 works. Android app works but needs polish.
