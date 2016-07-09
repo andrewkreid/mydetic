@@ -11,7 +11,7 @@ diary entries rather than build a service that will scale to many users.
 
 ## Development Status
 
-Pre-Alpha. Early development. REST API backed by S3 works. Android app in development.
+REST API backed by S3 works. Android app works but needs polish.
 
 ## Motivation
 
