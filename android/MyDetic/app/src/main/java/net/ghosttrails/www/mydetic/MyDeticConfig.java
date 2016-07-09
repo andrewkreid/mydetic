@@ -28,6 +28,7 @@ public class MyDeticConfig {
     public static final String KEY_IS_USING_SECURITY_PIN = "isUsingSecurityPin";
     public static final String KEY_SECURITY_PIN = "securityPin";
     public static final String KEY_REMINDER_ENABLED = "reminderEnabled";
+    public static final String KEY_LIST_SETTING = "list_setting";
 
     public static String DS_INRAM = "In RAM (testing)";
     public static String DS_RESTAPI = "REST API";
@@ -43,6 +44,10 @@ public class MyDeticConfig {
      */
     private static int CONFIG_VERSION = 1;
 
+    // Settings for the home screen memory list.
+    public static final int LISTSETTING_THISWEEK = 0;
+    public static final int LISTSETTING_THEPAST = 1;
+
     private String activeDataStore;
     private String apiUrl;
     private String userName;
@@ -50,6 +55,7 @@ public class MyDeticConfig {
     private boolean isUsingSecurityPin;
     private String securityPin;
     private boolean isReminderEnabled;
+    private int listSetting;
 
     public MyDeticConfig() {
         activeDataStore = DS_INRAM;
@@ -59,6 +65,7 @@ public class MyDeticConfig {
         isUsingSecurityPin = false;
         securityPin = "1234";
         isReminderEnabled = false;
+        listSetting = LISTSETTING_THISWEEK;
     }
 
     /**
@@ -106,6 +113,16 @@ public class MyDeticConfig {
         fos.close();
     }
 
+    public void saveConfig(Context context) {
+        try {
+            saveToFile(context, MyDeticApplication.CONFIG_FILENAME);
+        } catch (IOException e) {
+            AppUtils.smallToast(context, "Error loading configuration");
+        } catch (JSONException e) {
+            AppUtils.smallToast(context, "Invalid configuration format");
+        }
+    }
+
     /**
      * Serialize the config to JSON that can be saved
      *
@@ -122,6 +139,7 @@ public class MyDeticConfig {
         jsonObject.put(KEY_IS_USING_SECURITY_PIN, isUsingSecurityPin);
         jsonObject.put(KEY_SECURITY_PIN, securityPin);
         jsonObject.put(KEY_REMINDER_ENABLED, isReminderEnabled);
+        jsonObject.put(KEY_LIST_SETTING, listSetting);
         return jsonObject.toString(2);
     }
 
@@ -147,6 +165,9 @@ public class MyDeticConfig {
             }
             if (jsonObject.has(KEY_REMINDER_ENABLED)) {
                 isReminderEnabled = jsonObject.getBoolean(KEY_REMINDER_ENABLED);
+            }
+            if (jsonObject.has(KEY_LIST_SETTING)) {
+                listSetting = jsonObject.getInt(KEY_LIST_SETTING);
             }
         }
     }
@@ -222,5 +243,13 @@ public class MyDeticConfig {
 
     public void setIsReminderEnabled(boolean isReminderEnabled) {
         this.isReminderEnabled = isReminderEnabled;
+    }
+
+    public int getListSetting() {
+        return listSetting;
+    }
+
+    public void setListSetting(int listSetting) {
+        this.listSetting = listSetting;
     }
 }

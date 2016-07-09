@@ -22,8 +22,6 @@ public class MyDeticApplication extends Application {
      */
     public static String CONFIG_FILENAME = "mydetic_config.json";
 
-    private String userId;
-
     /**
      * Called when the application is starting, before any activity, service,
      * or receiver objects (excluding content providers) have been created.

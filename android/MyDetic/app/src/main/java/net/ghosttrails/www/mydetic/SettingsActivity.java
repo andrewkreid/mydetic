@@ -34,7 +34,6 @@ import java.util.Calendar;
 
 public class SettingsActivity extends LockableActivity {
 
-    private MyDeticConfig config;
     private Spinner dataSourceSpinner;
     private ArrayAdapter<String> dataSourceSpinnerAdapter;
     private EditText apiUrlEditText;
@@ -56,7 +55,7 @@ public class SettingsActivity extends LockableActivity {
         public void onFocusChange(View view, boolean hasFocus) {
             if (!hasFocus) {
                 setConfigFromUI();
-                saveConfig();
+                MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
             }
         }
     }
@@ -94,8 +93,6 @@ public class SettingsActivity extends LockableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        MyDeticApplication app = (MyDeticApplication) getApplication();
-
         dataSourceSpinner = (Spinner) findViewById(R.id.dataStoreSpinner);
         apiUrlEditText = (EditText) findViewById(R.id.apiUrlEditText);
         usernameEditText = (EditText) findViewById(R.id.apiUserNameEditText);
@@ -106,8 +103,6 @@ public class SettingsActivity extends LockableActivity {
         pinMessageTextView = (TextView) findViewById(R.id.pinMessage);
         reminderEnabledCheckBox = (CheckBox) findViewById(R.id.enableReminderCheckBox);
 
-        loadConfig();
-
         PersistOnFocusLossListener focusLossListener = new PersistOnFocusLossListener();
         apiUrlEditText.setOnFocusChangeListener(focusLossListener);
         usernameEditText.setOnFocusChangeListener(focusLossListener);
@@ -116,13 +111,13 @@ public class SettingsActivity extends LockableActivity {
             @Override
             public void onClick(View v) {
                 setConfigFromUI();
-                saveConfig();
+                MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
             }
         });
 
         dataSourceSpinnerAdapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                        config.getDataStoreList());
+                        MemoryAppState.getInstance().getConfig().getDataStoreList());
         dataSourceSpinnerAdapter.setDropDownViewResource(android.R.layout
                 .simple_list_item_1);
         dataSourceSpinner.setAdapter(dataSourceSpinnerAdapter);
@@ -163,26 +158,8 @@ public class SettingsActivity extends LockableActivity {
         AppUtils.smallToast(getApplicationContext(), "Cache cleared.");
     }
 
-    /**
-     * Set the UI fields from the config object
-     */
-    private void loadConfig() {
-        this.config = MemoryAppState.getInstance().getConfig();
-    }
-
-    private void saveConfig() {
-        if (config != null) {
-            try {
-                config.saveToFile(getApplicationContext(), MyDeticApplication.CONFIG_FILENAME);
-            } catch (IOException e) {
-                AppUtils.smallToast(getApplicationContext(), "Error loading configuration");
-            } catch (JSONException e) {
-                AppUtils.smallToast(getApplicationContext(), "Invalid configuration format");
-            }
-        }
-    }
-
     private void setConfigFromUI() {
+        MyDeticConfig config = MemoryAppState.getInstance().getConfig();
         if (config != null) {
             config.setApiUrl(apiUrlEditText.getText().toString());
             config.setUserName(usernameEditText.getText().toString());
@@ -241,6 +218,7 @@ public class SettingsActivity extends LockableActivity {
     }
 
     private void setUIFromConfig() {
+        MyDeticConfig config = MemoryAppState.getInstance().getConfig();
         dataSourceSpinner.setSelection(
                 dataSourceSpinnerAdapter.getPosition(config.getActiveDataStore()));
         apiUrlEditText.setText(config.getApiUrl());
@@ -255,14 +233,14 @@ public class SettingsActivity extends LockableActivity {
     @Override
     protected void onPause() {
         setConfigFromUI();
-        saveConfig();
+        MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         setConfigFromUI();
-        saveConfig();
+        MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
         super.onStop();
     }
 }

@@ -61,7 +61,7 @@ public class HomeActivity extends LockableActivity {
                 startActivity(intent);
             }
         });
-        mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
+        mAdapter.setCardHistoryType(appState.getConfig().getListSetting());
         mRecyclerView.setAdapter(mAdapter);
 
         appState.reloadMemories(this);
@@ -113,12 +113,16 @@ public class HomeActivity extends LockableActivity {
                 });
                 return true;
             case R.id.action_thepast:
-                mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THE_PAST);
+                appState.getConfig().setListSetting(MyDeticConfig.LISTSETTING_THEPAST);
+                appState.getConfig().saveConfig(getApplicationContext());
+                mAdapter.setCardHistoryType(MyDeticConfig.LISTSETTING_THEPAST);
                 mAdapter.notifyDataSetChanged();
                 mRecyclerView.invalidate();
                 return true;
             case R.id.action_thisweek:
-                mAdapter.setCardHistoryType(MemoryCardviewAdapter.CardHistoryType.HISTORY_TYPE_THIS_WEEK);
+                appState.getConfig().setListSetting(MyDeticConfig.LISTSETTING_THISWEEK);
+                appState.getConfig().saveConfig(getApplicationContext());
+                mAdapter.setCardHistoryType(MyDeticConfig.LISTSETTING_THISWEEK);
                 mAdapter.notifyDataSetChanged();
                 mRecyclerView.invalidate();
                 return true;

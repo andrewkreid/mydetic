@@ -37,12 +37,7 @@ public class MemoryCardviewAdapter extends
     // How many days from the ideal point in the past (eg "1 year ago") we search for a memory.
     static final int DAY_THRESH = 12;
 
-    public enum CardHistoryType {
-        HISTORY_TYPE_THIS_WEEK,
-        HISTORY_TYPE_THE_PAST
-    }
-
-    private CardHistoryType cardHistoryType;
+    private int cardHistoryType;
 
     private CustomItemClickListener listener;
 
@@ -129,7 +124,7 @@ public class MemoryCardviewAdapter extends
     // Provide a suitable constructor (depends on the kind of dataset)
     public MemoryCardviewAdapter(CustomItemClickListener listener) {
         this.listener = listener;
-        this.cardHistoryType = CardHistoryType.HISTORY_TYPE_THIS_WEEK;
+        this.cardHistoryType = MyDeticConfig.LISTSETTING_THISWEEK;
         this.pastMemoryDates = new ArrayList<>();
     }
 
@@ -171,9 +166,9 @@ public class MemoryCardviewAdapter extends
     @Override
     public int getItemCount() {
         switch (cardHistoryType) {
-            case HISTORY_TYPE_THIS_WEEK:
+            case MyDeticConfig.LISTSETTING_THISWEEK:
                 return 7; // previous week.
-            case HISTORY_TYPE_THE_PAST:
+            case MyDeticConfig.LISTSETTING_THEPAST:
                 return pastMemoryDates.size();
             default:
                 return 0;
@@ -188,9 +183,9 @@ public class MemoryCardviewAdapter extends
      */
     private LocalDate positionToDate(int position) {
         switch (cardHistoryType) {
-            case HISTORY_TYPE_THIS_WEEK:
+            case MyDeticConfig.LISTSETTING_THISWEEK:
                 return positionToDateForThisWeek(position);
-            case HISTORY_TYPE_THE_PAST:
+            case MyDeticConfig.LISTSETTING_THEPAST:
                 return positionToDateForThePast(position);
             default:
                 Log.e("MemoryCardviewAdapter", "unrecognised cardHistoryType");
@@ -214,10 +209,9 @@ public class MemoryCardviewAdapter extends
         return pastMemoryDates.get(position);
     }
 
-    public void setCardHistoryType(
-            CardHistoryType cardHistoryType) {
+    public void setCardHistoryType(int cardHistoryType) {
         this.cardHistoryType = cardHistoryType;
-        if (this.cardHistoryType == CardHistoryType.HISTORY_TYPE_THE_PAST) {
+        if (this.cardHistoryType == MyDeticConfig.LISTSETTING_THEPAST) {
             recalculatePastMemoryDates();
         }
     }
