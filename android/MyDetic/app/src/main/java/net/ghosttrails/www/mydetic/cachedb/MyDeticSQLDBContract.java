@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
 import net.ghosttrails.www.mydetic.api.MemoryData;
+import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
@@ -53,6 +54,38 @@ public final class MyDeticSQLDBContract {
 
         // Whether the entry is pending upload or not.
         public static final String COLUMN_NAME_STATUS = "status";
+    }
+
+    public static MemoryDataList getMemories(SQLiteDatabase db, String userId, String apiType) {
+
+        MemoryDataList memoryDataList = new MemoryDataList(userId);
+        String[] projection = {
+                MemoryTable.COLUMN_NAME_DATE
+        };
+
+        String sortOrder = MemoryTable.COLUMN_NAME_DATE + " ASC";
+
+        String selectClause = String.format("%s = ? AND %s = ?",
+                MemoryTable.COLUMN_NAME_USER_ID,
+                MemoryTable.COLUMN_NAME_API_TYPE);
+        String selectionArgs[] = {userId, apiType};
+
+        try (Cursor cursor = db.query(
+                MemoryTable.TABLE_NAME,  // The table to query
+                projection,              // The columns to return
+                selectClause,            // The columns for the WHERE clause
+                selectionArgs,           // The values for the WHERE clause
+                null,                    // don't group the rows
+                null,                    // don't filter by row groups
+                sortOrder                // The sort order
+        )) {
+            while (cursor.moveToNext()) {
+                String memoryDate = cursor.getString(
+                        cursor.getColumnIndexOrThrow(MemoryTable.COLUMN_NAME_DATE));
+                memoryDataList.setDate(Utils.parseIsoDate(memoryDate));
+            }
+        }
+        return memoryDataList;
     }
 
     public static MemoryData getMemory(SQLiteDatabase db, String userId,

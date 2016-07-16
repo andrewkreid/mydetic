@@ -13,6 +13,7 @@ import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBContract;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
 import org.joda.time.LocalDate;
 
@@ -125,25 +126,21 @@ public class MemoryAppState implements MemoryAppInterface {
         this.dbHandle = dbHandle;
     }
 
-    public void reloadMemories(final Context context) {
-        reloadMemories(context, new MemoryApi.MemoryListListener() {
-            @Override
-            public void onApiResponse(MemoryDataList memories) {
-                // empty callback
-            }
-
-            @Override
-            public void onApiError(MyDeticException exception) {
-                // empty callback
-            }
-        });
+    public void loadMemoriesFromCache() throws MyDeticException {
+        if (this.dbHandle == null ) {
+            throw new MyDeticReadFailedException(
+                    "attempted to load memories from cache before configured");
+        }
+        getMemories().mergeFrom(
+                MyDeticSQLDBContract.getMemories(
+                        this.dbHandle, config.getActiveDataStore(), config.getUserName()));
     }
 
-    public void reloadMemories(final Context context, final MemoryApi.MemoryListListener externalListener) {
+    public void loadMemoriesFromApi(final Context context,
+                                    final MemoryApi.MemoryListListener externalListener) {
         getApi().getMemories(config.getUserName(), new MemoryApi.MemoryListListener() {
             @Override
             public void onApiResponse(MemoryDataList newMemories) {
-                getMemories().clear();
                 try {
                     getMemories().mergeFrom(newMemories);
                 } catch (MyDeticException e) {

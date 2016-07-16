@@ -1,10 +1,10 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +20,7 @@ import org.joda.time.LocalDate;
 
 public class HomeActivity extends LockableActivity {
 
-    private ProgressDialog progressDialog;
+    private static String TAG = "MyDeticHomeActivity";
     private RecyclerView mRecyclerView;
     private MemoryCardviewAdapter mAdapter;
 
@@ -34,6 +34,12 @@ public class HomeActivity extends LockableActivity {
                 WindowManager.LayoutParams.FLAG_SECURE);
 
         MemoryAppState appState = MemoryAppState.getInstance();
+
+        try {
+            appState.loadMemoriesFromCache();
+        } catch (MyDeticException e) {
+            Log.e(TAG, e.getMessage());
+        }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
 
@@ -51,7 +57,8 @@ public class HomeActivity extends LockableActivity {
             public void onItemClick(View v, int position, LocalDate memoryDate) {
                 // Clicking on a Memory card takes you to the detail activity for that date.
                 Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
-                intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
+                intent.putExtra(
+                        MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
                 if (MemoryAppState.getInstance().getMemories().hasDate(memoryDate)) {
                     intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
                 } else {
@@ -64,7 +71,6 @@ public class HomeActivity extends LockableActivity {
         mAdapter.setCardHistoryType(appState.getConfig().getListSetting());
         mRecyclerView.setAdapter(mAdapter);
 
-        appState.reloadMemories(this);
     }
 
     @Override
@@ -98,7 +104,7 @@ public class HomeActivity extends LockableActivity {
                 return true;
             case R.id.action_reload:
                 appState.refreshSettingsFromConfig(this);
-                appState.reloadMemories(this, new MemoryApi.MemoryListListener() {
+                appState.loadMemoriesFromApi(this, new MemoryApi.MemoryListListener() {
                     @Override
                     public void onApiResponse(MemoryDataList memories) {
                         mAdapter.notifyDataSetChanged();
@@ -143,5 +149,4 @@ public class HomeActivity extends LockableActivity {
         mAdapter.notifyDataSetChanged();
         mRecyclerView.invalidate();
     }
-
 }

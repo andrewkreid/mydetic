@@ -34,15 +34,9 @@ public class MemoryDataList {
         initMaps();
     }
 
-    public MemoryDataList(String userId, TreeMap<LocalDate, Boolean> dates) {
-        this.userId = userId;
-        initMaps();
-        this.dates = dates;
-    }
-
     private void initMaps() {
         this.dates = new TreeMap<>();
-        this.datesForYearMonth = new TreeMap<Integer, TreeMap<Integer, TreeMap<LocalDate, Boolean>>>();
+        this.datesForYearMonth = new TreeMap<>();
     }
 
     public String getUserID() {
@@ -86,7 +80,7 @@ public class MemoryDataList {
         if (datesForYearMonth.containsKey(year)) {
             return datesForYearMonth.get(year).keySet();
         } else {
-            return new HashSet<Integer>();
+            return new HashSet<>();
         }
     }
 
@@ -97,7 +91,7 @@ public class MemoryDataList {
                 return monthMap.get(month).keySet();
             }
         }
-        return new HashSet<LocalDate>();
+        return new HashSet<>();
     }
 
     public void clear() {
