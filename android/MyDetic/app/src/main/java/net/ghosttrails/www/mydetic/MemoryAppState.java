@@ -2,6 +2,10 @@ package net.ghosttrails.www.mydetic;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
@@ -133,7 +137,7 @@ public class MemoryAppState implements MemoryAppInterface {
         }
         getMemories().mergeFrom(
                 MyDeticSQLDBContract.getMemories(
-                        this.dbHandle, config.getActiveDataStore(), config.getUserName()));
+                        this.dbHandle, config.getUserName(), config.getActiveDataStore()));
     }
 
     public void loadMemoriesFromApi(final Context context,
@@ -156,7 +160,29 @@ public class MemoryAppState implements MemoryAppInterface {
                 externalListener.onApiError(e);
             }
         });
+    }
 
+    /** AsyncTask for doing things when the SQLite cache becomes available */
+    private class CacheWaiterTask extends AsyncTask<Runnable, Void, Void> {
+        @Override
+        protected Void doInBackground(Runnable... params) {
+            long startTime = SystemClock.elapsedRealtime();
+            while (dbHandle == null
+                    && ((SystemClock.elapsedRealtime() - startTime) < 10000L)) {
+                SystemClock.sleep(250);
+            }
+            // Run runnables on the main thread as they likely do UI stuff.
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            for (Runnable runnable : params) {
+                mainHandler.post(runnable);
+            }
+            return null;
+        }
+    }
+
+    /** Run a task when the SQLite cache is ready. */
+    public void onCacheReady(Runnable runnable) {
+        new CacheWaiterTask().execute(new Runnable[] {runnable});
     }
 
     /**

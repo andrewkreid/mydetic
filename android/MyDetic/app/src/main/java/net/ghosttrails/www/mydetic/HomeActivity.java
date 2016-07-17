@@ -35,12 +35,6 @@ public class HomeActivity extends LockableActivity {
 
         MemoryAppState appState = MemoryAppState.getInstance();
 
-        try {
-            appState.loadMemoriesFromCache();
-        } catch (MyDeticException e) {
-            Log.e(TAG, e.getMessage());
-        }
-
         mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
 
         // use this setting to improve performance if you know that changes
@@ -71,6 +65,20 @@ public class HomeActivity extends LockableActivity {
         mAdapter.setCardHistoryType(appState.getConfig().getListSetting());
         mRecyclerView.setAdapter(mAdapter);
 
+        // The SQLite cache is initialized asynchronously, so it may not be available yet.
+        appState.onCacheReady(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MemoryAppState.getInstance().loadMemoriesFromCache();
+                    mAdapter.recalculatePastMemoryDates();
+                    mAdapter.notifyDataSetChanged();
+                    mRecyclerView.invalidate();
+                } catch (MyDeticException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        });
     }
 
     @Override
@@ -107,12 +115,14 @@ public class HomeActivity extends LockableActivity {
                 appState.loadMemoriesFromApi(this, new MemoryApi.MemoryListListener() {
                     @Override
                     public void onApiResponse(MemoryDataList memories) {
+                        mAdapter.recalculatePastMemoryDates();
                         mAdapter.notifyDataSetChanged();
                         mRecyclerView.invalidate();
                     }
 
                     @Override
                     public void onApiError(MyDeticException exception) {
+                        mAdapter.recalculatePastMemoryDates();
                         mAdapter.notifyDataSetChanged();
                         mRecyclerView.invalidate();
                     }

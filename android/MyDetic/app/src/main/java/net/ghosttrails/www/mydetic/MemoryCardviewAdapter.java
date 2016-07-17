@@ -147,6 +147,8 @@ public class MemoryCardviewAdapter extends
         return mViewHolder;
     }
 
+
+
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -174,6 +176,7 @@ public class MemoryCardviewAdapter extends
                 return 0;
         }
     }
+
 
     /**
      * Map a list position to a date. Position 0 is today, 1 is yesterday, and
@@ -233,7 +236,7 @@ public class MemoryCardviewAdapter extends
      * In each case, pick the nearest memory, but don't add a date more than once. Add today and
      * yesterday even if there is no memory for those dates.
      */
-    private void recalculatePastMemoryDates() {
+    public void recalculatePastMemoryDates() {
         pastMemoryDates.clear();
 
         LocalDate today = positionToDateForThisWeek(0);
