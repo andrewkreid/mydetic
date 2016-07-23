@@ -1,6 +1,5 @@
 package net.ghosttrails.www.mydetic;
 
-import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
-
-import static net.ghosttrails.www.mydetic.R.color.error_text;
 
 /**
  * Adaptor to display memory cards for the last NUM_CARDS days.
@@ -160,6 +157,11 @@ public class MemoryCardviewAdapter extends
         if (memory != null) {
             holder.fillCard(memory);
         } else {
+            // If the date is in the list but we don't have the memory in the cache, attempt
+            // to download it.
+            if(!appState.getMemories().hasDate(memoryDate)) {
+                loadSingleMemoryFromApi(memoryDate);
+            }
             holder.fillCard(memoryDate);
         }
     }
@@ -255,25 +257,30 @@ public class MemoryCardviewAdapter extends
         final MemoryAppState appState = MemoryAppState.getInstance();
         for (LocalDate memoryDate : pastMemoryDates) {
             if (appState.getCachedMemory(memoryDate) == null) {
-                appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
-                        new MemoryApi.SingleMemoryListener() {
-                            @Override
-                            public void onApiResponse(MemoryData memory) {
-                                try {
-                                    appState.setCachedMemory(memory);
-                                    notifyDataSetChanged();
-                                } catch (MyDeticException e) {
-                                    Log.e("MemoryCardAdaptor", e.getMessage());
-                                }
-                            }
-
-                            @Override
-                            public void onApiError(MyDeticException exception) {
-                                Log.e("MemoryCardAdaptor", exception.getMessage());
-                            }
-                        });
+                loadSingleMemoryFromApi(memoryDate);
             }
         }
+    }
+
+    private void loadSingleMemoryFromApi(LocalDate memoryDate) {
+        final MemoryAppState appState = MemoryAppState.getInstance();
+        appState.getApi().getMemory(appState.getConfig().getUserName(), memoryDate,
+                new MemoryApi.SingleMemoryListener() {
+                    @Override
+                    public void onApiResponse(MemoryData memory) {
+                        try {
+                            appState.setCachedMemory(memory);
+                            notifyDataSetChanged();
+                        } catch (MyDeticException e) {
+                            Log.e("MemoryCardAdaptor", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onApiError(MyDeticException exception) {
+                        Log.e("MemoryCardAdaptor", exception.getMessage());
+                    }
+                });
     }
 
     private void findAndAddNearestMemoryDate(LocalDate date) {

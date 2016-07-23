@@ -70,7 +70,7 @@ public class HomeActivity extends LockableActivity {
             @Override
             public void run() {
                 try {
-                    MemoryAppState.getInstance().loadMemoriesFromCache();
+                    MemoryAppState.getInstance().loadMemoryDatesFromCache();
                     mAdapter.recalculatePastMemoryDates();
                     mAdapter.notifyDataSetChanged();
                     mRecyclerView.invalidate();
@@ -112,7 +112,7 @@ public class HomeActivity extends LockableActivity {
                 return true;
             case R.id.action_reload:
                 appState.refreshSettingsFromConfig(this);
-                appState.loadMemoriesFromApi(this, new MemoryApi.MemoryListListener() {
+                appState.loadMemoryDatesFromApi(this, new MemoryApi.MemoryListListener() {
                     @Override
                     public void onApiResponse(MemoryDataList memories) {
                         mAdapter.recalculatePastMemoryDates();

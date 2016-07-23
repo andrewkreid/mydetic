@@ -20,7 +20,17 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
 import org.joda.time.LocalDate;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
 /**
@@ -29,6 +39,9 @@ import java.util.HashMap;
 public class MemoryAppState implements MemoryAppInterface {
 
     private static MemoryAppState _state;
+
+    // File used to cache the JSON representation of the memory dates list.
+    private static final String MEMORY_DATES_CACHE_FILENAME = "memoryDates.json";
 
     private MemoryApi api;
     private MemoryDataList memories;
@@ -130,22 +143,29 @@ public class MemoryAppState implements MemoryAppInterface {
         this.dbHandle = dbHandle;
     }
 
-    public void loadMemoriesFromCache() throws MyDeticException {
+    /** Load memory dates from the cached file and merge with existing dates */
+    public void loadMemoryDatesFromCache() throws MyDeticException {
         if (this.dbHandle == null ) {
             throw new MyDeticReadFailedException(
                     "attempted to load memories from cache before configured");
         }
+        // Merge the cached dates list with the dates of every memory cached.
         getMemories().mergeFrom(
-                MyDeticSQLDBContract.getMemories(
+                MyDeticSQLDBContract.getMemoryDates(
+                        this.dbHandle, config.getUserName(), config.getActiveDataStore()));
+        getMemories().mergeFrom(
+                MyDeticSQLDBContract.getMemoryDetailDates(
                         this.dbHandle, config.getUserName(), config.getActiveDataStore()));
     }
 
-    public void loadMemoriesFromApi(final Context context,
-                                    final MemoryApi.MemoryListListener externalListener) {
+    public void loadMemoryDatesFromApi(final Context context,
+                                       final MemoryApi.MemoryListListener externalListener) {
         getApi().getMemories(config.getUserName(), new MemoryApi.MemoryListListener() {
             @Override
             public void onApiResponse(MemoryDataList newMemories) {
                 try {
+                    MyDeticSQLDBContract.putMemoryDates(dbHandle,
+                            config.getUserName(), config.getActiveDataStore(), newMemories);
                     getMemories().mergeFrom(newMemories);
                 } catch (MyDeticException e) {
                     AppUtils.smallToast(context, e.getMessage());

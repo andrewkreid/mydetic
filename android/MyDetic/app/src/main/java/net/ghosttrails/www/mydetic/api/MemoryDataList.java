@@ -11,13 +11,14 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 
 /**
  * A List of Memory dates returned from the API
  */
-public class MemoryDataList {
+public class MemoryDataList implements Iterable<LocalDate> {
 
     private String userId;
     private TreeMap<LocalDate, Boolean> dates;
@@ -149,6 +150,17 @@ public class MemoryDataList {
         }
     }
 
+    public JSONObject toJSON() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray memoryArray = new JSONArray();
+        for (LocalDate date: dates.keySet()) {
+            memoryArray.put(Utils.isoFormat(date));
+        }
+        jsonObject.put("memories", memoryArray);
+        jsonObject.put("user_id", userId);
+        return jsonObject;
+    }
+
     /**
      * @return a deep copy of this object.
      */
@@ -162,4 +174,8 @@ public class MemoryDataList {
         return retval;
     }
 
+    @Override
+    public Iterator<LocalDate> iterator() {
+        return dates.keySet().iterator();
+    }
 }
