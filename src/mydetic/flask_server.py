@@ -350,6 +350,7 @@ ds = None
 config = None
 password_store = None
 
+app = None
 
 def create_app():
     global ds
@@ -357,33 +358,34 @@ def create_app():
     global password_store
     global app
 
-    try:
-        app = Flask(__name__, static_url_path="")
-        api = Api(app)
-        password_store = None
+    if app is None:
+        try:
+            app = Flask(__name__, static_url_path="")
+            api = Api(app)
+            password_store = None
 
-        config = init_config()
+            config = init_config()
 
-        # A stand alone route for testing
-        @app.route('/')
-        def index():
-            # Some code here
-            return jsonify({'status': 200, 'success': True})
+            # A stand alone route for testing
+            @app.route('/')
+            def index():
+                # Some code here
+                return jsonify({'status': 200, 'success': True})
 
-        # Set up password store for HTTP Basic auth
-        if config['auth_config']['method'] == "HTTP Basic":
-            password_store = FilePasswordStore(config['auth_config']['store_file'])
-            MemoryAPI.decorators = [auth.login_required]
-            MemoryListAPI.decorators = [auth.login_required]
+            # Set up password store for HTTP Basic auth
+            if config['auth_config']['method'] == "HTTP Basic":
+                password_store = FilePasswordStore(config['auth_config']['store_file'])
+                MemoryAPI.decorators = [auth.login_required]
+                MemoryListAPI.decorators = [auth.login_required]
 
-        api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
-        api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
+            api.add_resource(MemoryListAPI, '/mydetic/api/v1.0/memories', endpoint='memories')
+            api.add_resource(MemoryAPI, '/mydetic/api/v1.0/memories/<string:date_str>', endpoint='memory')
 
-        ds = S3DataStore(s3_config=config["s3_config"])
+            ds = S3DataStore(s3_config=config["s3_config"])
 
-        return app
-    except:
-        traceback.print_exc(file=sys.stderr)
+        except:
+            traceback.print_exc(file=sys.stderr)
+    return app
 
 
 if __name__ == "__main__":
