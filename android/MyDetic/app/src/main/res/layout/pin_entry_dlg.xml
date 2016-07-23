@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_pin"
+        android:labelFor="@+id/enterPin"/>
+
+    <EditText
+        android:id="@+id/enterPin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/memory_card_text"
+        android:inputType="numberPassword"
+        android:maxLength="4"
+        >
+
+    </EditText>
+
+</LinearLayout>

@@ -1,132 +1,162 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
-import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
-import net.ghosttrails.www.mydetic.api.SampleSetPopulator;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
-import java.util.Date;
+import org.joda.time.LocalDate;
 
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends LockableActivity {
 
-  private ProgressDialog progressDialog;
-  private MyDeticApplication app;
-  private RecyclerView mRecyclerView;
-  private RecyclerView.Adapter mAdapter;
+    private static String TAG = "MyDeticHomeActivity";
+    private RecyclerView mRecyclerView;
+    private MemoryCardviewAdapter mAdapter;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_home);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
 
-    app = (MyDeticApplication) getApplicationContext();
+        // Disable screenshots in activity switcher.
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE);
 
-    mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
+        MemoryAppState appState = MemoryAppState.getInstance();
 
-    // use this setting to improve performance if you know that changes
-    // in content do not change the layout size of the RecyclerView
-    mRecyclerView.setHasFixedSize(true);
+        mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
 
-    // use a linear layout manager
-    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-    mRecyclerView.setLayoutManager(mLayoutManager);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
 
-    // specify an adapter.
-    mAdapter = new MemoryCardviewAdaptor(app, new CustomItemClickListener() {
-      @Override
-      public void onItemClick(View v, int position, Date memoryDate) {
-        // Clicking on a Memory card takes you to the detail activity for that date.
-        Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
-        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
-        if (app.getMemories().hasDate(memoryDate)) {
-          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
-        } else {
-          intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
-        }
-        startActivity(intent);
-      }
-    });
-    mRecyclerView.setAdapter(mAdapter);
+        // use a linear layout manager
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
-    app.reloadMemories();
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_home, menu);
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    // TODO: Think about menu layout. Should settings be available from all
-    // TODO: activities? Should Home be on the menu?
-    int id = item.getItemId();
-
-    switch (id) {
-      case R.id.action_settings:
-        startActivity(new Intent(this, SettingsActivity.class));
-        return true;
-      case R.id.action_list:
-        startActivity(new Intent(this, MemoryListActivity.class));
-        return true;
-      case R.id.action_new:
-        Intent intent = new Intent(this, MemoryDetailActivity.class);
-        intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
-        startActivity(intent);
-        return true;
-      case R.id.action_reload:
-        app.refreshSettingsFromConfig();
-        app.reloadMemories(new MemoryApi.MemoryListListener() {
-          @Override
-          public void onApiResponse(MemoryDataList memories) {
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.invalidate();
-          }
-
-          @Override
-          public void onApiError(MyDeticException exception) {
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.invalidate();
-          }
+        // specify an adapter.
+        mAdapter = new MemoryCardviewAdapter(new CustomItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position, LocalDate memoryDate) {
+                // Clicking on a Memory card takes you to the detail activity for that date.
+                Intent intent = new Intent(HomeActivity.this, MemoryDetailActivity.class);
+                intent.putExtra(
+                        MemoryDetailActivity.MEMORY_DETAIL_DATE, Utils.isoFormat(memoryDate));
+                if (MemoryAppState.getInstance().getMemories().hasDate(memoryDate)) {
+                    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "edit");
+                } else {
+                    intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
+                }
+                // setTransitioningToAppActivity(true);
+                startActivity(intent);
+            }
         });
-        return true;
-      default:
-        return super.onOptionsItemSelected(item);
+        mAdapter.setCardHistoryType(appState.getConfig().getListSetting());
+        mRecyclerView.setAdapter(mAdapter);
+
+        // The SQLite cache is initialized asynchronously, so it may not be available yet.
+        appState.onCacheReady(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MemoryAppState.getInstance().loadMemoriesFromCache();
+                    mAdapter.recalculatePastMemoryDates();
+                    mAdapter.notifyDataSetChanged();
+                    mRecyclerView.invalidate();
+                } catch (MyDeticException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        });
     }
-  }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-    mRecyclerView.invalidate();
-  }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
 
-  @Override
-  protected void onRestart() {
-    super.onRestart();
-    mAdapter.notifyDataSetChanged();
-    mRecyclerView.invalidate();
-  }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        // TODO: Think about menu layout. Should settings be available from all
+        // TODO: activities? Should Home be on the menu?
+        MemoryAppState appState = MemoryAppState.getInstance();
+        int id = item.getItemId();
 
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_list:
+                startActivity(new Intent(this, MemoryListActivity.class));
+                return true;
+            case R.id.action_new:
+                Intent intent = new Intent(this, MemoryDetailActivity.class);
+                intent.putExtra(MemoryDetailActivity.MEMORY_DETAIL_EDITMODE, "new");
+                startActivity(intent);
+                return true;
+            case R.id.action_reload:
+                appState.refreshSettingsFromConfig(this);
+                appState.loadMemoriesFromApi(this, new MemoryApi.MemoryListListener() {
+                    @Override
+                    public void onApiResponse(MemoryDataList memories) {
+                        mAdapter.recalculatePastMemoryDates();
+                        mAdapter.notifyDataSetChanged();
+                        mRecyclerView.invalidate();
+                    }
+
+                    @Override
+                    public void onApiError(MyDeticException exception) {
+                        mAdapter.recalculatePastMemoryDates();
+                        mAdapter.notifyDataSetChanged();
+                        mRecyclerView.invalidate();
+                    }
+                });
+                return true;
+            case R.id.action_thepast:
+                appState.getConfig().setListSetting(MyDeticConfig.LISTSETTING_THEPAST);
+                appState.getConfig().saveConfig(getApplicationContext());
+                mAdapter.setCardHistoryType(MyDeticConfig.LISTSETTING_THEPAST);
+                mAdapter.notifyDataSetChanged();
+                mRecyclerView.invalidate();
+                return true;
+            case R.id.action_thisweek:
+                appState.getConfig().setListSetting(MyDeticConfig.LISTSETTING_THISWEEK);
+                appState.getConfig().saveConfig(getApplicationContext());
+                mAdapter.setCardHistoryType(MyDeticConfig.LISTSETTING_THISWEEK);
+                mAdapter.notifyDataSetChanged();
+                mRecyclerView.invalidate();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mRecyclerView.invalidate();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        mAdapter.notifyDataSetChanged();
+        mRecyclerView.invalidate();
+    }
 }

@@ -2,6 +2,8 @@ package net.ghosttrails.www.mydetic.exceptions;
 
 import net.ghosttrails.www.mydetic.api.Utils;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Date;
  */
 public class MyDeticNoMemoryFoundException extends MyDeticException {
 
-    public MyDeticNoMemoryFoundException(String userId, Date date) {
+    public MyDeticNoMemoryFoundException(String userId, LocalDate date) {
         super(String.format("No memory for %s on %s", userId, Utils.isoFormat(date)));
     }
 }

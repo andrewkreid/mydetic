@@ -1,38 +1,39 @@
 package net.ghosttrails.www.mydetic.api;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 /**
  * Generic utility functions for working with Memories
  */
 public class Utils {
 
-  static DateFormat isoDf = new SimpleDateFormat("yyyy-MM-dd");
+    static DateTimeFormatter localDateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    static DateTimeFormatter localDateWithDayFmt = DateTimeFormat.forPattern("yyyy-MM-dd (EEE)");
 
-  /**
-   * Parse an ISO format date (YYYY-MM-DD) into a java.util.Date
-   *
-   * @param isostr the date in "YYYY-MM-DD" format
-   * @return a Date
-   * @throws java.text.ParseException
-   */
-  public static Date parseIsoDate(
-      String isostr) throws java.text.ParseException {
-    return isoDf.parse(isostr);
-  }
+    /**
+     * Parse an ISO format date (YYYY-MM-DD) into a java.util.Date
+     *
+     * @param isostr the date in "YYYY-MM-DD" format
+     * @return a LocalDate
+     * @throws java.text.ParseException
+     */
+    public static LocalDate parseIsoDate(String isostr) throws IllegalArgumentException {
+        return localDateFmt.parseLocalDate(isostr);
+    }
 
-  public static String isoFormat(Date date) {
-    return isoDf.format(date);
-  }
+    public static String isoFormat(LocalDate date) {
+        return localDateFmt.print(date);
+    }
 
-  public static Calendar dateToCalendar(Date date){
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(date);
-    return cal;
-  }
+    public static String isoFormatWithDay(LocalDate date) {
+        return localDateWithDayFmt.print(date);
+    }
 
 }

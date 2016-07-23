@@ -59,3 +59,8 @@ target/
 # So we don't check in our AWS credentials
 *_s3_config.json
 password*.json
+
+# Vim swap file
+.swp
+
+src/files.txt

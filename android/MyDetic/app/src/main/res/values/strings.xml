@@ -20,4 +20,30 @@
     <string name="action_list">Memory List</string>
     <string name="action_new">Add Memory</string>
     <string name="action_reload">Reload</string>
+    <string name="clear_local_cache">Clear Local Cache</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pin_1">1</string>
+    <string name="pin_2">2</string>
+    <string name="pin_3">3</string>
+    <string name="pin_4">4</string>
+    <string name="pin_5">5</string>
+    <string name="pin_6">6</string>
+    <string name="pin_7">7</string>
+    <string name="pin_8">8</string>
+    <string name="pin_9">9</string>
+    <string name="pin_0">0</string>
+    <string name="pin_star">*</string>
+    <string name="pin_clear">X</string>
+    <string name="enable_pin_lock">Enable PIN Lock</string>
+    <string name="set_pin">Set PIN</string>
+    <string name="enter_pin">Enter PIN :</string>
+    <string name="pins_dont_match">PINs don\'t match</string>
+    <string name="pin_not_valid">PIN not valid</string>
+    <string name="ok">OK</string>
+    <string name="action_thisweek">This week</string>
+    <string name="action_thepast">The Past</string>
+    <string name="enable_reminder">Enable Reminder</string>
+    <string name="memory_unsaved">Unsaved</string>
 </resources>

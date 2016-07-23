@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.ghosttrails.www.mydetic.HomeActivity">
+    <item android:id="@+id/action_thisweek" android:title="@string/action_thisweek"
+          android:orderInCategory="100" app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_view_agenda_white_24dp"/>
+    <item android:id="@+id/action_thepast" android:title="@string/action_thepast"
+          android:orderInCategory="100" app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_history_white_24dp" />
     <item android:id="@+id/action_list" android:title="@string/action_list"
           android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_new" android:title="@string/action_new"
