@@ -95,7 +95,11 @@ public class MemoryCardviewAdapter extends
             LocalDate nowDate = LocalDate.now();
             int dayDiff = Days.daysBetween(d, nowDate).getDays();
             int monthDiff = Months.monthsBetween(d, nowDate).getMonths();
-            int yearDiff = Years.yearsBetween(d, nowDate).getYears();
+            // int yearDiff = Years.yearsBetween(d, nowDate).getYears();
+
+            // Sort of round to nearest, so that dates that are a few days less that a year ago
+            // still say "1 year ago" etc.
+            int yearDiff = (int)Math.floor(dayDiff / 365.0 + 0.2);
             int weekDiff = Weeks.weeksBetween(d, nowDate).getWeeks();
             if (yearDiff > 1) {
                 return String.format(Locale.getDefault(), "%d years ago", yearDiff);

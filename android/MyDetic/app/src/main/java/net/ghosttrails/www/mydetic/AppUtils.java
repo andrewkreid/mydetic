@@ -77,6 +77,7 @@ public class AppUtils {
                         .setContentTitle("MyDetic reminder")
                         .setContentText("Enter today's memory")
                         .setContentIntent(resultPendingIntent)
+                        .setAutoCancel(true)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
                                 R.mipmap.mydetic));
 
