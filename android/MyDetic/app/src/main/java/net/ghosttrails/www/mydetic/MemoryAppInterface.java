@@ -7,8 +7,6 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 
 import org.joda.time.LocalDate;
 
-import java.util.Date;
-
 /**
  * Interface for classes that manage memory data.
  */

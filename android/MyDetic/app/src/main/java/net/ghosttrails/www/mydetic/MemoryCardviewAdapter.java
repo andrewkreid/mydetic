@@ -18,7 +18,6 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.joda.time.Weeks;
-import org.joda.time.Years;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -28,11 +27,11 @@ import java.util.TimeZone;
 /**
  * Adaptor to display memory cards for the last NUM_CARDS days.
  */
-public class MemoryCardviewAdapter extends
+class MemoryCardviewAdapter extends
         RecyclerView.Adapter<MemoryCardviewAdapter.ViewHolder> {
 
     // How many days from the ideal point in the past (eg "1 year ago") we search for a memory.
-    static final int DAY_THRESH = 12;
+    private static final int DAY_THRESH = 12;
 
     private int cardHistoryType;
 
@@ -44,17 +43,17 @@ public class MemoryCardviewAdapter extends
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public CardView mView;
-        public TextView titleView;
-        public TextView descriptionView;
-        public TextView memoryTextView;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        CardView mView;
+        TextView titleView;
+        TextView descriptionView;
+        TextView memoryTextView;
         public LocalDate memoryDate;
 
         private int mErrorColor;
         private int mMemoryTextColor;
 
-        public ViewHolder(CardView v, int errorColor, int textColor) {
+        ViewHolder(CardView v, int errorColor, int textColor) {
             super(v);
             mView = v;
             mErrorColor = errorColor;
@@ -64,14 +63,14 @@ public class MemoryCardviewAdapter extends
             descriptionView = (TextView) mView.findViewById(R.id.memory_card_view_description);
         }
 
-        public void fillCard(LocalDate d) {
+        void fillCard(LocalDate d) {
             memoryDate = d;
             titleView.setText(Utils.isoFormatWithDay(d));
             memoryTextView.setText("");
             descriptionView.setText(descriptionForDate(memoryDate));
         }
 
-        public void fillCard(MemoryData memory) {
+        void fillCard(MemoryData memory) {
             memoryDate = memory.getMemoryDate();
             titleView.setText(Utils.isoFormatWithDay(memory.getMemoryDate()));
             memoryTextView.setText(memory.getMemoryText());
@@ -123,7 +122,7 @@ public class MemoryCardviewAdapter extends
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MemoryCardviewAdapter(CustomItemClickListener listener) {
+    MemoryCardviewAdapter(CustomItemClickListener listener) {
         this.listener = listener;
         this.cardHistoryType = MyDeticConfig.LISTSETTING_THISWEEK;
         this.pastMemoryDates = new ArrayList<>();
@@ -141,7 +140,7 @@ public class MemoryCardviewAdapter extends
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onItemClick(v, mViewHolder.getPosition(), mViewHolder.memoryDate);
+                listener.onItemClick(v, mViewHolder.getLayoutPosition(), mViewHolder.memoryDate);
             }
         });
         // TODO set the view's size, margins, paddings and layout parameters
@@ -218,7 +217,7 @@ public class MemoryCardviewAdapter extends
         return pastMemoryDates.get(position);
     }
 
-    public void setCardHistoryType(int cardHistoryType) {
+    void setCardHistoryType(int cardHistoryType) {
         this.cardHistoryType = cardHistoryType;
         if (this.cardHistoryType == MyDeticConfig.LISTSETTING_THEPAST) {
             recalculatePastMemoryDates();
@@ -242,7 +241,7 @@ public class MemoryCardviewAdapter extends
      * In each case, pick the nearest memory, but don't add a date more than once. Add today and
      * yesterday even if there is no memory for those dates.
      */
-    public void recalculatePastMemoryDates() {
+    void recalculatePastMemoryDates() {
         pastMemoryDates.clear();
 
         LocalDate today = positionToDateForThisWeek(0);

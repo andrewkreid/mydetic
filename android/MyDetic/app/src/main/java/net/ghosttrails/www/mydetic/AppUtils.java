@@ -15,15 +15,15 @@ import java.util.Calendar;
 /**
  * Miscellaneous helper functions.
  */
-public class AppUtils {
+class AppUtils {
 
-    public static void smallToast(Context context, String msg) {
+    static void smallToast(Context context, String msg) {
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(context.getApplicationContext(), msg, duration);
         toast.show();
     }
 
-    public static void setReminderNotification(Context context) {
+    static void setReminderNotification(Context context) {
 
         AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
@@ -43,7 +43,7 @@ public class AppUtils {
         //alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
     }
 
-    public static void cancelReminderNotification(Context context) {
+    static void cancelReminderNotification(Context context) {
         AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarmIntent = createAlarmIntent(context);
         if (alarmMgr != null) {

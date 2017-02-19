@@ -114,7 +114,7 @@ public class MemoryDetailActivity extends LockableActivity
         saveButton.setEnabled(false);
 
         dateTextView = (TextView) findViewById(R.id.memory_title);
-        dateTextView.setText("Select Date...");
+        dateTextView.setText(R.string.select_date);
 
         if (editMode == MemoryDetailMode.MODE_EXISTING) {
             // Load the memory.

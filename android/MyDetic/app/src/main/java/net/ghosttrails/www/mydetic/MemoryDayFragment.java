@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TwoLineListItem;
@@ -19,7 +20,6 @@ import net.ghosttrails.www.mydetic.api.Utils;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,12 +55,10 @@ public class MemoryDayFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //setListAdapter(new ArrayAdapter<String>(getActivity(),
-        //    android.R.layout.simple_list_item_1, android.R.id.text1, dateNames));
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
             mListener = (OnFragmentInteractionListener) activity;
@@ -138,7 +136,7 @@ public class MemoryDayFragment extends ListFragment {
         private Context context;
         private List<LocalDate> mMemories;
 
-        public MemoriesAdapter(Context context, List<LocalDate> memories) {
+        MemoriesAdapter(Context context, List<LocalDate> memories) {
             this.mMemories = memories;
             this.context = context;
         }
@@ -161,21 +159,19 @@ public class MemoryDayFragment extends ListFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            // TODO: This is lazy. Replace with a custom layout for list items.
-
-            TwoLineListItem twoLineListItem;
+            LinearLayout twoLineListItem;
 
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                twoLineListItem = (TwoLineListItem) inflater.inflate(
-                        android.R.layout.simple_list_item_2, null);
+                twoLineListItem = (LinearLayout) inflater.inflate(
+                        R.layout.day_list_item, null);
             } else {
-                twoLineListItem = (TwoLineListItem) convertView;
+                twoLineListItem = (LinearLayout) convertView;
             }
 
-            TextView text1 = twoLineListItem.getText1();
-            TextView text2 = twoLineListItem.getText2();
+            TextView text1 = (TextView) twoLineListItem.findViewById(R.id.topline);
+            TextView text2 = (TextView) twoLineListItem.findViewById(R.id.bottomline);
 
             LocalDate memoryDate = mMemories.get(position);
             text1.setText(Utils.isoFormat(memoryDate));

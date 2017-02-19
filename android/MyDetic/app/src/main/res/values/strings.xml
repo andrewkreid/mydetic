@@ -47,4 +47,5 @@
     <string name="enable_reminder">Enable Reminder</string>
     <string name="memory_unsaved">Unsaved</string>
     <string name="re_enter_pin">Re-enter PIN :</string>
+    <string name="select_date">Select Date...</string>
 </resources>

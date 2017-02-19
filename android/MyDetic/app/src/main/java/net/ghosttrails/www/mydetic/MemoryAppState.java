@@ -20,17 +20,7 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 
 import org.joda.time.LocalDate;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
 /**
@@ -39,9 +29,6 @@ import java.util.HashMap;
 public class MemoryAppState implements MemoryAppInterface {
 
     private static MemoryAppState _state;
-
-    // File used to cache the JSON representation of the memory dates list.
-    private static final String MEMORY_DATES_CACHE_FILENAME = "memoryDates.json";
 
     private MemoryApi api;
     private MemoryDataList memories;
@@ -131,20 +118,20 @@ public class MemoryAppState implements MemoryAppInterface {
         this.config = config;
     }
 
-    public MyDeticSQLDBHelper getCacheDbHelper() {
+    MyDeticSQLDBHelper getCacheDbHelper() {
         return cacheDbHelper;
     }
 
-    public void setCacheDbHelper(MyDeticSQLDBHelper cacheDbHelper) {
+    void setCacheDbHelper(MyDeticSQLDBHelper cacheDbHelper) {
         this.cacheDbHelper = cacheDbHelper;
     }
 
-    public void setDbHandle(SQLiteDatabase dbHandle) {
+    void setDbHandle(SQLiteDatabase dbHandle) {
         this.dbHandle = dbHandle;
     }
 
     /** Load memory dates from the cached file and merge with existing dates */
-    public void loadMemoryDatesFromCache() throws MyDeticException {
+    void loadMemoryDatesFromCache() throws MyDeticException {
         if (this.dbHandle == null ) {
             throw new MyDeticReadFailedException(
                     "attempted to load memories from cache before configured");
@@ -158,7 +145,7 @@ public class MemoryAppState implements MemoryAppInterface {
                         this.dbHandle, config.getUserName(), config.getActiveDataStore()));
     }
 
-    public void loadMemoryDatesFromApi(final Context context,
+    void loadMemoryDatesFromApi(final Context context,
                                        final MemoryApi.MemoryListListener externalListener) {
         getApi().getMemories(config.getUserName(), new MemoryApi.MemoryListListener() {
             @Override
@@ -201,7 +188,7 @@ public class MemoryAppState implements MemoryAppInterface {
     }
 
     /** Run a task when the SQLite cache is ready. */
-    public void onCacheReady(Runnable runnable) {
+    void onCacheReady(Runnable runnable) {
         new CacheWaiterTask().execute(new Runnable[] {runnable});
     }
 
@@ -209,7 +196,7 @@ public class MemoryAppState implements MemoryAppInterface {
      * Update the API and user params from the config (eg when it has changed).
      * Clear existing memory data in RAM.
      */
-    public void refreshSettingsFromConfig(Context context) {
+    void refreshSettingsFromConfig(Context context) {
         // Init the api and memory list
         if (config == null) {
             return;

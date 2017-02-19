@@ -20,7 +20,7 @@ public class DatePickerFragment extends DialogFragment
 
     public DatePickerFragment() {
         super();
-        listeners = new ArrayList<DatePickerDialog.OnDateSetListener>();
+        listeners = new ArrayList<>();
     }
 
     public void addListener(DatePickerDialog.OnDateSetListener listener) {
