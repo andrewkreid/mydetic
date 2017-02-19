@@ -21,8 +21,10 @@ public class LockableActivity extends Activity
 
         MemoryAppState appState = MemoryAppState.getInstance();
 
-        boolean resumedQuickly = (SystemClock.elapsedRealtime() - getTimePaused()) < PIN_LOCK_DELAY_MS;
-        if (appState.getConfig().isUsingSecurityPin() && (!resumedQuickly || isPinLockDisplayed())) {
+        boolean resumedQuickly = (SystemClock.elapsedRealtime()
+                - getTimePaused()) < PIN_LOCK_DELAY_MS;
+        if (appState.getConfig().isUsingSecurityPin()
+                && (!resumedQuickly || isPinLockDisplayed())) {
             // Add the PIN fragment
             if (pinFragment == null) {
                 pinFragment = new SecurityPinFragment();
@@ -50,11 +52,12 @@ public class LockableActivity extends Activity
 
     public void setPinLockDisplayed(boolean isDisplayed) {
         getSharedPreferences("MyDeticTransition", 0).edit()
-                .putBoolean("IS_PIN_LOCK_DISPLAYED", isDisplayed).commit();
+                .putBoolean("IS_PIN_LOCK_DISPLAYED", isDisplayed).apply();
     }
 
     public boolean isPinLockDisplayed() {
-        return getSharedPreferences("MyDeticTransition", 0).getBoolean("IS_PIN_LOCK_DISPLAYED", false);
+        return getSharedPreferences("MyDeticTransition", 0).getBoolean("IS_PIN_LOCK_DISPLAYED",
+                false);
     }
 
     /**
@@ -63,7 +66,7 @@ public class LockableActivity extends Activity
      */
     public void setTimePaused() {
         getSharedPreferences("MyDeticTransition", 0).edit()
-                .putLong("PAUSE_TIME_MS", SystemClock.elapsedRealtime()).commit();
+                .putLong("PAUSE_TIME_MS", SystemClock.elapsedRealtime()).apply();
     }
 
     public long getTimePaused() {

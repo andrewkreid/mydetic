@@ -2,6 +2,7 @@ package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 
 /**
@@ -69,13 +71,14 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
             numberButton.setOnClickListener(this);
         }
 
+        pinDigitViews[0].requestFocus();
         updateDigitDisplay();
 
         return view;
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
             mListener = (OnFragmentInteractionListener) activity;
@@ -145,8 +148,8 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
         if (pinEntryIdx == 4) {
             MemoryAppState appState = MemoryAppState.getInstance();
             MyDeticConfig config = appState.getConfig();
-            String enteredPin = String.format("%d%d%d%d", pinDigits[0], pinDigits[1], pinDigits[2],
-                    pinDigits[3]);
+            String enteredPin = String.format(Locale.getDefault(),
+                    "%d%d%d%d", pinDigits[0], pinDigits[1], pinDigits[2], pinDigits[3]);
             if (enteredPin.equals(config.getSecurityPin())) {
                 mListener.onDismissed();
             } else {

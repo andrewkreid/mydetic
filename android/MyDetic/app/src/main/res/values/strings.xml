@@ -46,4 +46,5 @@
     <string name="action_thepast">The Past</string>
     <string name="enable_reminder">Enable Reminder</string>
     <string name="memory_unsaved">Unsaved</string>
+    <string name="re_enter_pin">Re-enter PIN :</string>
 </resources>

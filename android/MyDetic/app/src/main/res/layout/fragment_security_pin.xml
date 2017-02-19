@@ -17,6 +17,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp">
 
+        <!-- focusable so we can steal the focus from any underlying control -->
         <TextView
             android:layout_width="70dp"
             android:layout_height="70dp"
@@ -28,7 +29,9 @@
             android:maxLines="1"
             android:background="@color/primary_light"
             android:gravity="center_vertical|center|center_horizontal"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
         <TextView
             android:layout_width="70dp"
