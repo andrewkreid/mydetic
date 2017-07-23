@@ -255,6 +255,8 @@ class MemoryCardviewAdapter extends
         findAndAddNearestMemoryDate(today.minusYears(3));
         findAndAddNearestMemoryDate(today.minusYears(4));
         findAndAddNearestMemoryDate(today.minusYears(5));
+        findAndAddNearestMemoryDate(today.minusYears(6));
+        findAndAddNearestMemoryDate(today.minusYears(7));
 
         // Download any uncached memories in the list
         final MemoryAppState appState = MemoryAppState.getInstance();
