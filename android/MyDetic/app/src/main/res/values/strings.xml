@@ -48,4 +48,6 @@
     <string name="memory_unsaved">Unsaved</string>
     <string name="re_enter_pin">Re-enter PIN :</string>
     <string name="select_date">Select Date...</string>
+    <string name="channel_name">MyDetic</string>
+    <string name="channel_description">MyDetic Reminders</string>
 </resources>

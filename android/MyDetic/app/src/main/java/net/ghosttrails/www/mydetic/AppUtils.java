@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -78,6 +80,7 @@ class AppUtils {
                         .setContentText("Enter today's memory")
                         .setContentIntent(resultPendingIntent)
                         .setAutoCancel(true)
+                        .setChannelId(AlarmReceiver.NOTIFICATION_CHANNEL_ID)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
                                 R.mipmap.mydetic));
 
