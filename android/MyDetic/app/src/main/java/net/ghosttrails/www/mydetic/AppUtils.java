@@ -41,8 +41,11 @@ class AppUtils {
         // constants--in this case, AlarmManager.INTERVAL_DAY.
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, alarmIntent);
-        //long futureInMillis = SystemClock.elapsedRealtime() + 10000;
-        //alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
+
+        /* Set notification for 10 seconds in the future - for testing.
+        long futureInMillis = SystemClock.elapsedRealtime() + 10000;
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
+         */
     }
 
     static void cancelReminderNotification(Context context) {
@@ -73,18 +76,16 @@ class AppUtils {
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intent = new Intent(context, AlarmReceiver.class);
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
+        Notification notification =
+                new Notification.Builder(context, AlarmReceiver.NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.mydetic_notification_white_24dp)
                         .setContentTitle("MyDetic reminder")
                         .setContentText("Enter today's memory")
                         .setContentIntent(resultPendingIntent)
                         .setAutoCancel(true)
-                        .setChannelId(AlarmReceiver.NOTIFICATION_CHANNEL_ID)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                                R.mipmap.mydetic));
+                                R.mipmap.mydetic)).build();
 
-        Notification notification = mBuilder.build();
         intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
         intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
         alarmIntent = PendingIntent.getBroadcast(context, 0, intent,

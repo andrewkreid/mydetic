@@ -6,7 +6,7 @@ import android.os.SystemClock;
 /**
  * A Base class for activities that lock themselves with the security PIN fragment when resumed.
  */
-public class LockableActivity extends Activity
+public abstract class LockableActivity extends Activity
         implements SecurityPinFragment.OnFragmentInteractionListener {
 
     // If we move from one LockableActivity to another in less than this amount, then
