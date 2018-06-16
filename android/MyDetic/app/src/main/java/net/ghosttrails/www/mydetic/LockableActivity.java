@@ -21,8 +21,10 @@ public abstract class LockableActivity extends Activity
 
         MemoryAppState appState = MemoryAppState.getInstance();
 
-        boolean resumedQuickly = (SystemClock.elapsedRealtime()
-                - getTimePaused()) < PIN_LOCK_DELAY_MS;
+        long delayMillis = SystemClock.elapsedRealtime() - getTimePaused();
+        // If the delay is negative, this may indicate a device reboot since the app was last
+        // paused.
+        boolean resumedQuickly = delayMillis > 0L && delayMillis < PIN_LOCK_DELAY_MS;
         if (appState.getConfig().isUsingSecurityPin()
                 && (!resumedQuickly || isPinLockDisplayed())) {
             // Add the PIN fragment
