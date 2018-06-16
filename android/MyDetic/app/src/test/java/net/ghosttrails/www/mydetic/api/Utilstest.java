@@ -1,20 +1,23 @@
 package net.ghosttrails.www.mydetic.api;
 
-import junit.framework.TestCase;
-
-import org.joda.time.LocalDate;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
+import org.joda.time.LocalDate;
+import org.junit.Test;
 
-public class Utilstest extends TestCase {
+public class Utilstest  {
 
-    public void testParseIso() throws ParseException {
+    @Test
+    public void testParseIso() {
         LocalDate d1 = Utils.parseIsoDate("2014-11-12");
         assertEquals(11, d1.getMonthOfYear());
         assertEquals(12, d1.getDayOfMonth());
         assertEquals(2014, d1.getYear());
     }
 
+    @Test
     public void testParseIsoFail() {
         try {
             LocalDate d1 = Utils.parseIsoDate("20tr14-11-12");

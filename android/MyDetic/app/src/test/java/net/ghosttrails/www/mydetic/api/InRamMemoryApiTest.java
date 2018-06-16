@@ -1,18 +1,27 @@
 package net.ghosttrails.www.mydetic.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import junit.framework.TestCase;
 
+import net.ghosttrails.www.mydetic.api.MemoryApi.MemoryListListener;
+import net.ghosttrails.www.mydetic.api.MemoryApi.SingleMemoryListener;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 
 import org.joda.time.LocalDate;
-
-import java.util.Date;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 /**
  * Unit Tests for InRamMemoryApi
  */
-public class InRamMemoryApiTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+public class InRamMemoryApiTest {
 
   private static long BLOCKING_TIMEOUT_MS = 2000;
 
@@ -21,9 +30,8 @@ public class InRamMemoryApiTest extends TestCase {
   private LocalDate date = new LocalDate(2014, 5, 3);
   private boolean isApiCallInFlight = false;
 
-  @Override
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
     this.api = new InRamMemoryApi();
     this.isApiCallInFlight = false;
   }
@@ -53,7 +61,7 @@ public class InRamMemoryApiTest extends TestCase {
       throw new Exception("blockingMemoryPut called when isApiCallInFlight is true");
     }
     isApiCallInFlight = true;
-    api.putMemory(userId, memory, new MemoryApi.SingleMemoryListener() {
+    api.putMemory(userId, memory, new SingleMemoryListener() {
       @Override
       public void onApiResponse(MemoryData memory) {
         isApiCallInFlight = false;
@@ -74,7 +82,7 @@ public class InRamMemoryApiTest extends TestCase {
     }
     isApiCallInFlight = true;
     final MemoryData[] retval = {null};
-    api.getMemory(userId, memoryDate, new MemoryApi.SingleMemoryListener() {
+    api.getMemory(userId, memoryDate, new SingleMemoryListener() {
       @Override
       public void onApiResponse(MemoryData memory) {
         retval[0] = memory;
@@ -98,7 +106,7 @@ public class InRamMemoryApiTest extends TestCase {
     }
     isApiCallInFlight = true;
     final MemoryData[] retval = {null};
-    api.deleteMemory(userId, memoryDate, new MemoryApi.SingleMemoryListener() {
+    api.deleteMemory(userId, memoryDate, new SingleMemoryListener() {
       @Override
       public void onApiResponse(MemoryData memory) {
         retval[0] = memory;
@@ -128,7 +136,7 @@ public class InRamMemoryApiTest extends TestCase {
     }
     isApiCallInFlight = true;
     final MemoryDataList[] retval = {null};
-    api.getMemories(userId, fromDate, toDate, new MemoryApi.MemoryListListener() {
+    api.getMemories(userId, fromDate, toDate, new MemoryListListener() {
       @Override
       public void onApiResponse(MemoryDataList memories) {
         retval[0] = memories;
@@ -146,6 +154,7 @@ public class InRamMemoryApiTest extends TestCase {
   }
 
 
+  @Test
   public void testAddAndRetrieve() throws Exception {
 
     assertEquals("Should have no memories", 0, blockingMemoriesGet(userId).getDates().size());
@@ -166,6 +175,7 @@ public class InRamMemoryApiTest extends TestCase {
     assertNull(blockingMemoryGet("different user", date));
   }
 
+  @Test
   public void testUpdate() throws Exception {
     blockingMemoryPut(userId, new MemoryData(userId, "a memory", date));
     MemoryData md = blockingMemoryGet(userId, date);
@@ -176,6 +186,7 @@ public class InRamMemoryApiTest extends TestCase {
     assertEquals("another memory", md.getMemoryText());
   }
 
+  @Test
   public void testRetrieveRange() throws Exception {
 
     blockingMemoryPut(userId, new MemoryData(userId, "2014-05-01", new LocalDate(2014, 5, 1)));
@@ -194,6 +205,7 @@ public class InRamMemoryApiTest extends TestCase {
     assertEquals(1, blockingMemoriesGet(userId, new LocalDate(2014, 5, 3), new LocalDate(2014, 5, 3)).getDates().size());
   }
 
+  @Test
   public void testDelete() throws Exception {
     blockingMemoryPut(userId, new MemoryData(userId, "2014-05-01", new LocalDate(2014, 5, 1)));
     blockingMemoryPut(userId, new MemoryData(userId, "2014-05-02", new LocalDate(2014, 5, 2)));

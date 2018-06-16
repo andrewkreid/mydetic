@@ -1,5 +1,9 @@
 package net.ghosttrails.www.mydetic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.util.Log;
 
 import com.tozny.crypto.android.AesCbcWithIntegrity;
@@ -13,20 +17,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import org.junit.Test;
 
 /**
  * Tests for MyDeticConfig
  */
-public class MyDeticConfigTest extends TestCase {
+public class MyDeticConfigTest {
 
-  public void testKeysCanBeGenerated() throws GeneralSecurityException {
-    AesCbcWithIntegrity.SecretKeys keys = AesCbcWithIntegrity.generateKey();
-    String strKey = keys.toString();
-    Log.i("MyDetic tests", strKey);
-    assertNotNull(strKey);
-    assertTrue(strKey.length() > 0);
-  }
-
+  @Test
   public void testSerialization() throws IOException, JSONException {
     MyDeticConfig config = new MyDeticConfig();
     config.setActiveDataStore(MyDeticConfig.DS_RESTAPI);

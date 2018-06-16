@@ -1,19 +1,22 @@
 package net.ghosttrails.www.mydetic.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import junit.framework.TestCase;
 
 import org.joda.time.LocalDate;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.Set;
+import org.junit.Test;
 
 /**
  * Tests for MemoryDataList
  */
-public class MemoryDataListTest extends TestCase {
+public class MemoryDataListTest {
 
+  @Test
   public void testEverything() {
     MemoryDataList list = new MemoryDataList();
     assertEquals(0, list.getDates().size());

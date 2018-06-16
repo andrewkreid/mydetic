@@ -3,6 +3,7 @@ package net.ghosttrails.www.mydetic;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -147,7 +148,7 @@ public class MyDeticConfig {
         JSONObject jsonObject = new JSONObject(jsonStr);
         int configVersion = jsonObject.getInt(KEY_CONFIG_VERSION);
         if (configVersion > CONFIG_VERSION) {
-            String errMsg = String.format("Config version of %d is larger than " + "expected (%d)",
+            String errMsg = String.format(Locale.getDefault(), "Config version of %d is larger than " + "expected (%d)",
                     configVersion, CONFIG_VERSION);
             Log.e("MyDeticConfig", errMsg);
             throw new JSONException(errMsg);

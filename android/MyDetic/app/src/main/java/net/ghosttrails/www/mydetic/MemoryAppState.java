@@ -197,7 +197,7 @@ public class MemoryAppState implements MemoryAppInterface {
      * Clear existing memory data in RAM.
      */
     void refreshSettingsFromConfig(Context context) {
-        // Init the api and memory list
+        // Init the net.ghosttrails.www.mydetic.api and memory list
         if (config == null) {
             return;
         }

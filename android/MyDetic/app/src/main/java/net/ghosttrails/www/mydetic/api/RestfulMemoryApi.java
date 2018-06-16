@@ -23,7 +23,7 @@ import java.util.Locale;
 public class RestfulMemoryApi implements MemoryApi {
 
     // The default URL path for API calls.
-    private static final String API_PATH = "mydetic/api/v1.0";
+    private static final String API_PATH = "mydetic/net.ghosttrails.www.mydetic.api/v1.0";
 
     private RequestQueue requestQueue;
     private MyDeticConfig config;
