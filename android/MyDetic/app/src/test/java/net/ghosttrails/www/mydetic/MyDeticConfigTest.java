@@ -1,27 +1,15 @@
 package net.ghosttrails.www.mydetic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import android.util.Log;
-
-import com.tozny.crypto.android.AesCbcWithIntegrity;
-
-import junit.framework.TestCase;
-
-import org.json.JSONException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.security.GeneralSecurityException;
+import org.json.JSONException;
 import org.junit.Test;
 
-/**
- * Tests for MyDeticConfig
- */
+/** Tests for MyDeticConfig */
 public class MyDeticConfigTest {
 
   @Test

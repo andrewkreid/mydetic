@@ -6,10 +6,9 @@ package net.ghosttrails.www.mydetic;
  */
 public interface MemoryListFragmentDataProvider {
 
-    public MemoryAppInterface getAppInterface();
+  public MemoryAppInterface getAppInterface();
 
-    public int getMemoryListYear();
+  public int getMemoryListYear();
 
-    public int getMemoryListMonth();
-
+  public int getMemoryListMonth();
 }

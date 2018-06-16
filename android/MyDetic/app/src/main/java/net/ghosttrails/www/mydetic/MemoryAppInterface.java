@@ -4,30 +4,26 @@ import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-
 import org.joda.time.LocalDate;
 
-/**
- * Interface for classes that manage memory data.
- */
+/** Interface for classes that manage memory data. */
 public interface MemoryAppInterface {
 
-    MemoryApi getApi();
+  MemoryApi getApi();
 
-    void setApi(MemoryApi api);
+  void setApi(MemoryApi api);
 
-    MemoryDataList getMemories();
+  MemoryDataList getMemories();
 
-    void setMemories(MemoryDataList memories);
+  void setMemories(MemoryDataList memories);
 
-    MemoryData getCachedMemory(LocalDate d);
+  MemoryData getCachedMemory(LocalDate d);
 
-    void setCachedMemory(MemoryData memoryData) throws MyDeticException;
+  void setCachedMemory(MemoryData memoryData) throws MyDeticException;
 
-    void clearMemoryCache();
+  void clearMemoryCache();
 
-    MyDeticConfig getConfig();
+  MyDeticConfig getConfig();
 
-    void setConfig(MyDeticConfig config);
-
+  void setConfig(MyDeticConfig config);
 }

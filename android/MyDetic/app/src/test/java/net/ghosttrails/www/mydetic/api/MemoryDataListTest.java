@@ -4,16 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
-
-import org.joda.time.LocalDate;
-
 import java.util.Iterator;
+import org.joda.time.LocalDate;
 import org.junit.Test;
 
-/**
- * Tests for MemoryDataList
- */
+/** Tests for MemoryDataList */
 public class MemoryDataListTest {
 
   @Test

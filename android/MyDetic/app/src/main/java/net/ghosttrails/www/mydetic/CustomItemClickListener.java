@@ -1,15 +1,12 @@
 package net.ghosttrails.www.mydetic;
 
 import android.view.View;
-
 import org.joda.time.LocalDate;
 
-import java.util.Date;
-
 /**
- * Interface used by MemoryCardViewAdapter to allow a listener to be assigned to taps
- * on the individual memory cards.
+ * Interface used by MemoryCardViewAdapter to allow a listener to be assigned to taps on the
+ * individual memory cards.
  */
 public interface CustomItemClickListener {
-    void onItemClick(View v, int position, LocalDate memoryDate);
+  void onItemClick(View v, int position, LocalDate memoryDate);
 }

@@ -5,21 +5,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
-
 import net.ghosttrails.www.mydetic.api.MemoryApi.MemoryListListener;
 import net.ghosttrails.www.mydetic.api.MemoryApi.SingleMemoryListener;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit Tests for InRamMemoryApi
- */
+/** Unit Tests for InRamMemoryApi */
 @RunWith(RobolectricTestRunner.class)
 public class InRamMemoryApiTest {
 
@@ -39,8 +34,7 @@ public class InRamMemoryApiTest {
   private void waitForApiCall() {
     // Wait for put to finish or time out
     long startTime = System.currentTimeMillis();
-    while (isApiCallInFlight
-        && ((System.currentTimeMillis() - startTime) < BLOCKING_TIMEOUT_MS)) {
+    while (isApiCallInFlight && ((System.currentTimeMillis() - startTime) < BLOCKING_TIMEOUT_MS)) {
       try {
         Thread.sleep(100, 0);
       } catch (InterruptedException e) {
@@ -55,104 +49,111 @@ public class InRamMemoryApiTest {
    * @param userId
    * @param memory
    */
-  private void blockingMemoryPut(String userId,
-                                 MemoryData memory) throws Exception {
+  private void blockingMemoryPut(String userId, MemoryData memory) throws Exception {
     if (isApiCallInFlight) {
       throw new Exception("blockingMemoryPut called when isApiCallInFlight is true");
     }
     isApiCallInFlight = true;
-    api.putMemory(userId, memory, new SingleMemoryListener() {
-      @Override
-      public void onApiResponse(MemoryData memory) {
-        isApiCallInFlight = false;
-      }
+    api.putMemory(
+        userId,
+        memory,
+        new SingleMemoryListener() {
+          @Override
+          public void onApiResponse(MemoryData memory) {
+            isApiCallInFlight = false;
+          }
 
-      @Override
-      public void onApiError(MyDeticException exception) {
-        isApiCallInFlight = false;
-      }
-    });
+          @Override
+          public void onApiError(MyDeticException exception) {
+            isApiCallInFlight = false;
+          }
+        });
     waitForApiCall();
   }
 
-  private MemoryData blockingMemoryGet(String userId,
-                                       LocalDate memoryDate) throws Exception {
+  private MemoryData blockingMemoryGet(String userId, LocalDate memoryDate) throws Exception {
     if (isApiCallInFlight) {
       throw new Exception("blockingMemoryGet called when isApiCallInFlight is true");
     }
     isApiCallInFlight = true;
     final MemoryData[] retval = {null};
-    api.getMemory(userId, memoryDate, new SingleMemoryListener() {
-      @Override
-      public void onApiResponse(MemoryData memory) {
-        retval[0] = memory;
-        isApiCallInFlight = false;
-      }
+    api.getMemory(
+        userId,
+        memoryDate,
+        new SingleMemoryListener() {
+          @Override
+          public void onApiResponse(MemoryData memory) {
+            retval[0] = memory;
+            isApiCallInFlight = false;
+          }
 
-      @Override
-      public void onApiError(MyDeticException exception) {
-        isApiCallInFlight = false;
-      }
-    });
+          @Override
+          public void onApiError(MyDeticException exception) {
+            isApiCallInFlight = false;
+          }
+        });
 
     waitForApiCall();
     return retval[0];
   }
 
-  private MemoryData blockingMemoryDelete(String userId,
-                                          LocalDate memoryDate) throws Exception {
+  private MemoryData blockingMemoryDelete(String userId, LocalDate memoryDate) throws Exception {
     if (isApiCallInFlight) {
       throw new Exception("blockingMemoryGet called when isApiCallInFlight is true");
     }
     isApiCallInFlight = true;
     final MemoryData[] retval = {null};
-    api.deleteMemory(userId, memoryDate, new SingleMemoryListener() {
-      @Override
-      public void onApiResponse(MemoryData memory) {
-        retval[0] = memory;
-        isApiCallInFlight = false;
-      }
+    api.deleteMemory(
+        userId,
+        memoryDate,
+        new SingleMemoryListener() {
+          @Override
+          public void onApiResponse(MemoryData memory) {
+            retval[0] = memory;
+            isApiCallInFlight = false;
+          }
 
-      @Override
-      public void onApiError(MyDeticException exception) {
-        isApiCallInFlight = false;
-      }
-    });
+          @Override
+          public void onApiError(MyDeticException exception) {
+            isApiCallInFlight = false;
+          }
+        });
 
     waitForApiCall();
     return retval[0];
   }
-
 
   private MemoryDataList blockingMemoriesGet(String userId) throws Exception {
     return blockingMemoriesGet(userId, null, null);
   }
 
-  private MemoryDataList blockingMemoriesGet(String userId,
-                                             LocalDate fromDate,
-                                             LocalDate toDate) throws Exception {
+  private MemoryDataList blockingMemoriesGet(String userId, LocalDate fromDate, LocalDate toDate)
+      throws Exception {
     if (isApiCallInFlight) {
       throw new Exception("blockingMemoriesGet called when isApiCallInFlight is true");
     }
     isApiCallInFlight = true;
     final MemoryDataList[] retval = {null};
-    api.getMemories(userId, fromDate, toDate, new MemoryListListener() {
-      @Override
-      public void onApiResponse(MemoryDataList memories) {
-        retval[0] = memories;
-        isApiCallInFlight = false;
-      }
+    api.getMemories(
+        userId,
+        fromDate,
+        toDate,
+        new MemoryListListener() {
+          @Override
+          public void onApiResponse(MemoryDataList memories) {
+            retval[0] = memories;
+            isApiCallInFlight = false;
+          }
 
-      @Override
-      public void onApiError(MyDeticException exception) {
-        isApiCallInFlight = false;
-      }
-    });
+          @Override
+          public void onApiError(MyDeticException exception) {
+            isApiCallInFlight = false;
+          }
+        });
 
     waitForApiCall();
     return retval[0];
   }
-
 
   @Test
   public void testAddAndRetrieve() throws Exception {
@@ -201,8 +202,16 @@ public class InRamMemoryApiTest {
     assertEquals(5, blockingMemoriesGet(userId, new LocalDate(2014, 5, 1), null).getDates().size());
     assertEquals(5, blockingMemoriesGet(userId, null, new LocalDate(2014, 5, 5)).getDates().size());
     assertEquals(4, blockingMemoriesGet(userId, null, new LocalDate(2014, 5, 4)).getDates().size());
-    assertEquals(3, blockingMemoriesGet(userId, new LocalDate(2014, 5, 2), new LocalDate(2014, 5, 4)).getDates().size());
-    assertEquals(1, blockingMemoriesGet(userId, new LocalDate(2014, 5, 3), new LocalDate(2014, 5, 3)).getDates().size());
+    assertEquals(
+        3,
+        blockingMemoriesGet(userId, new LocalDate(2014, 5, 2), new LocalDate(2014, 5, 4))
+            .getDates()
+            .size());
+    assertEquals(
+        1,
+        blockingMemoriesGet(userId, new LocalDate(2014, 5, 3), new LocalDate(2014, 5, 3))
+            .getDates()
+            .size());
   }
 
   @Test
