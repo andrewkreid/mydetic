@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -151,6 +152,11 @@ public class HomeActivity extends LockableActivity {
     protected void onResume() {
         super.onResume();
         mRecyclerView.invalidate();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+          notificationManager.cancelAll();
+        }
     }
 
     @Override
