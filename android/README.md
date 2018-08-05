@@ -2,6 +2,8 @@ This directory contains the source for the MyDetic Android app
 
 ## Installing the Self-Signed Certificate
 
+Note: As of Android P, this doesn't seem to work anymore. You'll need a real cert :(.
+
 Android's HTTP libraries check SSL certificate validity, and make this hard
 to disable to encourage good security.
 

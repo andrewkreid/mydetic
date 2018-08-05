@@ -6,6 +6,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import java.util.Locale;
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
@@ -23,7 +24,7 @@ public class RestfulMemoryApi implements MemoryApi {
   private MyDeticConfig config;
 
   public RestfulMemoryApi(Context ctx, MyDeticConfig config) {
-    requestQueue = RequestQueueSingleton.getInstance(ctx.getApplicationContext()).getRequestQueue();
+    requestQueue = Volley.newRequestQueue(ctx);
     this.config = config;
   }
 
