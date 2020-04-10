@@ -72,15 +72,11 @@ public class MemoryListActivity extends LockableActivity
     // Handle action bar item clicks here. The action bar will
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
-    switch (item.getItemId()) {
-      case android.R.id.home:
-        return super.onOptionsItemSelected(item);
-      case R.id.action_settings:
-        startActivity(new Intent(this, SettingsActivity.class));
-        return true;
-      default:
-        return super.onOptionsItemSelected(item);
+    if (item.getItemId() == R.id.action_settings) {
+      startActivity(new Intent(this, SettingsActivity.class));
+      return true;
     }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override
@@ -109,7 +105,7 @@ public class MemoryListActivity extends LockableActivity
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
     transaction.replace(R.id.fragment_container, newFragment);
-    transaction.addToBackStack(null);
+    transaction.addToBackStack("onYearSelected");
 
     // Commit the transaction
     transaction.commit();
@@ -129,7 +125,7 @@ public class MemoryListActivity extends LockableActivity
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
     transaction.replace(R.id.fragment_container, newFragment);
-    transaction.addToBackStack(null);
+    transaction.addToBackStack("onYearMonthSelected");
 
     // Commit the transaction
     transaction.commit();

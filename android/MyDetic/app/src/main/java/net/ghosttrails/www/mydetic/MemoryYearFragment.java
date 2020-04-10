@@ -24,9 +24,6 @@ public class MemoryYearFragment extends ListFragment {
 
   private List<Integer> mYearsWithMemories;
 
-  /** The fragment's ListView/GridView. */
-  private AbsListView mListView;
-
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
    * screen orientation changes).
@@ -44,7 +41,7 @@ public class MemoryYearFragment extends ListFragment {
     mYearsWithMemories = buildYearList();
 
     setListAdapter(
-        new ArrayAdapter<Integer>(
+        new ArrayAdapter<>(
             getActivity(),
             android.R.layout.simple_list_item_1,
             android.R.id.text1,
@@ -78,9 +75,7 @@ public class MemoryYearFragment extends ListFragment {
     MemoryAppState appState = MemoryAppState.getInstance();
     if (appState != null) {
       Set<Integer> uniqueYears = appState.getMemories().getYears();
-      for (Integer year : uniqueYears) {
-        retVal.add(year);
-      }
+      retVal.addAll(uniqueYears);
       Collections.sort(retVal);
     }
     return retVal;

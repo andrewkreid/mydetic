@@ -154,13 +154,9 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
 
     findAndAddNearestMemoryDate(today.minusDays(7));
     findAndAddNearestMemoryDate(today.minusMonths(1));
-    findAndAddNearestMemoryDate(today.minusYears(1));
-    findAndAddNearestMemoryDate(today.minusYears(2));
-    findAndAddNearestMemoryDate(today.minusYears(3));
-    findAndAddNearestMemoryDate(today.minusYears(4));
-    findAndAddNearestMemoryDate(today.minusYears(5));
-    findAndAddNearestMemoryDate(today.minusYears(6));
-    findAndAddNearestMemoryDate(today.minusYears(7));
+    for (int i = 1; i <= 15; i++) {
+      findAndAddNearestMemoryDate(today.minusYears(i));
+    }
 
     // Download any uncached memories in the list
     final MemoryAppState appState = MemoryAppState.getInstance();
