@@ -49,7 +49,7 @@ public class MemoryDetailActivity extends LockableActivity
     getWindow()
         .setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-    progressBar = (ProgressBar) this.findViewById(R.id.memory_detail_progress_bar);
+    progressBar = this.findViewById(R.id.memory_detail_progress_bar);
 
     Intent intent = getIntent();
     String memoryDateStr = intent.getStringExtra(MEMORY_DETAIL_DATE);
@@ -69,7 +69,7 @@ public class MemoryDetailActivity extends LockableActivity
       editMode = MemoryDetailMode.MODE_NEW;
     }
 
-    memoryEditText = (EditText) findViewById(R.id.memory_text);
+    memoryEditText = findViewById(R.id.memory_text);
     memoryEditText.addTextChangedListener(
         new TextWatcher() {
 
@@ -86,13 +86,13 @@ public class MemoryDetailActivity extends LockableActivity
           }
         });
 
-    cacheStatusTextView = (TextView) findViewById(R.id.cache_status_text);
+    cacheStatusTextView = findViewById(R.id.cache_status_text);
 
-    refreshButton = (Button) findViewById(R.id.memory_refresh);
-    saveButton = (Button) findViewById(R.id.memory_save);
+    refreshButton = findViewById(R.id.memory_refresh);
+    saveButton = findViewById(R.id.memory_save);
     saveButton.setEnabled(false);
 
-    dateTextView = (TextView) findViewById(R.id.memory_title);
+    dateTextView = findViewById(R.id.memory_title);
     dateTextView.setText(R.string.select_date);
 
     if (editMode == MemoryDetailMode.MODE_EXISTING) {

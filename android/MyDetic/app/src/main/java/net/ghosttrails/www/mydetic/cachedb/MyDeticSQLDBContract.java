@@ -76,7 +76,7 @@ public final class MyDeticSQLDBContract {
         String.format(
             "%s = ? AND %s = ?",
             MemoryDetailsTable.COLUMN_NAME_USER_ID, MemoryDetailsTable.COLUMN_NAME_API_TYPE);
-    String selectionArgs[] = {userId, apiType};
+    String[] selectionArgs = {userId, apiType};
 
     try (Cursor cursor =
         db.query(
@@ -107,7 +107,7 @@ public final class MyDeticSQLDBContract {
         String.format(
             "%s = ? AND %s = ?",
             MemoryDatesTable.COLUMN_NAME_USER_ID, MemoryDatesTable.COLUMN_NAME_API_TYPE);
-    String selectionArgs[] = {userId, apiType};
+    String[] selectionArgs = {userId, apiType};
 
     try {
       try (Cursor cursor =
@@ -170,7 +170,7 @@ public final class MyDeticSQLDBContract {
     // How you want the results sorted in the resulting Cursor
     String sortOrder = MemoryDetailsTable._ID + " ASC";
 
-    String selectionArgs[] = {userId, Utils.isoFormat(memoryDate), apiType};
+    String[] selectionArgs = {userId, Utils.isoFormat(memoryDate), apiType};
 
     Cursor cursor =
         db.query(
@@ -230,7 +230,7 @@ public final class MyDeticSQLDBContract {
     // New value for one column
     ContentValues values = buildContentValues(apiType, memory);
 
-    String selectionArgs[] = {memory.getUserId(), Utils.isoFormat(memory.getMemoryDate()), apiType};
+    String[] selectionArgs = {memory.getUserId(), Utils.isoFormat(memory.getMemoryDate()), apiType};
 
     int count = db.update(MemoryDetailsTable.TABLE_NAME, values, getSelectClause(), selectionArgs);
     if (count != 1) {

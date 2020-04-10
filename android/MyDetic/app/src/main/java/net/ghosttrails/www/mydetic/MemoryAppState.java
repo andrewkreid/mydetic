@@ -202,11 +202,11 @@ public class MemoryAppState implements MemoryAppInterface {
   }
 
   /** AsyncTask for doing things when the SQLite cache becomes available */
-  private class CacheWaiterTask extends AsyncTask<Runnable, Void, Void> {
+  private static class CacheWaiterTask extends AsyncTask<Runnable, Void, Void> {
     @Override
     protected Void doInBackground(Runnable... params) {
       long startTime = SystemClock.elapsedRealtime();
-      while (dbHandle == null && ((SystemClock.elapsedRealtime() - startTime) < 10000L)) {
+      while (_state.dbHandle == null && ((SystemClock.elapsedRealtime() - startTime) < 10000L)) {
         SystemClock.sleep(250);
       }
       // Run runnables on the main thread as they likely do UI stuff.

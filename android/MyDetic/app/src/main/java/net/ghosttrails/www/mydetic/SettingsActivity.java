@@ -31,15 +31,15 @@ public class SettingsActivity extends LockableActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_settings);
 
-    dataSourceSpinner = (Spinner) findViewById(R.id.dataStoreSpinner);
-    apiUrlEditText = (EditText) findViewById(R.id.apiUrlEditText);
-    usernameEditText = (EditText) findViewById(R.id.apiUserNameEditText);
-    passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-    pinEnabledCheckBox = (CheckBox) findViewById(R.id.enablePinLock);
-    enterPin1EditText = (EditText) findViewById(R.id.enterPin1);
-    enterPin2EditText = (EditText) findViewById(R.id.enterPin2);
-    pinMessageTextView = (TextView) findViewById(R.id.pinMessage);
-    reminderEnabledCheckBox = (CheckBox) findViewById(R.id.enableReminderCheckBox);
+    dataSourceSpinner = findViewById(R.id.dataStoreSpinner);
+    apiUrlEditText = findViewById(R.id.apiUrlEditText);
+    usernameEditText = findViewById(R.id.apiUserNameEditText);
+    passwordEditText = findViewById(R.id.passwordEditText);
+    pinEnabledCheckBox = findViewById(R.id.enablePinLock);
+    enterPin1EditText = findViewById(R.id.enterPin1);
+    enterPin2EditText = findViewById(R.id.enterPin2);
+    pinMessageTextView = findViewById(R.id.pinMessage);
+    reminderEnabledCheckBox = findViewById(R.id.enableReminderCheckBox);
 
     PersistOnFocusLossListener focusLossListener = new PersistOnFocusLossListener();
     apiUrlEditText.setOnFocusChangeListener(focusLossListener);

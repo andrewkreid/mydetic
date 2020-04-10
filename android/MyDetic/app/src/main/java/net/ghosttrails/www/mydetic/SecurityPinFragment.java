@@ -18,8 +18,8 @@ import java.util.Locale;
 public class SecurityPinFragment extends Fragment implements View.OnClickListener {
 
   private OnFragmentInteractionListener mListener;
-  private TextView pinDigitViews[];
-  private Integer pinDigits[];
+  private TextView[] pinDigitViews;
+  private Integer[] pinDigits;
 
   // Which pin digit is the next one typed.
   private int pinEntryIdx;
@@ -43,10 +43,10 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
     pinDigits = new Integer[4];
     Arrays.fill(pinDigits, -1);
     pinDigitViews = new TextView[4];
-    pinDigitViews[0] = (TextView) view.findViewById(R.id.pin_digit_1);
-    pinDigitViews[1] = (TextView) view.findViewById(R.id.pin_digit_2);
-    pinDigitViews[2] = (TextView) view.findViewById(R.id.pin_digit_3);
-    pinDigitViews[3] = (TextView) view.findViewById(R.id.pin_digit_4);
+    pinDigitViews[0] = view.findViewById(R.id.pin_digit_1);
+    pinDigitViews[1] = view.findViewById(R.id.pin_digit_2);
+    pinDigitViews[2] = view.findViewById(R.id.pin_digit_3);
+    pinDigitViews[3] = view.findViewById(R.id.pin_digit_4);
 
     int[] numberButtonIds = {
       R.id.pin_button_0,
@@ -62,7 +62,7 @@ public class SecurityPinFragment extends Fragment implements View.OnClickListene
       R.id.pin_button_clear,
     };
     for (int btnId : numberButtonIds) {
-      Button numberButton = (Button) view.findViewById(btnId);
+      Button numberButton = view.findViewById(btnId);
       numberButton.setOnClickListener(this);
     }
 

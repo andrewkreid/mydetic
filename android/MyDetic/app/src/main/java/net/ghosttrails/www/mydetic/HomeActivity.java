@@ -33,7 +33,7 @@ public class HomeActivity extends LockableActivity {
 
     MemoryAppState appState = MemoryAppState.getInstance();
 
-    mRecyclerView = (RecyclerView) findViewById(R.id.home_cardview);
+    mRecyclerView = findViewById(R.id.home_cardview);
 
     // use this setting to improve performance if you know that changes
     // in content do not change the layout size of the RecyclerView

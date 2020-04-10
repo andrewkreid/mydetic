@@ -230,9 +230,9 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
       mView = v;
       mErrorColor = errorColor;
       mMemoryTextColor = textColor;
-      titleView = (TextView) mView.findViewById(R.id.memory_card_view_title);
-      memoryTextView = (TextView) mView.findViewById(R.id.memory_card_text_view);
-      descriptionView = (TextView) mView.findViewById(R.id.memory_card_view_description);
+      titleView = mView.findViewById(R.id.memory_card_view_title);
+      memoryTextView = mView.findViewById(R.id.memory_card_text_view);
+      descriptionView = mView.findViewById(R.id.memory_card_view_description);
     }
 
     void fillCard(LocalDate d) {

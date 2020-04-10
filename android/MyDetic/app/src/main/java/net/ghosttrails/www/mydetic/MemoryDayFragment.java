@@ -160,8 +160,8 @@ public class MemoryDayFragment extends ListFragment {
         twoLineListItem = (LinearLayout) convertView;
       }
 
-      TextView text1 = (TextView) twoLineListItem.findViewById(R.id.topline);
-      TextView text2 = (TextView) twoLineListItem.findViewById(R.id.bottomline);
+      TextView text1 = twoLineListItem.findViewById(R.id.topline);
+      TextView text2 = twoLineListItem.findViewById(R.id.bottomline);
 
       LocalDate memoryDate = mMemories.get(position);
       text1.setText(Utils.isoFormat(memoryDate));
