@@ -14,7 +14,7 @@ diary entries rather than build a service that will scale to many users.
 
 ## Development Status
 
-REST API backed by S3 works. Android app works but needs polish.
+REST API backed by S3 works. Android app works.
 
 ## Motivation
 
