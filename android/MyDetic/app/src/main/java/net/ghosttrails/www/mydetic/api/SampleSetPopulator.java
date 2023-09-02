@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** Utility class to populate some memories */
 public class SampleSetPopulator {
@@ -92,7 +92,7 @@ public class SampleSetPopulator {
 
   public static void addMemory(
       List<MemoryData> list, String userId, int year, int month, int day, String memoryText) {
-    LocalDate localDate = new LocalDate(year, month, day);
+    LocalDate localDate = LocalDate.of(year, month, day);
     list.add(new MemoryData(userId, memoryText, localDate));
   }
 }

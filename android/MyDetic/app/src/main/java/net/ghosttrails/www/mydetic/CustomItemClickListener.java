@@ -1,7 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
 import android.view.View;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /**
  * Interface used by MemoryCardViewAdapter to allow a listener to be assigned to taps on the

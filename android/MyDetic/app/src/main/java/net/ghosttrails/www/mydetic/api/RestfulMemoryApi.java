@@ -10,7 +10,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.Locale;
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 

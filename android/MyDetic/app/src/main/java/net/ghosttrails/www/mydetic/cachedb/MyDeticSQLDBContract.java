@@ -10,7 +10,7 @@ import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** DB Schema for the SQLite on-device cache database. */
 public final class MyDeticSQLDBContract {

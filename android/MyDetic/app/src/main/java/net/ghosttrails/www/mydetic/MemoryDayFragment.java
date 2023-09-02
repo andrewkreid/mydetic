@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /**
  * A fragment representing a list of days in a month for which there are memories

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +72,7 @@ public class MemoryDataList implements Iterable<LocalDate> {
   public void setDate(LocalDate date) {
     dates.put(date, true);
     int year = date.getYear();
-    int month = date.getMonthOfYear();
+    int month = date.getMonthValue();
     if (!datesForYearMonth.containsKey(year)) {
       datesForYearMonth.put(year, new TreeMap<Integer, TreeMap<LocalDate, Boolean>>());
     }

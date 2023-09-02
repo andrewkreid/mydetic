@@ -1,7 +1,7 @@
 package net.ghosttrails.www.mydetic.exceptions;
 
 import net.ghosttrails.www.mydetic.api.Utils;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** Exception thrown when we expected a memory on a date but there wasn't one. */
 public class MyDeticNoMemoryFoundException extends MyDeticException {

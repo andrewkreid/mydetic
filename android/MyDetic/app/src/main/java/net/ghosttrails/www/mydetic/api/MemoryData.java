@@ -1,7 +1,7 @@
 package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -4,7 +4,7 @@ import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** Interface for classes that manage memory data. */
 public interface MemoryAppInterface {

@@ -3,7 +3,7 @@ package net.ghosttrails.www.mydetic.api;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Test;
 
 public class Utilstest {

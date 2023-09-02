@@ -21,7 +21,7 @@ import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 public class MemoryDetailActivity extends LockableActivity
     implements DatePickerDialog.OnDateSetListener {
@@ -240,7 +240,7 @@ public class MemoryDetailActivity extends LockableActivity
    * on that date.
    */
   public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-    memoryDate = new LocalDate(year, month, day);
+    memoryDate = LocalDate.of(year, month, day);
     MemoryAppState appState = MemoryAppState.getInstance();
     if (appState.getMemories().hasDate(memoryDate)) {
       // There is already a memory on this date. Switch to edit mode and load

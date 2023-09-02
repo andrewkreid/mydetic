@@ -1,7 +1,7 @@
 package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** Interface for classes that implement the MemoryData service to fetch and store memories. */
 public interface MemoryApi {

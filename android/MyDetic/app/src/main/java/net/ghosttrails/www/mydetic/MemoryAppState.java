@@ -18,7 +18,7 @@ import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBContract;
 import net.ghosttrails.www.mydetic.cachedb.MyDeticSQLDBHelper;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /** Singleton that stores application state. */
 public class MemoryAppState implements MemoryAppInterface {

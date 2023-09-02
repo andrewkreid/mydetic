@@ -1,12 +1,18 @@
 package net.ghosttrails.www.mydetic;
 
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.WEEKS;
+
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
@@ -15,11 +21,7 @@ import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
-import org.joda.time.Months;
-import org.joda.time.Weeks;
+import java.time.LocalDate;
 
 /** Adaptor to display memory cards for the last NUM_CARDS days. */
 class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.ViewHolder> {
@@ -114,8 +116,7 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
 
   private LocalDate positionToDateForThisWeek(int position) {
     try {
-      DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getDefault());
-      LocalDate today = LocalDate.now(tz);
+      LocalDate today = LocalDate.now(ZoneId.systemDefault());
       return today.minusDays(position);
     } catch (IllegalArgumentException e) {
       Log.e("MemoryCardviewAdapter", String.format("Error setting timezone (%s)", e.toString()));
@@ -264,14 +265,14 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
      */
     private String descriptionForDate(LocalDate d) {
       LocalDate nowDate = LocalDate.now();
-      int dayDiff = Days.daysBetween(d, nowDate).getDays();
-      int monthDiff = Months.monthsBetween(d, nowDate).getMonths();
+      long dayDiff = DAYS.between(d, nowDate);
+      long monthDiff = MONTHS.between(d, nowDate);
       // int yearDiff = Years.yearsBetween(d, nowDate).getYears();
 
       // Sort of round to nearest, so that dates that are a few days less that a year ago
       // still say "1 year ago" etc.
       int yearDiff = (int) Math.floor(dayDiff / 365.0 + 0.2);
-      int weekDiff = Weeks.weeksBetween(d, nowDate).getWeeks();
+      long weekDiff = WEEKS.between(d, nowDate);
       if (yearDiff > 1) {
         return String.format(Locale.getDefault(), "%d years ago", yearDiff);
       } else if (monthDiff > 2) {

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import net.ghosttrails.www.mydetic.api.MemoryApi.MemoryListListener;
 import net.ghosttrails.www.mydetic.api.MemoryApi.SingleMemoryListener;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

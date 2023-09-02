@@ -10,7 +10,7 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /**
  * Non-persistent in-RAM MemoryApi implementation. Used mainly for testing. Simulates the network by

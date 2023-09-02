@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 /**
  * A fragment representing a list of months in a year for which there are memories
@@ -66,14 +68,12 @@ public class MemoryMonthFragment extends ListFragment {
     mMonthsWithMemories = new ArrayList<>();
 
     MemoryAppState appState = MemoryAppState.getInstance();
-    for (Integer i : appState.getMemories().getMonthsForYear(mYear)) {
-      // 1-based month indexes (1 == Jan, 12 == Dec)
-      mMonthsWithMemories.add(i);
-    }
+    // 1-based month indexes (1 == Jan, 12 == Dec)
+    mMonthsWithMemories.addAll(appState.getMemories().getMonthsForYear(mYear));
     List<String> monthNames = new ArrayList<>();
     for (Integer month : mMonthsWithMemories) {
-      LocalDate dateForMonthFormat = new LocalDate(2016, month, 1);
-      String monthName = dateForMonthFormat.toString("MMMM");
+      LocalDate dateForMonthFormat = LocalDate.of(2016, month, 1);
+      String monthName = dateForMonthFormat.format(DateTimeFormatter.ofPattern("MMMM"));
       /*
       Calendar cal = Calendar.getInstance();
       cal.set(Calendar.MONTH, month);
