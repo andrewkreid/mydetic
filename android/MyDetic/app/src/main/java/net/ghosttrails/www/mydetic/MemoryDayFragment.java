@@ -1,6 +1,5 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +10,9 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.fragment.app.ListFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 import net.ghosttrails.www.mydetic.api.MemoryData;

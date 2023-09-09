@@ -71,7 +71,7 @@ class AppUtils {
     stackBuilder.addNextIntent(resultIntent);
     // Gets a PendingIntent containing the entire back stack
     PendingIntent resultPendingIntent =
-        stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        stackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE);
 
     Intent intent = new Intent(context, AlarmReceiver.class);
     Notification notification =
@@ -86,7 +86,7 @@ class AppUtils {
 
     intent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
     intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
     return alarmIntent;
   }

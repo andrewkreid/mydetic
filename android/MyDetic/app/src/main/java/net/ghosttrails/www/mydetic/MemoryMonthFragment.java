@@ -1,11 +1,12 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.Activity;
-import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.fragment.app.ListFragment;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

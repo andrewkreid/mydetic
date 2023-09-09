@@ -1,10 +1,12 @@
 package net.ghosttrails.www.mydetic;
 
 import android.app.ActionBar;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.ListFragment;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,15 +23,25 @@ public class MemoryListActivity extends LockableActivity
   private int year;
   private int month;
 
+  private enum ViewLevel {
+    LEVEL_YEAR,
+    LEVEL_MONTH,
+    LEVEL_DAY
+  }
+
+  ViewLevel currentViewLevel = ViewLevel.LEVEL_YEAR;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    if (savedInstanceState != null) {
+      year = savedInstanceState.getInt("year", 2015);
+      month = savedInstanceState.getInt("month", 1);
+      currentViewLevel =
+              ViewLevel.valueOf(
+                      savedInstanceState.getString("viewLevel", ViewLevel.LEVEL_YEAR.toString()));
+    }
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_memory_list);
-
-    ActionBar actionBar = getActionBar();
-    if (actionBar != null) {
-      actionBar.setDisplayHomeAsUpEnabled(true);
-    }
 
     // Disable screenshots in activity switcher.
     getWindow()
@@ -42,21 +54,28 @@ public class MemoryListActivity extends LockableActivity
       // However, if we're being restored from a previous state,
       // then we don't need to do anything and should return or else
       // we could end up with overlapping fragments.
-      if (savedInstanceState != null) {
-        year = savedInstanceState.getInt("year", 2015);
-        month = savedInstanceState.getInt("month", 1);
-        return;
-      }
 
-      // Create a new Fragment to be placed in the activity layout
-      MemoryYearFragment yearFragment = MemoryYearFragment.newInstance();
+      ListFragment initialFragment;
+      switch(currentViewLevel) {
+        case LEVEL_YEAR:
+          initialFragment = MemoryYearFragment.newInstance();
+          break;
+        case LEVEL_MONTH:
+          initialFragment = MemoryMonthFragment.newInstance(year);
+          break;
+        case LEVEL_DAY:
+          initialFragment = MemoryDayFragment.newInstance(year, month);
+          break;
+        default:
+          return;
+      }
 
       // In case this activity was started with special instructions from an
       // Intent, pass the Intent's extras to the fragment as arguments
-      yearFragment.setArguments(getIntent().getExtras());
+      initialFragment.setArguments(getIntent().getExtras());
 
       // Add the fragment to the 'fragment_container' FrameLayout
-      getFragmentManager().beginTransaction().add(R.id.fragment_container, yearFragment).commit();
+      getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, initialFragment).commit();
     }
   }
 
@@ -80,8 +99,13 @@ public class MemoryListActivity extends LockableActivity
   }
 
   @Override
-  public void onBackPressed() {
-    super.onBackPressed();
+  public boolean onNavigateUp() {
+    if (currentViewLevel == ViewLevel.LEVEL_YEAR) {
+      return super.onNavigateUp();
+    } else {
+      onBackPressed();
+      return false;
+    }
   }
 
   @Override
@@ -89,6 +113,7 @@ public class MemoryListActivity extends LockableActivity
     super.onSaveInstanceState(outState);
     outState.putInt("year", year);
     outState.putInt("month", month);
+    outState.putString("viewLevel", currentViewLevel.toString());
   }
 
   @Override
@@ -99,8 +124,9 @@ public class MemoryListActivity extends LockableActivity
 
     // Create fragment.
     // TODO: Check if fragment already loaded?
+    currentViewLevel = ViewLevel.LEVEL_MONTH;
     MemoryMonthFragment newFragment = MemoryMonthFragment.newInstance(year);
-    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
@@ -119,8 +145,9 @@ public class MemoryListActivity extends LockableActivity
     Log.i("MemoryListActivity", String.format("Selected year %d and month %d", year, month));
     // Create fragment.
     // TODO: Check if fragment already loaded?
+    currentViewLevel = ViewLevel.LEVEL_DAY;
     MemoryDayFragment newFragment = MemoryDayFragment.newInstance(year, month);
-    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back

@@ -3,8 +3,10 @@ package net.ghosttrails.www.mydetic;
 import android.app.Activity;
 import android.os.SystemClock;
 
+import androidx.fragment.app.FragmentActivity;
+
 /** A Base class for activities that lock themselves with the security PIN fragment when resumed. */
-public abstract class LockableActivity extends Activity
+public abstract class LockableActivity extends FragmentActivity
     implements SecurityPinFragment.OnFragmentInteractionListener {
 
   // If we move from one LockableActivity to another in less than this amount, then
