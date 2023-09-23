@@ -6,8 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import androidx.core.app.TaskStackBuilder;
 import android.widget.Toast;
+import androidx.core.app.TaskStackBuilder;
 import java.util.Calendar;
 
 /** Miscellaneous helper functions. */
@@ -39,10 +39,10 @@ class AppUtils {
         AlarmManager.INTERVAL_DAY,
         alarmIntent);
 
-    /* Set notification for 10 seconds in the future - for testing.
-    long futureInMillis = SystemClock.elapsedRealtime() + 10000;
-    alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
-     */
+    // Set notification for 10 seconds in the future - for testing.
+//    long futureInMillis = SystemClock.elapsedRealtime() + 10000;
+//    alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, alarmIntent);
+
   }
 
   static void cancelReminderNotification(Context context) {

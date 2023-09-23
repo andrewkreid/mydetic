@@ -1,5 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,6 +14,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 
 public class SettingsActivity extends LockableActivity {
 
@@ -64,6 +69,13 @@ public class SettingsActivity extends LockableActivity {
 
     enterPin1EditText.addTextChangedListener(new PinTextChangeListener());
     enterPin2EditText.addTextChangedListener(new PinTextChangeListener());
+
+    reminderEnabledCheckBox.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        setOrRemoveReminder(reminderEnabledCheckBox.isChecked());
+      }
+    });
 
     setUIFromConfig();
   }
@@ -123,6 +135,25 @@ public class SettingsActivity extends LockableActivity {
     }
   }
 
+  // Register the permissions callback, which handles the user's response to the
+// system permissions dialog. Save the return value, an instance of
+// ActivityResultLauncher, as an instance variable.
+  private final ActivityResultLauncher<String> requestPermissionLauncher =
+          registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+              // Permission is granted. Continue the action or workflow in your
+              // app.
+              AppUtils.setReminderNotification(SettingsActivity.this);
+            } else {
+              // Explain to the user that the feature is unavailable because the
+              // feature requires a permission that the user has denied. At the
+              // same time, respect the user's decision. Don't link to system
+              // settings in an effort to convince the user to change their
+              // decision.
+              AppUtils.smallToast(SettingsActivity.this, "Notifications Denied!");
+            }
+          });
+
   /**
    * Set or remove the daily reminder to enter your memories.
    *
@@ -130,7 +161,17 @@ public class SettingsActivity extends LockableActivity {
    */
   private void setOrRemoveReminder(boolean shouldSet) {
     if (shouldSet) {
-      AppUtils.setReminderNotification(this);
+      if (ContextCompat.checkSelfPermission(
+              this, Manifest.permission.POST_NOTIFICATIONS) ==
+              PackageManager.PERMISSION_GRANTED) {
+        // You can use the API that requires the permission.
+        AppUtils.setReminderNotification(this);
+      } else {
+        // You can directly ask for the permission.
+        // The registered ActivityResultCallback gets the result of this request.
+        requestPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS);
+      }
     } else {
       // If the alarm has been set, cancel it.
       AppUtils.cancelReminderNotification(this);
@@ -173,13 +214,6 @@ public class SettingsActivity extends LockableActivity {
     setConfigFromUI();
     MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
     super.onPause();
-  }
-
-  @Override
-  protected void onStop() {
-    setConfigFromUI();
-    MemoryAppState.getInstance().getConfig().saveConfig(getApplicationContext());
-    super.onStop();
   }
 
   /** Focus loss listener that saves the config */
