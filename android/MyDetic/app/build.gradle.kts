@@ -42,5 +42,5 @@ dependencies {
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("androidx.work:work-runtime:2.9.0")
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.0.1-jre")
 }
