@@ -1,5 +1,7 @@
 package net.ghosttrails.www.mydetic.api;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -107,8 +109,11 @@ public class MemoryDataList implements Iterable<LocalDate> {
   public Set<LocalDate> getDatesForMonth(int year, int month) {
     if (datesForYearMonth.containsKey(year)) {
       TreeMap<Integer, TreeMap<LocalDate, Boolean>> monthMap = datesForYearMonth.get(year);
-      if (monthMap.containsKey(month)) {
-        return monthMap.get(month).keySet();
+      if (monthMap != null && monthMap.containsKey(month)) {
+        TreeMap<LocalDate, Boolean>  daysMap = monthMap.get(month);
+        if (daysMap != null) {
+          return daysMap.keySet();
+        }
       }
     }
     return new HashSet<>();
@@ -144,6 +149,7 @@ public class MemoryDataList implements Iterable<LocalDate> {
   }
 
   /** @return a deep copy of this object. */
+  @NonNull
   @Override
   protected Object clone() throws CloneNotSupportedException {
     MemoryDataList retval = (MemoryDataList) super.clone();
@@ -154,6 +160,7 @@ public class MemoryDataList implements Iterable<LocalDate> {
     return retval;
   }
 
+  @NonNull
   @Override
   public Iterator<LocalDate> iterator() {
     return dates.keySet().iterator();

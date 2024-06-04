@@ -50,4 +50,5 @@
     <string name="select_date">Select Date...</string>
     <string name="channel_name">MyDetic</string>
     <string name="channel_description">MyDetic Reminders</string>
+    <string name="log_out_firebase">Log out Firebase</string>
 </resources>

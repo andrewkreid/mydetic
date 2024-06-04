@@ -108,6 +108,10 @@ public class SettingsActivity extends LockableActivity {
     AppUtils.smallToast(getApplicationContext(), "Cache cleared.");
   }
 
+  public void onLogOutFirebaseClicked(View view) {
+    signOutFirebase();
+  }
+
   private void setConfigFromUI() {
     MyDeticConfig config = MemoryAppState.getInstance().getConfig();
     if (config != null) {

@@ -11,9 +11,9 @@ import androidx.core.app.TaskStackBuilder;
 import java.util.Calendar;
 
 /** Miscellaneous helper functions. */
-class AppUtils {
+public class AppUtils {
 
-  static void smallToast(Context context, String msg) {
+  static public void smallToast(Context context, String msg) {
     int duration = Toast.LENGTH_SHORT;
     Toast toast = Toast.makeText(context.getApplicationContext(), msg, duration);
     toast.show();

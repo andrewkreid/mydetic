@@ -1,12 +1,20 @@
 package net.ghosttrails.www.mydetic;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.SystemClock;
-
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.fragment.app.FragmentActivity;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import java.util.Arrays;
+import java.util.List;
 
 /** A Base class for activities that lock themselves with the security PIN fragment when resumed. */
-public abstract class LockableActivity extends FragmentActivity
+public abstract class LockableActivity extends FirebaseLoginActivity
     implements SecurityPinFragment.OnFragmentInteractionListener {
 
   // If we move from one LockableActivity to another in less than this amount, then
@@ -36,6 +44,16 @@ public abstract class LockableActivity extends FragmentActivity
           .commit();
       setPinLockDisplayed(true);
     }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
   }
 
   @Override

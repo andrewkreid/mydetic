@@ -27,10 +27,10 @@
                     android:id="@+id/dataStoreTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
                     android:text="@string/data_store_label"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/text_secondary"
-                    />
+                    android:textColor="@color/text_secondary" />
 
                 <Spinner
                     android:id="@+id/dataStoreSpinner"
@@ -170,11 +170,20 @@
                 android:id="@+id/clear_cache_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
                 android:layout_below="@+id/enableReminderCheckBox"
+                android:layout_alignParentStart="true"
                 android:layout_marginTop="20dp"
                 android:onClick="clearCacheClicked"
-                android:text="@string/clear_local_cache"/>
+                android:text="@string/clear_local_cache" />
+
+            <Button
+                android:id="@+id/log_out_firebase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/clear_cache_button"
+                android:layout_marginTop="20dp"
+                android:onClick="onLogOutFirebaseClicked"
+                android:text="@string/log_out_firebase" />
 
 
         </RelativeLayout>

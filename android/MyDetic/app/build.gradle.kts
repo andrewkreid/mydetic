@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "net.ghosttrails.www.mydetic"
-        minSdk = 24
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -33,7 +33,9 @@ dependencies {
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
 
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
     testImplementation("junit:junit:4.13.2")
     testImplementation ("org.json:json:20230618")
     testImplementation ("org.robolectric:robolectric:4.10.3")

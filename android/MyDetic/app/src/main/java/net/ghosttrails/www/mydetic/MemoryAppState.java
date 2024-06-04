@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import java.util.HashMap;
+
+import net.ghosttrails.www.mydetic.api.FirebaseMemoryApi;
 import net.ghosttrails.www.mydetic.api.InRamMemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
@@ -30,6 +32,7 @@ public class MemoryAppState implements MemoryAppInterface {
   private MyDeticConfig config;
   private MyDeticSQLDBHelper cacheDbHelper;
   private SQLiteDatabase dbHandle;
+  private FirebaseLoginActivity firebaseLoginActivity;
 
   /** in-RAM cache of memories we've downloaded already */
   private HashMap<LocalDate, MemoryData> memoryCache;
@@ -194,6 +197,8 @@ public class MemoryAppState implements MemoryAppInterface {
       }
     } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_RESTAPI)) {
       setApi(new RestfulMemoryApi(context, config));
+    } else if (config.getActiveDataStore().equals(MyDeticConfig.DS_FIREBASE)) {
+      setApi(new FirebaseMemoryApi());
     }
 
     MemoryDataList memories = new MemoryDataList();
@@ -216,5 +221,17 @@ public class MemoryAppState implements MemoryAppInterface {
       }
       return null;
     }
+  }
+
+  public void registerFirebaseLoginActivity(FirebaseLoginActivity firebaseLoginActivity) {
+    this.firebaseLoginActivity = firebaseLoginActivity;
+  }
+
+  public void unregisterFirebaseLoginActivity() {
+    this.firebaseLoginActivity = null;
+  }
+
+  public FirebaseLoginActivity getFirebaseLoginActivity() {
+    return this.firebaseLoginActivity;
   }
 }

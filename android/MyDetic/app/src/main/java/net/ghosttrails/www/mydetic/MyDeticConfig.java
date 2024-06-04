@@ -31,14 +31,13 @@ public class MyDeticConfig {
   public static final int LISTSETTING_THEPAST = 1;
   public static String DS_INRAM = "In RAM (testing)";
   public static String DS_RESTAPI = "REST API";
-  /** key for password encryption. TODO: move this to a config file */
-  private static String secretKey =
-      "16utS1WskaJqTtSRxE6hYA==:CKw5QpwyayYsXIs0TMas2Yv2k2dXXeAgTa0ijWoQyTw=";
+  public static String DS_FIREBASE= "Firebase";
+
   /**
    * config format version. Can be used to help handle non backwards-compatible config file format
    * changes.
    */
-  private static int CONFIG_VERSION = 1;
+  private static final int CONFIG_VERSION = 1;
   private String activeDataStore;
   private String apiUrl;
   private String userName;
@@ -174,9 +173,9 @@ public class MyDeticConfig {
     return encryptedText;
   }
 
-  /** @return a list of the valid values for the dataStore property */
+  /** @return an array of the valid values for the dataStore property */
   public String[] getDataStoreList() {
-    return new String[] {DS_INRAM, DS_RESTAPI};
+    return new String[] {DS_INRAM, DS_RESTAPI, DS_FIREBASE};
   }
 
   public String getActiveDataStore() {
