@@ -20,8 +20,8 @@ public class RestfulMemoryApi implements MemoryApi {
   // The default URL path for API calls.
   private static final String API_PATH = "mydetic/net.ghosttrails.www.mydetic.api/v1.0";
 
-  private RequestQueue requestQueue;
-  private MyDeticConfig config;
+  private final RequestQueue requestQueue;
+  private final MyDeticConfig config;
 
   public RestfulMemoryApi(Context ctx, MyDeticConfig config) {
     requestQueue = Volley.newRequestQueue(ctx);
