@@ -136,6 +136,9 @@ public class SettingsActivity extends LockableActivity {
       }
       config.setIsReminderEnabled(reminderEnabledCheckBox.isChecked());
       setOrRemoveReminder(reminderEnabledCheckBox.isChecked());
+
+      MemoryAppState appState = MemoryAppState.getInstance();
+      appState.refreshSettingsFromConfig(this);
     }
   }
 

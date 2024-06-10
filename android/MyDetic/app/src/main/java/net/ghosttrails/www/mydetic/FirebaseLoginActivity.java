@@ -30,7 +30,7 @@ public class FirebaseLoginActivity extends FragmentActivity {
       FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
       AppUtils.smallToast(this, "Firebase login succeeded: " + user.getEmail());
       if (loginResultAction != null) {
-        loginResultAction.doAction(user);
+        loginResultAction.onAuthenticated(user);
         loginResultAction = null;
       }
     } else {
@@ -40,7 +40,7 @@ public class FirebaseLoginActivity extends FragmentActivity {
       // ...
       AppUtils.smallToast(this, "Firebase login failed");
       if (loginResultAction != null) {
-        loginResultAction.onError(this, response);
+        loginResultAction.onAuthenticationError(response);
         loginResultAction = null;
       }
     }

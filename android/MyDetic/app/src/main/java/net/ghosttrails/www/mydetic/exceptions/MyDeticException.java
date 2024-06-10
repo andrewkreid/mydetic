@@ -8,6 +8,6 @@ public class MyDeticException extends Exception {
   }
 
   public MyDeticException(String detailMessage, Throwable throwable) {
-    super(detailMessage, throwable);
+    super(detailMessage + " : " + throwable.getMessage(), throwable);
   }
 }
