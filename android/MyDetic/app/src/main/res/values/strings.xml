@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MyDetic</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Settings…</string>
     <string name="title_activity_home">MyDetic</string>
     <string name="open_memory_list">Memory List</string>
     <string name="title_activity_memory_list">Memory List</string>
@@ -12,7 +12,7 @@
     <string name="refreshbutton">Refresh</string>
     <string name="savebutton">Save</string>
     <string name="new_memory">Add a Memory</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="data_store_label">Data Store :</string>
     <string name="api_url_label">API URL :</string>
     <string name="user_name_label">UserName :</string>
@@ -22,7 +22,7 @@
     <string name="action_reload">Reload</string>
     <string name="clear_local_cache">Clear Local Cache</string>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pin_1">1</string>
     <string name="pin_2">2</string>
@@ -47,8 +47,12 @@
     <string name="enable_reminder">Enable Reminder</string>
     <string name="memory_unsaved">Unsaved</string>
     <string name="re_enter_pin">Re-enter PIN :</string>
-    <string name="select_date">Select Date...</string>
+    <string name="select_date">Select Date…</string>
     <string name="channel_name">MyDetic</string>
     <string name="channel_description">MyDetic Reminders</string>
     <string name="log_out_firebase">Log out Firebase</string>
+    <string name="title_activity_migration">Migrate Memories</string>
+    <string name="migrate_data">Migrate Data…</string>
+    <string name="source_api">Source API</string>
+    <string name="destination_api">Destination API</string>
 </resources>

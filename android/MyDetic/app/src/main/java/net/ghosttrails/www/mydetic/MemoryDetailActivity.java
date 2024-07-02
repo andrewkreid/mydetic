@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toolbar;
+
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
@@ -94,6 +97,16 @@ public class MemoryDetailActivity extends LockableActivity
 
     dateTextView = findViewById(R.id.memory_title);
     dateTextView.setText(R.string.select_date);
+
+    Toolbar mToolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+    if (mToolbar != null) {
+      setActionBar(mToolbar);
+      ActionBar actionBar = getActionBar();
+      if (actionBar != null) {
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+      }
+    }
 
     if (editMode == MemoryDetailMode.MODE_EXISTING) {
       // Load the memory.

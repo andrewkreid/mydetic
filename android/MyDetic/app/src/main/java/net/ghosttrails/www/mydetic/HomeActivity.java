@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic;
 
+import android.app.ActionBar;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,10 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toolbar;
+
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryDataList;
 import net.ghosttrails.www.mydetic.api.Utils;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+import net.ghosttrails.www.mydetic.migration.MigrationActivity;
+
 import java.time.LocalDate;
 
 public class HomeActivity extends LockableActivity {
@@ -65,6 +70,15 @@ public class HomeActivity extends LockableActivity {
     mAdapter.setCardHistoryType(appState.getConfig().getListSetting());
     mRecyclerView.setAdapter(mAdapter);
 
+    Toolbar mToolbar = (Toolbar) findViewById(R.id.home_toolbar);
+    if (mToolbar != null) {
+      setActionBar(mToolbar);
+      ActionBar actionBar = getActionBar();
+      if (actionBar != null) {
+        actionBar.setDisplayShowTitleEnabled(true);
+      }
+    }
+
     // The SQLite cache is initialized asynchronously, so it may not be available yet.
     appState.onCacheReady(
         new Runnable() {
@@ -102,6 +116,9 @@ public class HomeActivity extends LockableActivity {
     switch (id) {
       case R.id.action_settings:
         startActivity(new Intent(this, SettingsActivity.class));
+        return true;
+      case R.id.action_migration:
+        startActivity(new Intent(this, MigrationActivity.class));
         return true;
       case R.id.action_list:
         startActivity(new Intent(this, MemoryListActivity.class));

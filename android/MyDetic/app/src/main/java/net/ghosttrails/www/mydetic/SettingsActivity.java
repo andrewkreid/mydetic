@@ -1,6 +1,7 @@
 package net.ghosttrails.www.mydetic;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toolbar;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
@@ -76,6 +79,16 @@ public class SettingsActivity extends LockableActivity {
         setOrRemoveReminder(reminderEnabledCheckBox.isChecked());
       }
     });
+
+    Toolbar mToolbar = (Toolbar) findViewById(R.id.settings_toolbar);
+    if (mToolbar != null) {
+      setActionBar(mToolbar);
+      ActionBar actionBar = getActionBar();
+      if (actionBar != null) {
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+      }
+    }
 
     setUIFromConfig();
   }

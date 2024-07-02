@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toolbar;
+
 import net.ghosttrails.www.mydetic.api.Utils;
 import java.time.LocalDate;
 
@@ -68,6 +70,16 @@ public class MemoryListActivity extends LockableActivity
           break;
         default:
           return;
+      }
+
+      Toolbar mToolbar = (Toolbar) findViewById(R.id.list_toolbar);
+      if (mToolbar != null) {
+        setActionBar(mToolbar);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+          actionBar.setDisplayShowTitleEnabled(true);
+          actionBar.setDisplayHomeAsUpEnabled(true);
+        }
       }
 
       // In case this activity was started with special instructions from an
