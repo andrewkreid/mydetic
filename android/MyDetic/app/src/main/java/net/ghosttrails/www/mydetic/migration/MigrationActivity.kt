@@ -1,9 +1,7 @@
 package net.ghosttrails.www.mydetic.migration
 
-import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.DatePicker
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -25,6 +23,8 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,9 +37,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -217,28 +219,31 @@ fun ChooseDateTextField(label: String, calendar: MutableState<Calendar>) {
         text = label,
         style = MaterialTheme.typography.bodyLarge
     )
-
+    val datePickerState = rememberDatePickerState()
+    val showDialog = rememberSaveable { mutableStateOf(false) }
+    if (showDialog.value) {
+        DatePickerDialog(
+            onDismissRequest = { showDialog.value = false },
+            confirmButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("Ok")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed: Boolean by interactionSource.collectIsPressedAsState()
 
     val currentDate = Date().toFormattedString()
     var selectedDate by rememberSaveable { mutableStateOf(currentDate) }
-
-    val context = LocalContext.current
-    val curYear: Int = calendar.value.get(Calendar.YEAR)
-    val curMonth: Int = calendar.value.get(Calendar.MONTH)
-    val curDayOfMonth: Int = calendar.value.get(Calendar.DAY_OF_MONTH)
-
-    val materialDatePicker = MaterialDatePicker.Builder.datePicker()
-        .setSelection(calendar.value.timeInMillis).build()
-    val datePickerDialog =
-        DatePickerDialog(context, { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val newDate = Calendar.getInstance()
-            newDate.set(year, month, dayOfMonth)
-            selectedDate = "${month.toMonthName()} $dayOfMonth, $year"
-            calendar.value = newDate
-        }, curYear, curMonth, curDayOfMonth)
-
+    
     TextField(
         modifier = Modifier.fillMaxWidth(),
         readOnly = true,
@@ -249,10 +254,7 @@ fun ChooseDateTextField(label: String, calendar: MutableState<Calendar>) {
     )
 
     if (isPressed) {
-        val activity = LocalContext.current as? FragmentActivity ?: return
-        materialDatePicker.show(activity.supportFragmentManager, "Date")
-        //datePickerDialog.updateDate(curYear, curMonth, curDayOfMonth)
-        //datePickerDialog.show()
+        showDialog.value = true
     }
 }
 
