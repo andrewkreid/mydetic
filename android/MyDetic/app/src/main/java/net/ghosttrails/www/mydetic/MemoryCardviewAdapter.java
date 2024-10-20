@@ -16,7 +16,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
+
 import net.ghosttrails.www.mydetic.api.MemoryApi;
 import net.ghosttrails.www.mydetic.api.MemoryData;
 import net.ghosttrails.www.mydetic.api.Utils;
@@ -175,9 +175,9 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
         .getMemory(
             appState.getConfig().getUserName(),
             memoryDate,
-            new MemoryApi.SingleMemoryListener() {
+            new MemoryApi.SingleMemoryGetListener() {
               @Override
-              public void onApiResponse(MemoryData memory) {
+              public void onApiGetResponse(MemoryData memory) {
                 try {
                   appState.setCachedMemory(memory);
                   notifyDataSetChanged();
@@ -187,7 +187,7 @@ class MemoryCardviewAdapter extends RecyclerView.Adapter<MemoryCardviewAdapter.V
               }
 
               @Override
-              public void onApiError(MyDeticException exception) {
+              public void onApiGetError(MyDeticException exception) {
                 Log.e("MemoryCardAdaptor", exception.getMessage());
               }
             });

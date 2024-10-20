@@ -29,7 +29,7 @@ public interface MemoryApi {
    * @param memoryDate the date to get the memory for.
    * @param listener callback to receive the memory.
    */
-  void getMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener);
+  void getMemory(String userId, LocalDate memoryDate, SingleMemoryGetListener listener);
 
   /**
    * Adds or updates a memory
@@ -38,14 +38,14 @@ public interface MemoryApi {
    * @param memory The memory to add/update.
    * @param listener callback to receive the memory.
    */
-  void putMemory(String userId, MemoryData memory, SingleMemoryListener listener);
+  void putMemory(String userId, MemoryData memory, SingleMemoryPutListener listener);
 
   /**
    * @param userId which user's memories to use
    * @param memoryDate The date of the memory to delete
    * @param listener callback to receive the memory.
    */
-  void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener);
+  void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryPutListener listener);
 
   /** Callback interface for Api methods that return a MemoryDataList */
   interface MemoryListListener {
@@ -54,10 +54,18 @@ public interface MemoryApi {
     void onApiError(MyDeticException exception);
   }
 
-  /** Callback interface for Api methods that return a MemoryData */
-  interface SingleMemoryListener {
-    void onApiResponse(MemoryData memory);
+  /** Callback interface for Api methods that fetch a MemoryData */
+  interface SingleMemoryGetListener {
+    void onApiGetResponse(MemoryData memory);
 
-    void onApiError(MyDeticException exception);
+    void onApiGetError(MyDeticException exception);
   }
+
+  /** Callback interface for Api methods that save a MemoryData */
+  interface SingleMemoryPutListener {
+    void onApiPutResponse(MemoryData memory);
+
+    void onApiPutError(MyDeticException exception);
+  }
+
 }

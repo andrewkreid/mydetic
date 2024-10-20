@@ -92,7 +92,7 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemory(String userId, LocalDate memoryDate, final SingleMemoryListener listener) {
+  public void getMemory(String userId, LocalDate memoryDate, final SingleMemoryGetListener listener) {
     String url =
         String.format(
             "%s/memories/%s?user_id=%s", getApiUrl(), Utils.isoFormat(memoryDate), userId);
@@ -107,9 +107,9 @@ public class RestfulMemoryApi implements MemoryApi {
               @Override
               public void onResponse(JSONObject response) {
                 try {
-                  listener.onApiResponse(MemoryData.fromJSON(response));
+                  listener.onApiGetResponse(MemoryData.fromJSON(response));
                 } catch (MyDeticException e) {
-                  listener.onApiError(e);
+                  listener.onApiGetError(e);
                 }
               }
             },
@@ -117,7 +117,7 @@ public class RestfulMemoryApi implements MemoryApi {
 
               @Override
               public void onErrorResponse(VolleyError error) {
-                listener.onApiError(new MyDeticException(formatVolleyError(error), error));
+                listener.onApiGetError(new MyDeticException(formatVolleyError(error), error));
               }
             });
     requestQueue.add(jsObjRequest);
@@ -125,7 +125,7 @@ public class RestfulMemoryApi implements MemoryApi {
 
   @Override
   public void putMemory(
-      final String userId, final MemoryData memory, final SingleMemoryListener listener) {
+      final String userId, final MemoryData memory, final SingleMemoryPutListener listener) {
     String url =
         String.format(
             "%s/memories/%s?user_id=%s",
@@ -145,9 +145,9 @@ public class RestfulMemoryApi implements MemoryApi {
                   try {
                     MemoryData memoryData = MemoryData.fromJSON(response);
                     memoryData.setCacheState(MemoryData.CACHESTATE_SAVED);
-                    listener.onApiResponse(memoryData);
+                    listener.onApiPutResponse(memoryData);
                   } catch (MyDeticException e) {
-                    listener.onApiError(e);
+                    listener.onApiPutError(e);
                   }
                 }
               },
@@ -163,7 +163,7 @@ public class RestfulMemoryApi implements MemoryApi {
                       // memory.
                       createMemory(userId, memory, listener);
                     } else {
-                      listener.onApiError(
+                      listener.onApiPutError(
                           new MyDeticException(
                               String.format(
                                   Locale.getDefault(),
@@ -173,25 +173,25 @@ public class RestfulMemoryApi implements MemoryApi {
                               error));
                     }
                   } else {
-                    listener.onApiError(new MyDeticException(formatVolleyError(error), error));
+                    listener.onApiPutError(new MyDeticException(formatVolleyError(error), error));
                   }
                 }
               });
     } catch (MyDeticException e) {
       // Error before making REST call.
-      listener.onApiError(e);
+      listener.onApiPutError(e);
     }
     requestQueue.add(jsObjRequest);
   }
 
   @Override
   public void deleteMemory(
-      String userId, LocalDate memoryDate, final SingleMemoryListener listener) {
-    listener.onApiError(new MyDeticException("Not Implemented"));
+      String userId, LocalDate memoryDate, final SingleMemoryPutListener listener) {
+    listener.onApiPutError(new MyDeticException("Not Implemented"));
   }
 
   private void createMemory(
-      final String userId, final MemoryData memory, final SingleMemoryListener listener) {
+      final String userId, final MemoryData memory, final SingleMemoryPutListener listener) {
 
     String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
     BasicAuthJsonObjectRequest jsObjRequest = null;
@@ -209,9 +209,9 @@ public class RestfulMemoryApi implements MemoryApi {
                   try {
                     MemoryData memoryData = MemoryData.fromJSON(response);
                     memoryData.setCacheState(MemoryData.CACHESTATE_SAVED);
-                    listener.onApiResponse(memoryData);
+                    listener.onApiPutResponse(memoryData);
                   } catch (MyDeticException e) {
-                    listener.onApiError(e);
+                    listener.onApiPutError(e);
                   }
                 }
               },
@@ -219,12 +219,12 @@ public class RestfulMemoryApi implements MemoryApi {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                  listener.onApiError(new MyDeticException(formatVolleyError(error), error));
+                  listener.onApiPutError(new MyDeticException(formatVolleyError(error), error));
                 }
               });
     } catch (MyDeticException e) {
       // Error before making REST call.
-      listener.onApiError(e);
+      listener.onApiPutError(e);
     }
     requestQueue.add(jsObjRequest);
   }

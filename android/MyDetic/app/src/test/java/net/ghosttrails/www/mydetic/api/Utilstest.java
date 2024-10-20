@@ -11,7 +11,7 @@ public class Utilstest {
   @Test
   public void testParseIso() {
     LocalDate d1 = Utils.parseIsoDate("2014-11-12");
-    assertEquals(11, d1.getMonthOfYear());
+    assertEquals(11, d1.getMonthValue());
     assertEquals(12, d1.getDayOfMonth());
     assertEquals(2014, d1.getYear());
   }

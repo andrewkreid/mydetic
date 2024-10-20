@@ -117,7 +117,7 @@ public class MemoryDetailActivity extends LockableActivity
         progressBar.setVisibility(View.VISIBLE);
         appState
             .getApi()
-            .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryListener());
+            .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryGetListener());
       } else {
         updateUIFromData();
       }
@@ -218,7 +218,7 @@ public class MemoryDetailActivity extends LockableActivity
     progressBar.setVisibility(View.VISIBLE);
     appState
         .getApi()
-        .putMemory(appState.getConfig().getUserName(), memoryData, new SaveMemoryListener());
+        .putMemory(appState.getConfig().getUserName(), memoryData, new SaveMemoryPutListener());
   }
 
   public void refreshClicked(View view) {
@@ -229,7 +229,7 @@ public class MemoryDetailActivity extends LockableActivity
       progressBar.setVisibility(View.VISIBLE);
       appState
           .getApi()
-          .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryListener());
+          .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryGetListener());
     }
   }
 
@@ -263,7 +263,7 @@ public class MemoryDetailActivity extends LockableActivity
       if (memoryData == null) {
         appState
             .getApi()
-            .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryListener());
+            .getMemory(appState.getConfig().getUserName(), memoryDate, new FetchMemoryGetListener());
       } else {
         updateUIFromData();
       }
@@ -278,9 +278,9 @@ public class MemoryDetailActivity extends LockableActivity
     MODE_EXISTING
   }
 
-  private class SaveMemoryListener implements MemoryApi.SingleMemoryListener {
+  private class SaveMemoryPutListener implements MemoryApi.SingleMemoryPutListener {
     @Override
-    public void onApiResponse(MemoryData memory) {
+    public void onApiPutResponse(MemoryData memory) {
       MemoryAppState appState = MemoryAppState.getInstance();
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
@@ -298,7 +298,7 @@ public class MemoryDetailActivity extends LockableActivity
     }
 
     @Override
-    public void onApiError(MyDeticException exception) {
+    public void onApiPutError(MyDeticException exception) {
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
       AppUtils.smallToast(getApplicationContext(), exception.getMessage());
@@ -306,10 +306,10 @@ public class MemoryDetailActivity extends LockableActivity
     }
   }
 
-  private class FetchMemoryListener implements MemoryApi.SingleMemoryListener {
+  private class FetchMemoryGetListener implements MemoryApi.SingleMemoryGetListener {
 
     @Override
-    public void onApiResponse(MemoryData memory) {
+    public void onApiGetResponse(MemoryData memory) {
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
       if (memory != null) {
@@ -327,7 +327,7 @@ public class MemoryDetailActivity extends LockableActivity
     }
 
     @Override
-    public void onApiError(MyDeticException exception) {
+    public void onApiGetError(MyDeticException exception) {
       setButtonsEnabled(true);
       progressBar.setVisibility(View.GONE);
       // TODO: We need to distinguish between a failed load and a date that

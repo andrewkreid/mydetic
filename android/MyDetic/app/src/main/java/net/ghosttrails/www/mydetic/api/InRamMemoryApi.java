@@ -1,6 +1,7 @@
 package net.ghosttrails.www.mydetic.api;
 
 import android.os.AsyncTask;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,9 +124,9 @@ public class InRamMemoryApi implements MemoryApi {
    * @param listener callback for results.
    */
   @Override
-  public void getMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener) {
+  public void getMemory(String userId, LocalDate memoryDate, SingleMemoryGetListener listener) {
     AsyncParams params = new AsyncParams();
-    params.singleMemoryListener = listener;
+    params.singleMemoryGetListener = listener;
     params.userId = userId;
     params.memoryDate = memoryDate;
     new GetMemoryTask().execute(params);
@@ -138,9 +139,9 @@ public class InRamMemoryApi implements MemoryApi {
    * @param memory
    */
   @Override
-  public void putMemory(String userId, MemoryData memory, SingleMemoryListener listener) {
+  public void putMemory(String userId, MemoryData memory, SingleMemoryPutListener listener) {
     AsyncParams params = new AsyncParams();
-    params.singleMemoryListener = listener;
+    params.singleMemoryPutListener = listener;
     params.userId = userId;
     params.memory = memory;
     new PutMemoryTask().execute(params);
@@ -151,9 +152,9 @@ public class InRamMemoryApi implements MemoryApi {
    * @param memoryDate
    */
   @Override
-  public void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener) {
+  public void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryPutListener listener) {
     AsyncParams params = new AsyncParams();
-    params.singleMemoryListener = listener;
+    params.singleMemoryPutListener = listener;
     params.userId = userId;
     params.memoryDate = memoryDate;
     new DeleteMemoryTask().execute(params);
@@ -184,18 +185,20 @@ public class InRamMemoryApi implements MemoryApi {
   }
 
   /** Helper class for passing results around in AsyncTask */
-  private class AsyncResult {
+  private static class AsyncResult {
     public MemoryListListener listListener;
-    public SingleMemoryListener singleMemoryListener;
+    public SingleMemoryGetListener singleMemoryGetListener;
+    public SingleMemoryPutListener singleMemoryPutListener;
     public MemoryDataList memoryList;
     public MemoryData memory;
     public MyDeticException exception;
   }
 
   /** Helper class for passing parameters to AsyncTask */
-  private class AsyncParams {
+  private static class AsyncParams {
     public MemoryListListener listListener;
-    public SingleMemoryListener singleMemoryListener;
+    public SingleMemoryGetListener singleMemoryGetListener;
+    public SingleMemoryPutListener singleMemoryPutListener;
     public String userId;
     public LocalDate memoryDate;
     public LocalDate fromDate;
@@ -252,9 +255,9 @@ public class InRamMemoryApi implements MemoryApi {
     @Override
     protected void onPostExecute(AsyncResult asyncResult) {
       if (asyncResult.exception != null) {
-        asyncResult.singleMemoryListener.onApiError(asyncResult.exception);
+        asyncResult.singleMemoryGetListener.onApiGetError(asyncResult.exception);
       } else {
-        asyncResult.singleMemoryListener.onApiResponse(asyncResult.memory);
+        asyncResult.singleMemoryGetListener.onApiGetResponse(asyncResult.memory);
       }
     }
 
@@ -263,7 +266,7 @@ public class InRamMemoryApi implements MemoryApi {
       AsyncParams params = asyncParamses[0];
       AsyncResult result = new AsyncResult();
 
-      result.singleMemoryListener = params.singleMemoryListener;
+      result.singleMemoryGetListener = params.singleMemoryGetListener;
 
       simulatedSleep();
       if (checkSimulatedFail()) {
@@ -284,9 +287,9 @@ public class InRamMemoryApi implements MemoryApi {
     @Override
     protected void onPostExecute(AsyncResult asyncResult) {
       if (asyncResult.exception != null) {
-        asyncResult.singleMemoryListener.onApiError(asyncResult.exception);
+        asyncResult.singleMemoryPutListener.onApiPutError(asyncResult.exception);
       } else {
-        asyncResult.singleMemoryListener.onApiResponse(asyncResult.memory);
+        asyncResult.singleMemoryPutListener.onApiPutResponse(asyncResult.memory);
       }
     }
 
@@ -295,7 +298,7 @@ public class InRamMemoryApi implements MemoryApi {
       AsyncParams params = asyncParamses[0];
       AsyncResult result = new AsyncResult();
 
-      result.singleMemoryListener = params.singleMemoryListener;
+      result.singleMemoryPutListener = params.singleMemoryPutListener;
 
       simulatedSleep();
       if (checkSimulatedFail()) {
@@ -321,9 +324,9 @@ public class InRamMemoryApi implements MemoryApi {
     @Override
     protected void onPostExecute(AsyncResult asyncResult) {
       if (asyncResult.exception != null) {
-        asyncResult.singleMemoryListener.onApiError(asyncResult.exception);
+        asyncResult.singleMemoryGetListener.onApiGetError(asyncResult.exception);
       } else {
-        asyncResult.singleMemoryListener.onApiResponse(asyncResult.memory);
+        asyncResult.singleMemoryGetListener.onApiGetResponse(asyncResult.memory);
       }
     }
 
@@ -332,7 +335,7 @@ public class InRamMemoryApi implements MemoryApi {
       AsyncParams params = asyncParamses[0];
       AsyncResult result = new AsyncResult();
 
-      result.singleMemoryListener = params.singleMemoryListener;
+      result.singleMemoryGetListener = params.singleMemoryGetListener;
 
       simulatedSleep();
       if (checkSimulatedFail()) {

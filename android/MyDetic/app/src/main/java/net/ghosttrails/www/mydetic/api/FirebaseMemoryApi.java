@@ -110,13 +110,13 @@ public class FirebaseMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener) {
+  public void getMemory(String userId, LocalDate memoryDate, SingleMemoryGetListener listener) {
     // TODO
-    listener.onApiError(new MyDeticException("Unimplemented"));
+    listener.onApiGetError(new MyDeticException("Unimplemented"));
   }
 
   @Override
-  public void putMemory(String userId, MemoryData memory, SingleMemoryListener listener) {
+  public void putMemory(String userId, MemoryData memory, SingleMemoryPutListener listener) {
     // TODO
     checkLogin(
         new FirebaseAction() {
@@ -131,22 +131,22 @@ public class FirebaseMemoryApi implements MemoryApi {
                 .collection("memories")
                 .document(Utils.isoFormat(memory.getMemoryDate()))
                 .set(memoryData)
-                .addOnSuccessListener(unused -> listener.onApiResponse(memory))
+                .addOnSuccessListener(unused -> listener.onApiPutResponse(memory))
                 .addOnFailureListener(
-                    e -> listener.onApiError(new MyDeticException("Put Memory Failure", e)));
+                    e -> listener.onApiPutError(new MyDeticException("Put Memory Failure", e)));
           }
 
           @Override
           void onError(String message) {
-            listener.onApiError(new MyDeticException(message));
+            listener.onApiPutError(new MyDeticException(message));
           }
         });
   }
 
   @Override
-  public void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryListener listener) {
+  public void deleteMemory(String userId, LocalDate memoryDate, SingleMemoryPutListener listener) {
     // TODO
-    listener.onApiError(new MyDeticException("Unimplemented"));
+    listener.onApiPutError(new MyDeticException("Unimplemented"));
   }
 
   private void checkLogin(FirebaseAction action) {
