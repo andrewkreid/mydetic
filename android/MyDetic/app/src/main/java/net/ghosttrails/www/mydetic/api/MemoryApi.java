@@ -1,6 +1,9 @@
 package net.ghosttrails.www.mydetic.api;
 
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.time.LocalDate;
 
 /** Interface for classes that implement the MemoryData service to fetch and store memories. */
@@ -22,7 +25,10 @@ public interface MemoryApi {
    * @param listener callback to receive the memory list.
    */
   void getMemories(
-      String userId, LocalDate fromDate, LocalDate toDate, MemoryListListener listener);
+      String userId,
+      @Nullable LocalDate fromDate,
+      @Nullable LocalDate toDate,
+      MemoryListListener listener);
 
   /**
    * @param userId which user's memories to use
@@ -67,5 +73,4 @@ public interface MemoryApi {
 
     void onApiPutError(MyDeticException exception);
   }
-
 }

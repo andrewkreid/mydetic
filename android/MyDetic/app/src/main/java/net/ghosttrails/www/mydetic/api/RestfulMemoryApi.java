@@ -7,10 +7,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import java.time.LocalDate;
 import java.util.Locale;
 import net.ghosttrails.www.mydetic.MyDeticConfig;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
-import java.time.LocalDate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,7 +57,10 @@ public class RestfulMemoryApi implements MemoryApi {
 
   @Override
   public void getMemories(
-      String userId, LocalDate fromDate, LocalDate toDate, final MemoryListListener listener) {
+      String userId,
+      @Nullable LocalDate fromDate,
+      @Nullable LocalDate toDate,
+      final MemoryListListener listener) {
     String url = String.format("%s/memories?user_id=%s", getApiUrl(), userId);
     if (fromDate != null) {
       url = String.format("%s&start_date=%s", url, Utils.isoFormat(fromDate));
@@ -92,7 +96,8 @@ public class RestfulMemoryApi implements MemoryApi {
   }
 
   @Override
-  public void getMemory(String userId, LocalDate memoryDate, final SingleMemoryGetListener listener) {
+  public void getMemory(
+      String userId, LocalDate memoryDate, final SingleMemoryGetListener listener) {
     String url =
         String.format(
             "%s/memories/%s?user_id=%s", getApiUrl(), Utils.isoFormat(memoryDate), userId);

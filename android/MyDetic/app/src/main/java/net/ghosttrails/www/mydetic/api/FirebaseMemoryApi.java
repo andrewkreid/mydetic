@@ -1,5 +1,6 @@
 package net.ghosttrails.www.mydetic.api;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 import com.firebase.ui.auth.FirebaseUiException;
 import com.firebase.ui.auth.IdpResponse;
@@ -37,49 +38,46 @@ public class FirebaseMemoryApi implements MemoryApi {
       docRef
           .get()
           .addOnCompleteListener(
-              new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                  if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                      doAction(user, document);
-                    } else {
-                      if (!createIfRequired) {
-                        onError("Failed to create User Document");
-                        return;
-                      }
-                      Map<String, Object> userData = new HashMap<>();
-                      userData.put("uid", user.getUid());
-                      userData.put("email", user.getEmail());
-                      userData.put("name", user.getDisplayName());
+                  task -> {
+                    if (task.isSuccessful()) {
+                      DocumentSnapshot document = task.getResult();
+                      if (document.exists()) {
+                        doAction(user, document);
+                      } else {
+                        if (!createIfRequired) {
+                          onError("Failed to create User Document");
+                          return;
+                        }
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("uid", user.getUid());
+                        userData.put("email", user.getEmail());
+                        userData.put("name", user.getDisplayName());
 
-                      db.collection("users")
-                          .document(user.getUid())
-                          .set(userData)
-                          .addOnSuccessListener(
-                              new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                  getUserDocument(user, false);
-                                }
-                              })
-                          .addOnFailureListener(
-                              new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                  onError("Error writing User document");
-                                }
-                              });
+                        db.collection("users")
+                            .document(user.getUid())
+                            .set(userData)
+                            .addOnSuccessListener(
+                                new OnSuccessListener<Void>() {
+                                  @Override
+                                  public void onSuccess(Void aVoid) {
+                                    getUserDocument(user, false);
+                                  }
+                                })
+                            .addOnFailureListener(
+                                new OnFailureListener() {
+                                  @Override
+                                  public void onFailure(@NonNull Exception e) {
+                                    onError("Error writing User document");
+                                  }
+                                });
+                      }
+                    } else {
+                      onError(
+                          task.getException() != null
+                              ? task.getException().getMessage()
+                              : "Null error");
                     }
-                  } else {
-                    onError(
-                        task.getException() != null
-                            ? task.getException().getMessage()
-                            : "Null error");
-                  }
-                }
-              });
+                  });
     }
 
     public void onAuthenticationError(IdpResponse response) {
@@ -98,26 +96,78 @@ public class FirebaseMemoryApi implements MemoryApi {
 
   @Override
   public void getMemories(String userId, MemoryListListener listener) {
-    // TODO
-    listener.onApiError(new MyDeticException("Unimplemented"));
+    getMemories(userId, null, null, listener);
   }
 
   @Override
   public void getMemories(
       String userId, LocalDate fromDate, LocalDate toDate, MemoryListListener listener) {
-    // TODO
-    listener.onApiError(new MyDeticException("Unimplemented"));
+    checkLogin(
+        new FirebaseAction() {
+          @Override
+          void doAction(FirebaseUser user, DocumentSnapshot userDocument) {
+            FirebaseMemoryLister lister =
+                new FirebaseMemoryLister(userId, user, userDocument, fromDate, toDate);
+            lister.listMemories(listener);
+          }
+
+          @Override
+          void onError(String message) {
+            listener.onApiError(new MyDeticException(message));
+          }
+        });
   }
 
   @Override
   public void getMemory(String userId, LocalDate memoryDate, SingleMemoryGetListener listener) {
-    // TODO
-    listener.onApiGetError(new MyDeticException("Unimplemented"));
+    checkLogin(
+        new FirebaseAction() {
+          @Override
+          void doAction(FirebaseUser user, DocumentSnapshot userDocument) {
+            DocumentReference docRef =
+                userDocument
+                    .getReference()
+                    .collection("memories")
+                    .document(Utils.isoFormat(memoryDate));
+            docRef
+                .get()
+                .addOnCompleteListener(
+                    new OnCompleteListener<DocumentSnapshot>() {
+                      @Override
+                      public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                          DocumentSnapshot document = task.getResult();
+                          if (document.exists()) {
+                            Log.d("MyDetic", "VVV: DocumentSnapshot data: " + document.getData());
+                            listener.onApiGetResponse(
+                                new MemoryData(
+                                    userId,
+                                    document.getString("memoryText"),
+                                    Utils.parseIsoDate(document.getString("date"))));
+                          } else {
+                            String msg =
+                                "No memory found for " + userId + " " + Utils.isoFormat(memoryDate);
+                            Log.d("MyDetic", "VVV: " + msg);
+                            listener.onApiGetError(new MyDeticException(msg));
+                          }
+                        } else {
+                          Log.d("MyDetic", "VVV: get failed with ", task.getException());
+                          listener.onApiGetError(
+                              new MyDeticException(task.getException().getMessage()));
+                        }
+                      }
+                    });
+          }
+
+          @Override
+          void onError(String message) {
+            listener.onApiGetError(new MyDeticException(message));
+          }
+        });
   }
 
   @Override
   public void putMemory(String userId, MemoryData memory, SingleMemoryPutListener listener) {
-    // TODO
     checkLogin(
         new FirebaseAction() {
           @Override

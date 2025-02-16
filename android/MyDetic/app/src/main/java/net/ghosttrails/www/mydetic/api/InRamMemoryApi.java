@@ -11,6 +11,9 @@ import net.ghosttrails.www.mydetic.exceptions.MyDeticException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticNoMemoryFoundException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticReadFailedException;
 import net.ghosttrails.www.mydetic.exceptions.MyDeticWriteFailedException;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.time.LocalDate;
 
 /**
@@ -109,7 +112,7 @@ public class InRamMemoryApi implements MemoryApi {
    */
   @Override
   public void getMemories(
-      String userId, LocalDate fromDate, LocalDate toDate, MemoryListListener listener) {
+          String userId, @Nullable LocalDate fromDate, @Nullable LocalDate toDate, MemoryListListener listener) {
     AsyncParams params = new AsyncParams();
     params.listListener = listener;
     params.userId = userId;
