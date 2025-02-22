@@ -106,7 +106,6 @@ public class FirebaseMemoryLister {
   }
 
   private MemoryData memoryDataFromDocument(DocumentSnapshot doc) {
-    String userId = user.getUid();
     LocalDate date = Utils.parseIsoDate(doc.getString("date"));
     String memoryText = doc.getString("memoryText");
 
